@@ -1,6 +1,6 @@
 "use client"
 
-import { collection, addDoc, getDocs, query, where, Timestamp } from "firebase/firestore"
+import { collection, addDoc, getDocs, query, where, Timestamp, doc, getDoc } from "firebase/firestore"
 import { auth, db } from "@/lib/firebase"
 
 export interface Project {
@@ -59,5 +59,39 @@ export async function getProjectsForUser(): Promise<Project[]> {
     console.error("Error fetching projects:", error)
     // Return empty array if there's an error (offline, etc.)
     return []
+  }
+}
+
+export async function getProjectById(projectId: string): Promise<Project | null> {
+  const user = auth.currentUser
+  if (!user) return null
+  
+  try {
+    const docRef = doc(db, "projects", projectId)
+    const docSnap = await getDoc(docRef)
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      // Check if the project belongs to the current user
+      if (data.userId === user.uid) {
+        return {
+          id: docSnap.id,
+          name: data.name,
+          createdAt: data.createdAt?.toDate().toISOString() || "",
+          status: data.status,
+          thumbnail: data.thumbnail,
+          aesthetic: data.aesthetic,
+          downloads: data.downloads,
+          generatedImages: data.generatedImages,
+          garmentImage: data.garmentImage,
+          referenceImage: data.referenceImage,
+          prompt: data.prompt,
+        }
+      }
+    }
+    return null
+  } catch (error) {
+    console.error("Error fetching project:", error)
+    return null
   }
 }

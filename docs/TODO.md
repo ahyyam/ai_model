@@ -78,9 +78,11 @@
 - [x] Optimized website performance: lazy loading, intersection observers, image optimization, and caching.
 - [x] Enhanced prompt validation: handles empty strings, whitespace, and short inputs with smart defaults.
 - [x] Comprehensive SEO optimization: metadata, structured data, sitemap, robots.txt, and semantic HTML.
+- [x] Build for production (`pnpm build` or `npm run build`/`yarn build`).
+- [x] Set up Firebase Functions deployment for complete Next.js app with API routes.
+- [x] Fixed build errors: added missing getProjectById function, added critters dependency, fixed Next.js config.
 - [ ] Test core flows: upload images, generate, auth, usage tracking, billing.
 - [ ] Review UI/UX: responsiveness, branding, polish.
-- [ ] Build for production (`pnpm build` or `npm run build`/`yarn build`).
-- [ ] Deploy to hosting (Vercel/Netlify/custom), set up domain (`zarta.com` or `zarta.ai`).
+- [ ] Deploy complete app to Firebase using deploy-firebase.js script.
 - [ ] Final QA: test in production, check analytics/logging.
 - [ ] Launch and monitor feedback.

@@ -1,0 +1,45 @@
+- [x] Install dependencies (`pnpm install` or `npm install`/`yarn install`).
+- [x] Configure environment variables in a `.env` file (OpenAI, Firebase, Stripe, etc.).
+- [x] Set up Firebase (Firestore, Auth, Storage) and add config to `.env`.
+- [x] Set up OpenAI API and add key to `.env`.
+- [x] Set up Stripe (products/plans, secret key in `.env`).
+- [x] Implemented Stripe API routes for checkout and customer portal.
+- [x] Created comprehensive Stripe setup documentation.
+- [x] Fixed Stripe portal session error handling and added proper error messages.
+- [x] Created Stripe connection test endpoint.
+- [x] Updated billing page to show real user data from Firebase and Stripe.
+- [x] Created user management utilities for Firestore integration.
+- [x] Full codebase cleanup - removed all legacy localStorage/sessionStorage authentication logic.
+- [x] Implemented strict Firebase Auth state management across all components.
+- [x] Enforced proper navigation flow: landing page for non-logged-in users only.
+- [x] Removed unused/legacy code and files.
+- [x] Fixed Stripe environment variable error by moving all Stripe operations to server-side API routes.
+- [x] Created new API route for Stripe customer operations to prevent client-side Stripe imports.
+- [x] Added subscription buttons to billing page for users without active subscriptions.
+- [x] Added hover effects and subscription reminders in projects grid for non-subscribed users.
+- [x] Fixed Firebase offline error by adding proper error handling and fallback user data.
+- [x] Added subscription button to empty projects state for non-subscribed users.
+- [x] Fixed checkout session error handling and added configuration validation.
+- [x] Implemented OpenAI DALL-E 3 integration for AI image generation.
+- [x] Created OpenAI configuration and utility functions.
+- [x] Built image generation API endpoint with proper error handling.
+- [x] Updated generate component to use real OpenAI API instead of placeholders.
+- [x] Created comprehensive OpenAI setup documentation.
+- [x] Added OpenAI configuration test endpoint.
+- [x] Configure Stripe price IDs in environment variables (STRIPE_BASIC_PRICE_ID, STRIPE_PRO_PRICE_ID, STRIPE_ELITE_PRICE_ID, STRIPE_MINI_PRICE_ID, STRIPE_STANDARD_PRICE_ID, STRIPE_PLUS_PRICE_ID).
+- [ ] Add OpenAI API key to environment variables (OPENAI_API_KEY).
+- [x] Fixed Stripe checkout session error handling for missing email field.
+- [x] Improved error messages for missing Stripe configuration.
+- [x] Fixed Stripe checkout session mode handling for subscription vs payment products.
+- [x] Added comprehensive error logging and debugging for Stripe API calls.
+- [x] Added validation to detect Product ID vs Price ID confusion in Stripe configuration.
+- [x] Updated Stripe setup documentation to clarify Product ID vs Price ID difference.
+- [x] Fixed hydration mismatch error by adding suppressHydrationWarning to body element.
+- [x] Fixed sidebar skeleton component to use deterministic width instead of Math.random().
+- [x] Run the development server (`pnpm dev` or `npm run dev`/`yarn dev`).
+- [ ] Test core flows: upload images, generate, auth, usage tracking, billing.
+- [ ] Review UI/UX: responsiveness, branding, polish.
+- [ ] Build for production (`pnpm build` or `npm run build`/`yarn build`).
+- [ ] Deploy to hosting (Vercel/Netlify/custom), set up domain (`modelix.ai`).
+- [ ] Final QA: test in production, check analytics/logging.
+- [ ] Launch and monitor feedback.

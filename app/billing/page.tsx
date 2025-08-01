@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { CreditCard, ExternalLink, Loader2, AlertCircle, Star } from "lucide-react"
+import { CreditCard, ExternalLink, Loader2, AlertCircle, Star, Sparkles } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
 import { getUserData, UserData } from "@/lib/users"
@@ -38,6 +38,7 @@ export default function BillingPage() {
   const [stripeCustomer, setStripeCustomer] = useState<StripeCustomer | null>(null)
   const [invoices, setInvoices] = useState<any[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
+  const [hasOnboardingState, setHasOnboardingState] = useState(false)
   
   // Extract subscription from stripeCustomer
   const subscription = stripeCustomer?.subscription
@@ -145,6 +146,12 @@ export default function BillingPage() {
 
   // Fetch user data and Stripe customer information
   useEffect(() => {
+    // Check for onboarding state
+    const onboardingState = localStorage.getItem("onboardingState")
+    if (onboardingState) {
+      setHasOnboardingState(true)
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
       
@@ -221,6 +228,21 @@ export default function BillingPage() {
         <p className="text-gray-400 mt-1">Manage your subscription and view billing history.</p>
       </div>
 
+      {/* Onboarding State Message */}
+      {hasOnboardingState && (
+        <Card className="bg-blue-900/20 border-blue-500/30 text-white">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-blue-400" />
+              Complete Your Generation
+            </CardTitle>
+            <CardDescription>
+              You have a pending image generation. Choose a plan to continue and generate your image.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+
       {/* Subscription Plans for Non-Subscribed Users */}
       {!subscription && (
         <Card className="bg-[#1c1c1c] border-gray-800 text-white">
@@ -241,84 +263,194 @@ export default function BillingPage() {
               </div>
               
               {/* Subscription Plans */}
-              <div className="overflow-x-auto">
-                <Table className="w-full">
-                  <TableHeader>
-                    <TableRow className="border-gray-700 hover:bg-gray-800/50">
-                      <TableHead className="text-white font-semibold">Package</TableHead>
-                      <TableHead className="text-white font-semibold">Price</TableHead>
-                      <TableHead className="text-white font-semibold">Images</TableHead>
-                      <TableHead className="text-white font-semibold">Cost per Image</TableHead>
-                      <TableHead className="text-white font-semibold">Notes</TableHead>
-                      <TableHead className="text-right text-white font-semibold">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow className="border-gray-700 hover:bg-gray-800/50">
-                      <TableCell className="font-medium text-white">Basic</TableCell>
-                      <TableCell className="text-white">$30</TableCell>
-                      <TableCell className="text-white">10</TableCell>
-                      <TableCell className="text-white">$3.00</TableCell>
-                      <TableCell className="text-white">Starter</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          onClick={() => handleSubscribe('basic')} 
-                          disabled={isLoading}
-                          className="bg-blue-600 hover:bg-blue-700"
-                          size="sm"
-                        >
-                          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          Subscribe
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow className="border-gray-700 hover:bg-gray-800/50">
-                      <TableCell className="font-medium text-white">Pro</TableCell>
-                      <TableCell className="text-white">$40</TableCell>
-                      <TableCell className="text-white">20</TableCell>
-                      <TableCell className="text-white">$2.00</TableCell>
-                      <TableCell className="text-white">Better Value</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          onClick={() => handleSubscribe('pro')} 
-                          disabled={isLoading}
-                          className="bg-purple-600 hover:bg-purple-700"
-                          size="sm"
-                        >
-                          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          Subscribe
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow className="border-gray-700 hover:bg-gray-800/50">
-                      <TableCell className="font-medium text-white">
+              <div className="space-y-4">
+                {/* Mobile Cards Layout */}
+                <div className="md:hidden space-y-4">
+                  {/* Basic Plan Card */}
+                  <Card className="bg-gray-800/30 border-gray-700 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Basic</h3>
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Starter</Badge>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Price:</span>
+                          <span className="font-semibold">$30</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Images:</span>
+                          <span className="font-semibold">10</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Cost per Image:</span>
+                          <span className="font-semibold">$3.00</span>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => handleSubscribe('basic')} 
+                        disabled={isLoading}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Subscribe
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Pro Plan Card */}
+                  <Card className="bg-gray-800/30 border-purple-500/50 text-white relative">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-purple-500 text-white px-3 py-1 text-xs font-semibold">
+                        Most Popular
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4 pt-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Pro</h3>
+                        <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Better Value</Badge>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Price:</span>
+                          <span className="font-semibold">$40</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Images:</span>
+                          <span className="font-semibold">20</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Cost per Image:</span>
+                          <span className="font-semibold">$2.00</span>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => handleSubscribe('pro')} 
+                        disabled={isLoading}
+                        className="w-full bg-purple-600 hover:bg-purple-700"
+                      >
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Subscribe
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Elite Plan Card */}
+                  <Card className="bg-gray-800/30 border-pink-500/50 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          Elite
+                          <h3 className="text-lg font-semibold">Elite</h3>
                           <Star className="h-4 w-4 text-yellow-400" />
                         </div>
-                      </TableCell>
-                      <TableCell className="text-white">$75</TableCell>
-                      <TableCell className="text-white">50</TableCell>
-                      <TableCell className="text-white">$1.50</TableCell>
-                      <TableCell className="text-white">
-                        <div className="flex items-center gap-1">
-                          Best Value ⭐
+                        <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30">Best Value ⭐</Badge>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Price:</span>
+                          <span className="font-semibold">$75</span>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          onClick={() => handleSubscribe('elite')} 
-                          disabled={isLoading}
-                          className="bg-pink-600 hover:bg-pink-700"
-                          size="sm"
-                        >
-                          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          Subscribe
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Images:</span>
+                          <span className="font-semibold">50</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Cost per Image:</span>
+                          <span className="font-semibold">$1.50</span>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => handleSubscribe('elite')} 
+                        disabled={isLoading}
+                        className="w-full bg-pink-600 hover:bg-pink-700"
+                      >
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Subscribe
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Desktop Table Layout */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table className="w-full">
+                    <TableHeader>
+                      <TableRow className="border-gray-700 hover:bg-gray-800/50">
+                        <TableHead className="text-white font-semibold">Package</TableHead>
+                        <TableHead className="text-white font-semibold">Price</TableHead>
+                        <TableHead className="text-white font-semibold">Images</TableHead>
+                        <TableHead className="text-white font-semibold">Cost per Image</TableHead>
+                        <TableHead className="text-white font-semibold">Notes</TableHead>
+                        <TableHead className="text-right text-white font-semibold">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow className="border-gray-700 hover:bg-gray-800/50">
+                        <TableCell className="font-medium text-white">Basic</TableCell>
+                        <TableCell className="text-white">$30</TableCell>
+                        <TableCell className="text-white">10</TableCell>
+                        <TableCell className="text-white">$3.00</TableCell>
+                        <TableCell className="text-white">Starter</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            onClick={() => handleSubscribe('basic')} 
+                            disabled={isLoading}
+                            className="bg-blue-600 hover:bg-blue-700"
+                            size="sm"
+                          >
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Subscribe
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="border-gray-700 hover:bg-gray-800/50">
+                        <TableCell className="font-medium text-white">Pro</TableCell>
+                        <TableCell className="text-white">$40</TableCell>
+                        <TableCell className="text-white">20</TableCell>
+                        <TableCell className="text-white">$2.00</TableCell>
+                        <TableCell className="text-white">Better Value</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            onClick={() => handleSubscribe('pro')} 
+                            disabled={isLoading}
+                            className="bg-purple-600 hover:bg-purple-700"
+                            size="sm"
+                          >
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Subscribe
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="border-gray-700 hover:bg-gray-800/50">
+                        <TableCell className="font-medium text-white">
+                          <div className="flex items-center gap-2">
+                            Elite
+                            <Star className="h-4 w-4 text-yellow-400" />
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-white">$75</TableCell>
+                        <TableCell className="text-white">50</TableCell>
+                        <TableCell className="text-white">$1.50</TableCell>
+                        <TableCell className="text-white">
+                          <div className="flex items-center gap-1">
+                            Best Value ⭐
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            onClick={() => handleSubscribe('elite')} 
+                            disabled={isLoading}
+                            className="bg-pink-600 hover:bg-pink-700"
+                            size="sm"
+                          >
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Subscribe
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </div>
           </CardContent>

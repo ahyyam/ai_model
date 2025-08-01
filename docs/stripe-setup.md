@@ -1,6 +1,6 @@
-# Stripe Setup Guide for Modelix.ai
+# Stripe Setup Guide for Zarta
 
-This guide will help you set up Stripe integration for subscription billing in your Modelix.ai project.
+This guide will help you set up Stripe integration for subscription billing in your Zarta project.
 
 ## 1. Stripe Account Setup
 

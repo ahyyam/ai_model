@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, memo } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,10 +40,29 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
+      const scrollY = window.scrollY || window.pageYOffset
+      const shouldBeScrolled = scrollY > 5 // Reduced threshold for earlier trigger
+      console.log('Scroll Y:', scrollY, 'Should be scrolled:', shouldBeScrolled) // Debug log
+      setIsScrolled(shouldBeScrolled)
     }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    
+    // Set initial state
+    handleScroll()
+    
+    // Add event listener with passive option for better performance
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    
+    // Also listen for resize events to handle mobile/desktop differences
+    window.addEventListener("resize", handleScroll, { passive: true })
+    
+    // Force a scroll check after a short delay to ensure it works
+    const timeoutId = setTimeout(handleScroll, 100)
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleScroll)
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   // Close mobile menu when clicking outside
@@ -59,8 +78,26 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isMenuOpen])
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (href: string) => {
     setIsMenuOpen(false)
+    
+    // Handle smooth scrolling for anchor links
+    if (href.startsWith('#')) {
+      const element = document.querySelector(href)
+      if (element) {
+        const headerHeight = 80 // Approximate header height
+        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset - headerHeight
+        window.scrollTo({
+          top: elementPosition,
+          behavior: 'smooth'
+        })
+      }
+    }
+  }
+
+  const handleNavLinkClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    event.preventDefault()
+    handleLinkClick(href)
   }
 
   const handleLogout = async () => {
@@ -73,18 +110,25 @@ export default function Header() {
     <header
       className={cn(
         "sticky top-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-[#111111]/80 backdrop-blur-lg border-b border-gray-800" : "bg-transparent",
+        isScrolled 
+          ? "bg-[#1a1a1a]/90 backdrop-blur-lg border-b border-gray-700 shadow-xl" 
+          : "bg-transparent backdrop-blur-sm",
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20">
-          <Link href="/" className="text-2xl font-bold font-sora">
-            Modelix<span className="text-blue-500">.ai</span>
+          <Link href="/" className="text-2xl font-bold font-sora hover:text-blue-400 transition-colors">
+            Zarta
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">
+              <Link 
+                key={link.href} 
+                href={link.href} 
+                onClick={(e) => handleNavLinkClick(e, link.href)}
+                className="text-gray-300 hover:text-white transition-colors"
+              >
                 {link.label}
               </Link>
             ))}
@@ -163,7 +207,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="mobile-menu md:hidden absolute top-full left-0 right-0 bg-[#111111]/95 backdrop-blur-lg border-b border-gray-800 shadow-xl">
+        <div className="mobile-menu md:hidden absolute top-full left-0 right-0 bg-[#111111]/95 backdrop-blur-md border-b border-gray-800 shadow-xl animate-in slide-in-from-top-2 duration-200">
           <div className="container mx-auto px-4 py-6">
             {/* Navigation Links */}
             <nav className="space-y-4 mb-6">
@@ -171,7 +215,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={handleLinkClick}
+                  onClick={(e) => handleNavLinkClick(e, link.href)}
                   className="block text-gray-300 hover:text-white transition-colors py-2 text-lg"
                 >
                   {link.label}
@@ -198,7 +242,7 @@ export default function Header() {
                   {/* User Menu Items */}
                   <Link
                     href="/settings"
-                    onClick={handleLinkClick}
+                    onClick={() => setIsMenuOpen(false)}
                     className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors"
                   >
                     <Settings className="h-5 w-5" />
@@ -206,7 +250,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/billing"
-                    onClick={handleLinkClick}
+                    onClick={() => setIsMenuOpen(false)}
                     className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors"
                   >
                     <LayoutGrid className="h-5 w-5" />
@@ -214,7 +258,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/support"
-                    onClick={handleLinkClick}
+                    onClick={() => setIsMenuOpen(false)}
                     className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors"
                   >
                     <LifeBuoy className="h-5 w-5" />
@@ -223,7 +267,7 @@ export default function Header() {
                   <button
                     onClick={() => {
                       handleLogout()
-                      handleLinkClick()
+                      setIsMenuOpen(false)
                     }}
                     className="flex items-center space-x-3 py-3 text-red-400 hover:text-red-300 transition-colors w-full"
                   >
@@ -233,12 +277,13 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  <Button asChild variant="ghost" className="w-full justify-start text-gray-300 hover:text-white">
-                    <Link href="/login" onClick={handleLinkClick}>Log In</Link>
-                  </Button>
-                  <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold">
-                    <Link href="/generate" onClick={handleLinkClick}>Get Started</Link>
-                  </Button>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-center w-full py-3 px-4 text-gray-300 hover:text-white transition-colors border border-gray-700 rounded-lg hover:bg-gray-800/50"
+                  >
+                    Log In
+                  </Link>
                 </>
               )}
             </div>

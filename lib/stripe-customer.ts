@@ -27,7 +27,7 @@ export async function createStripeCustomer(email: string, name?: string): Promis
       email,
       name,
       metadata: {
-        source: 'modelix_ai',
+        source: 'zarta',
       },
     })
 

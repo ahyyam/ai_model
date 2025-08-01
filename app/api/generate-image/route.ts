@@ -7,52 +7,54 @@ export async function POST(request: NextRequest) {
   try {
     // Get the request body
     const body = await request.json()
-    const { prompt, garmentImage, referenceImage, aesthetic, size, quality, style } = body
+    const { prompt, model_ref, outfit_ref, aesthetic_ref, mask, size } = body
 
-    // Validate required fields
+    // Validate required fields following the structured flow
     if (!prompt) {
       return NextResponse.json(
         { error: 'Prompt is required' },
         { status: 400 }
       )
     }
-
-    // Check if user is authenticated (optional for now, can be made required later)
-    // const authHeader = request.headers.get('authorization')
-    // if (!authHeader) {
-    //   return NextResponse.json(
-    //     { error: 'Authentication required' },
-    //     { status: 401 }
-    //   )
-    // }
-
-    // Check user subscription status (optional for now)
-    // const userData = await getUserData(userId)
-    // if (userData?.subscriptionStatus === 'free') {
-    //   // Check usage limits for free users
-    //   // This would be implemented based on your usage tracking system
-    // }
-
-    // Prepare the image generation request
-    const imageRequest: ImageGenerationRequest = {
-      prompt,
-      garmentImage,
-      referenceImage,
-      aesthetic,
-      size: size || '1024x1024',
-      quality: quality || 'standard',
-      style: style || 'vivid',
+    if (!model_ref) {
+      return NextResponse.json(
+        { error: 'model_ref is required - base image for editing' },
+        { status: 400 }
+      )
+    }
+    if (!outfit_ref) {
+      return NextResponse.json(
+        { error: 'outfit_ref is required - outfit reference image' },
+        { status: 400 }
+      )
+    }
+    if (!aesthetic_ref) {
+      return NextResponse.json(
+        { error: 'aesthetic_ref is required - aesthetic reference image' },
+        { status: 400 }
+      )
     }
 
-    console.log('Generating image with request:', {
+    // Prepare the image generation request following the structured flow
+    const imageRequest: ImageGenerationRequest = {
       prompt,
-      aesthetic,
+      model_ref,
+      outfit_ref,
+      aesthetic_ref,
+      mask,
+      size: size || '1024x1024',
+    }
+
+    console.log('Generating image with structured request:', {
+      hasPrompt: !!prompt,
+      hasModelRef: !!model_ref,
+      hasOutfitRef: !!outfit_ref,
+      hasAestheticRef: !!aesthetic_ref,
+      hasMask: !!mask,
       size: imageRequest.size,
-      quality: imageRequest.quality,
-      style: imageRequest.style,
     })
 
-    // Generate the image
+    // Generate the image using the structured flow
     const result = await generateImage(imageRequest)
 
     if (result.success && result.images && result.images.length > 0) {
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false,
-        error: 'Internal server error'
+        error: error instanceof Error ? error.message : 'Internal server error'
       },
       { status: 500 }
     )

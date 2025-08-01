@@ -1,19 +1,22 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense, lazy } from "react"
 import { useRouter } from "next/navigation"
 import { auth } from "@/lib/firebase"
 import Header from "@/components/header"
 import HeroSection from "@/components/hero-section"
 import HowItWorks from "@/components/how-it-works"
 import FeatureSection from "@/components/feature-section"
-import BeforeAfterSlider from "@/components/before-after-slider"
-import PricingSection from "@/components/pricing-section"
-import FaqSection from "@/components/faq-section"
-import Footer from "@/components/footer"
 import { CheckCircle, Zap, Infinity } from "lucide-react"
-import TrustedBrands from "@/components/trusted-brands"
-import TestimonialsSection from "@/components/testimonials-section"
+import StructuredData, { OrganizationData, WebsiteData, ProductData } from "@/components/seo/structured-data"
+
+// Lazy load components that are below the fold
+const BeforeAfterSlider = lazy(() => import("@/components/before-after-slider"))
+const PricingSection = lazy(() => import("@/components/pricing-section"))
+const FaqSection = lazy(() => import("@/components/faq-section"))
+const Footer = lazy(() => import("@/components/footer"))
+const TrustedBrands = lazy(() => import("@/components/trusted-brands"))
+const TestimonialsSection = lazy(() => import("@/components/testimonials-section"))
 
 export default function LandingPage() {
   const router = useRouter()
@@ -27,11 +30,18 @@ export default function LandingPage() {
 
   return (
     <div className="bg-[#111111] text-white">
+      {/* SEO Structured Data */}
+      <StructuredData type="organization" data={OrganizationData} />
+      <StructuredData type="website" data={WebsiteData} />
+      <StructuredData type="product" data={ProductData} />
+      
       <Header />
       <main className="container mx-auto px-4 md:px-6">
         <HeroSection />
         <HowItWorks />
-        <TrustedBrands />
+        <Suspense fallback={<div className="h-32 bg-gray-800 animate-pulse rounded-lg" />}>
+          <TrustedBrands />
+        </Suspense>
         <section id="features" className="py-20 md:py-32 space-y-24">
           <FeatureSection
             title="Infinite Styles, Zero Photoshoots"
@@ -42,7 +52,7 @@ export default function LandingPage() {
           />
           <FeatureSection
             title="Boost Engagement & Conversions"
-            description="Capture your audience's attention with stunning, unique visuals that stand out. Brands using Modelix.ai see an average 40% increase in click-through rates."
+            description="Capture your audience's attention with stunning, unique visuals that stand out. Brands using Zarta see an average 40% increase in click-through rates."
             imageUrl="/placeholder.svg?height=500&width=500"
             Icon={Zap}
             benefit="Increase Sales"
@@ -56,12 +66,22 @@ export default function LandingPage() {
             benefit="Strengthen Brand Identity"
           />
         </section>
-        <BeforeAfterSlider />
-        <TestimonialsSection />
-        <PricingSection />
-        <FaqSection />
+        <Suspense fallback={<div className="h-[500px] bg-gray-800 animate-pulse rounded-lg" />}>
+          <BeforeAfterSlider />
+        </Suspense>
+        <Suspense fallback={<div className="h-96 bg-gray-800 animate-pulse rounded-lg" />}>
+          <TestimonialsSection />
+        </Suspense>
+        <Suspense fallback={<div className="h-96 bg-gray-800 animate-pulse rounded-lg" />}>
+          <PricingSection />
+        </Suspense>
+        <Suspense fallback={<div className="h-96 bg-gray-800 animate-pulse rounded-lg" />}>
+          <FaqSection />
+        </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={<div className="h-64 bg-gray-800 animate-pulse" />}>
+        <Footer />
+      </Suspense>
     </div>
   )
 }

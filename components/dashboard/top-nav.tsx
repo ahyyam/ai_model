@@ -42,7 +42,7 @@ export function TopNav() {
         <div className="flex items-center justify-between h-16">
           {/* Left: Logo */}
           <Link href="/projects" className="text-2xl font-bold font-sora">
-            Modelix<span className="text-blue-500">.ai</span>
+            Zarta
           </Link>
 
           {/* Center: Simple Navigation Links - only show when logged in */}

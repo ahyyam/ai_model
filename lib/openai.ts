@@ -16,15 +16,14 @@ if (typeof window === 'undefined') {
 
 export { openai }
 
-// Interface for image generation request
+// Interface for image generation request following the structured flow
 export interface ImageGenerationRequest {
   prompt: string
-  garmentImage?: string // base64 encoded image
-  referenceImage?: string // base64 encoded image
-  aesthetic?: string
-  size?: '1024x1024' | '1792x1024' | '1024x1792'
-  quality?: 'standard' | 'hd'
-  style?: 'vivid' | 'natural'
+  model_ref: string // base64 encoded model image (base image for editing)
+  outfit_ref: string // base64 encoded outfit reference image
+  aesthetic_ref: string // base64 encoded aesthetic reference image
+  mask?: string // base64 encoded mask for clothing area (optional)
+  size?: '1024x1024' | '256x256' | '512x512' | '1536x1024' | '1024x1536' | 'auto'
 }
 
 // Interface for image generation response
@@ -34,46 +33,82 @@ export interface ImageGenerationResponse {
   error?: string
 }
 
-// Generate image using DALL-E 3
+// Generate image using DALL-E 3 following the structured flow
 export async function generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
   if (!openai) {
     throw new Error('OpenAI is not initialized')
   }
 
   try {
-    // Build the prompt with context
-    let fullPrompt = request.prompt
-
-    // Add aesthetic context if provided
-    if (request.aesthetic) {
-      fullPrompt = `${request.aesthetic} style: ${fullPrompt}`
+    // Step 1: Validate all required inputs
+    if (!request.model_ref) {
+      throw new Error('model_ref is required - base image for editing')
+    }
+    if (!request.outfit_ref) {
+      throw new Error('outfit_ref is required - outfit reference image')
+    }
+    if (!request.aesthetic_ref) {
+      throw new Error('aesthetic_ref is required - aesthetic reference image')
+    }
+    if (!request.prompt) {
+      throw new Error('prompt is required')
     }
 
-    // Add garment and reference image context
-    if (request.garmentImage || request.referenceImage) {
-      fullPrompt = `Create a high-quality product photo. ${fullPrompt}`
-      
-      if (request.garmentImage) {
-        fullPrompt += ` The garment should be clearly visible and well-lit.`
-      }
-      
-      if (request.referenceImage) {
-        fullPrompt += ` Match the style, lighting, and composition of the reference image.`
-      }
+    console.log('Validated all required inputs:', {
+      hasModelRef: !!request.model_ref,
+      hasOutfitRef: !!request.outfit_ref,
+      hasAestheticRef: !!request.aesthetic_ref,
+      hasPrompt: !!request.prompt,
+      hasMask: !!request.mask
+    })
+
+    // Step 2: Build the enhanced prompt following the structure
+    let enhancedPrompt = request.prompt
+
+    // Step 3: Ensure prompt describes the outfit from outfit_ref
+    if (!enhancedPrompt.toLowerCase().includes('outfit') && 
+        !enhancedPrompt.toLowerCase().includes('clothing') && 
+        !enhancedPrompt.toLowerCase().includes('garment') &&
+        !enhancedPrompt.toLowerCase().includes('dress') &&
+        !enhancedPrompt.toLowerCase().includes('shirt') &&
+        !enhancedPrompt.toLowerCase().includes('pants')) {
+      enhancedPrompt += " The model is wearing the outfit shown in the second reference image."
     }
 
-    // Add professional photography context
-    fullPrompt += ` Professional product photography, high resolution, commercial quality, suitable for e-commerce and marketing.`
+    // Step 4: Ensure prompt reflects visual tone, lighting, and composition from aesthetic_ref
+    if (!enhancedPrompt.toLowerCase().includes('lighting') && 
+        !enhancedPrompt.toLowerCase().includes('style') && 
+        !enhancedPrompt.toLowerCase().includes('tone') &&
+        !enhancedPrompt.toLowerCase().includes('composition')) {
+      enhancedPrompt += " The image should match the lighting and photo style of the third reference image."
+    }
 
-    console.log('Generating image with prompt:', fullPrompt)
+    // Step 5: Specify that only clothing area should be altered, face and pose must remain same
+    enhancedPrompt += " Only the clothing area should be changed - the face, pose, and body position must remain exactly the same as in the base image."
 
-    const response = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: fullPrompt,
+    // Step 6: Add professional context
+    enhancedPrompt += " Professional product photography, high resolution, commercial quality, suitable for e-commerce and marketing."
+
+    console.log('Enhanced prompt:', enhancedPrompt)
+
+    // Step 7: Use the proper OpenAI endpoint for image editing/inpainting
+    // Convert base64 images to buffers
+    const modelImageBuffer = base64ToBuffer(request.model_ref)
+    const outfitImageBuffer = base64ToBuffer(request.outfit_ref)
+    const aestheticImageBuffer = base64ToBuffer(request.aesthetic_ref)
+    
+    let maskBuffer: Buffer | undefined
+    if (request.mask) {
+      maskBuffer = base64ToBuffer(request.mask)
+    }
+
+    // Use image editing endpoint with model_ref as base image
+    const response = await openai.images.edit({
+      image: modelImageBuffer as any,
+      mask: maskBuffer as any, // Apply mask if available
+      prompt: enhancedPrompt,
       n: 1,
       size: request.size || "1024x1024",
-      quality: request.quality || "standard",
-      style: request.style || "vivid",
       response_format: "url",
     })
 

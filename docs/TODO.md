@@ -36,10 +36,51 @@
 - [x] Updated Stripe setup documentation to clarify Product ID vs Price ID difference.
 - [x] Fixed hydration mismatch error by adding suppressHydrationWarning to body element.
 - [x] Fixed sidebar skeleton component to use deterministic width instead of Math.random().
+- [x] Improved onboarding flow responsiveness for mobile and all devices.
+- [x] Enhanced progress indicator with mobile-friendly design and progress bar.
+- [x] Optimized navigation buttons for mobile (stacked) and desktop (side-by-side).
+- [x] Updated grid layouts to work better on tablets and mobile devices.
+- [x] Improved aesthetic selection cards for better mobile experience.
+- [x] Enhanced file uploader with touch-friendly interactions and responsive sizing.
+- [x] Added proper spacing and padding for mobile devices throughout onboarding.
+- [x] Changed website name from Modelix to Zarta throughout the codebase.
+- [x] Implemented horizontal sliding testimonials carousel with dot navigation indicators.
+- [x] Implemented horizontal sliding pricing carousel with dot navigation indicators.
+- [x] Modified testimonials and pricing carousels to show all cards visible at once.
+- [x] Fixed "Most Popular" badge positioning to ensure it's fully visible and not cut off.
+- [x] Implemented fixed bottom navigation for onboarding flow with always-visible next/back buttons.
+- [x] Changed aesthetic selection to responsive grid layout that adjusts based on screen size.
+- [x] Removed back button from step 1 (aesthetic selection) since it's the first step.
+- [x] Removed step counter text from the fixed bottom navigation bar.
+- [x] Removed "Generate AI Photoshoot" button from final step, keeping only the bottom navigation button.
+- [x] Removed "Get Started" button from mobile burger menu navigation.
+- [x] Improved "Log In" button alignment and styling in mobile burger menu.
+- [x] Fixed TypeScript syntax errors in login page by recreating the file.
+- [x] Hidden dot navigation on testimonials and pricing carousels for desktop (lg screens) where all cards are visible.
+- [x] Made pricing cards uniform in height with fixed minimum height and proper flex layout.
+- [x] Fixed "Most Popular" badge positioning and visibility on pricing cards.
+- [x] Improved "Most Popular" badge spacing with more top padding and better positioning.
+- [x] Adjusted "Most Popular" badge to position at card outline while maintaining full visibility.
+- [x] Reduced pricing card size by removing empty space and making all cards uniform based on Pro card content.
+- [x] Modified pricing cards to create account first then navigate to Stripe billing instead of direct billing access.
+- [x] Removed account deletion option from settings page for security.
+- [x] Added styled feedback messages for password changes that match the website's design theme.
+- [x] Added floating plus icon in bottom right corner for mobile devices on projects page that navigates to new project creation.
+- [x] Optimized "Choose Your Plan" section in billing page for mobile with responsive card layout.
+- [x] Added current password requirement back to the change password section for enhanced security.
 - [x] Run the development server (`pnpm dev` or `npm run dev`/`yarn dev`).
+- [x] Fixed TypeScript module resolution errors by reinstalling dependencies.
+- [x] Fixed header component with improved navigation, smooth scrolling, and mobile menu.
+- [x] Fixed slider/carousel functionality for testimonials, pricing, and before-after sections.
+- [x] Implemented structured OpenAI image generation flow with model_ref, outfit_ref, and aesthetic_ref.
+- [x] Fixed all landing page sliders: before-after toggle, testimonials carousel, and pricing carousel.
+- [x] Implemented complete user flow: onboarding state storage, credit checking, image generation, and Firebase storage.
+- [x] Optimized website performance: lazy loading, intersection observers, image optimization, and caching.
+- [x] Enhanced prompt validation: handles empty strings, whitespace, and short inputs with smart defaults.
+- [x] Comprehensive SEO optimization: metadata, structured data, sitemap, robots.txt, and semantic HTML.
 - [ ] Test core flows: upload images, generate, auth, usage tracking, billing.
 - [ ] Review UI/UX: responsiveness, branding, polish.
 - [ ] Build for production (`pnpm build` or `npm run build`/`yarn build`).
-- [ ] Deploy to hosting (Vercel/Netlify/custom), set up domain (`modelix.ai`).
+- [ ] Deploy to hosting (Vercel/Netlify/custom), set up domain (`zarta.com` or `zarta.ai`).
 - [ ] Final QA: test in production, check analytics/logging.
 - [ ] Launch and monitor feedback.

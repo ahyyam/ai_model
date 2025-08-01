@@ -1,6 +1,6 @@
-# OpenAI Setup Guide for Modelix.ai
+# OpenAI Setup Guide for Zarta
 
-This guide will help you set up OpenAI integration for AI-powered image generation in your Modelix.ai project.
+This guide will help you set up OpenAI integration for AI-powered image generation in your Zarta project.
 
 ## 1. OpenAI Account Setup
 

@@ -1,6 +1,6 @@
-# Project: Modelix.ai
+# Project: Zarta
 
-Modelix.ai is an AI-powered SaaS tool for fashion brands and e-commerce sellers to generate styled, high-quality product photos. Users upload a product image (e.g. flat lay, mockup) and a reference image (e.g. model pose, background, or aesthetic), and receive a branded photoshoot-style image matching the reference — instantly.
+Zarta is an AI-powered SaaS tool for fashion brands and e-commerce sellers to generate styled, high-quality product photos. Users upload a product image (e.g. flat lay, mockup) and a reference image (e.g. model pose, background, or aesthetic), and receive a branded photoshoot-style image matching the reference — instantly.
 
 ## Core Features
 
@@ -31,8 +31,7 @@ Modelix.ai is an AI-powered SaaS tool for fashion brands and e-commerce sellers 
 
 ## Domain & Naming
 
-- Using: `modelix.ai`
-- `.com` is parked and overpriced ($400K) — not pursuing it
+- Using: `zarta.com` or `zarta.ai`
 - Will upgrade to `.io` or other premium TLDs later if needed
 
 ## Notes

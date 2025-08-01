@@ -249,7 +249,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#111111] text-white">
       <div className="w-full max-w-md p-8 bg-[#1c1c1c] rounded-2xl border border-gray-800 shadow-lg">
-        <h1 className="font-sora text-3xl font-bold mb-6 text-center">Sign in to Modelix.ai</h1>
+        <h1 className="font-sora text-3xl font-bold mb-6 text-center">Sign in to Zarta</h1>
         <form onSubmit={handleEmailLogin} className="space-y-4 mb-2">
           <Input
             type="email"
@@ -280,7 +280,7 @@ export default function LoginPage() {
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
-          <div className="flex justify-end mb-2">
+          <div className="flex justify-center mb-2">
             <button
               type="button"
               className="text-blue-400 hover:underline text-sm"

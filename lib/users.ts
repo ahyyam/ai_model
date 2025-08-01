@@ -9,6 +9,7 @@ export interface UserData {
   photoURL?: string
   stripeCustomerId?: string
   subscriptionStatus?: 'free' | 'pro' | 'enterprise'
+  credits?: number
   createdAt: string
   updatedAt: string
 }
@@ -74,6 +75,35 @@ export async function updateSubscriptionStatus(uid: string, status: 'free' | 'pr
     await updateUserData(uid, { subscriptionStatus: status })
   } catch (error) {
     console.error("Error updating subscription status:", error)
+    throw error
+  }
+}
+
+export async function updateUserCredits(uid: string, credits: number): Promise<void> {
+  try {
+    await updateUserData(uid, { credits })
+  } catch (error) {
+    console.error("Error updating user credits:", error)
+    throw error
+  }
+}
+
+export async function deductUserCredit(uid: string): Promise<boolean> {
+  try {
+    const userData = await getUserData(uid)
+    if (!userData) {
+      throw new Error("User data not found")
+    }
+
+    const currentCredits = userData.credits || 0
+    if (currentCredits <= 0) {
+      return false // No credits available
+    }
+
+    await updateUserCredits(uid, currentCredits - 1)
+    return true // Credit deducted successfully
+  } catch (error) {
+    console.error("Error deducting user credit:", error)
     throw error
   }
 } 

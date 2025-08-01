@@ -55,19 +55,19 @@ export default function FileUploader({ file, setFile, title }: FileUploaderProps
   return (
     <div
       {...getRootProps()}
-      className={`w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 ${
+      className={`w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 touch-manipulation ${
         isDragActive
           ? "bg-blue-500/10 border-blue-500"
-          : "bg-gray-900/30 border-gray-600 hover:bg-gray-800/50 hover:border-gray-500"
+          : "bg-gray-900/30 border-gray-600 hover:bg-gray-800/50 hover:border-gray-500 active:bg-gray-800/70"
       }`}
     >
       <input {...getInputProps()} />
-      <div className="p-8">
-        <UploadCloud className="h-14 w-14 text-gray-400 mb-4 mx-auto" />
-        <h3 className="font-sora text-lg font-semibold text-white mb-2">{title || "Upload Image"}</h3>
-        <p className="text-gray-300 font-medium mb-1">Click to upload or drag and drop</p>
-        <p className="text-sm text-gray-400 mb-4">PNG, JPG, or WEBP</p>
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-3 py-1.5 inline-block">
+      <div className="p-4 sm:p-6 md:p-8">
+        <UploadCloud className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 text-gray-400 mb-3 sm:mb-4 mx-auto" />
+        <h3 className="font-sora text-base sm:text-lg font-semibold text-white mb-2">{title || "Upload Image"}</h3>
+        <p className="text-gray-300 font-medium mb-1 text-sm sm:text-base">Tap to upload or drag and drop</p>
+        <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">PNG, JPG, or WEBP</p>
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 inline-block">
           <p className="text-xs text-blue-300 font-medium">Ensure high quality for best results</p>
         </div>
       </div>

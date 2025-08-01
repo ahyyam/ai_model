@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -12,6 +12,7 @@ import type { FormData } from "./onboarding-flow"
 import { Textarea } from "@/components/ui/textarea"
 import { addProject } from "@/lib/projects"
 import { auth } from "@/lib/firebase"
+import { getUserData, deductUserCredit } from "@/lib/users"
 
 // Helper to convert File to Data URL
 const fileToDataUrl = (file: File): Promise<string> => {
@@ -31,55 +32,173 @@ interface StepGenerateProps {
   totalSteps: number
   stepTitle: string
   showProgress: boolean
+  isGenerating?: boolean
+  setIsGenerating?: (generating: boolean) => void
+  generatedImage?: string | null
+  setGeneratedImage?: (image: string | null) => void
 }
 
 export default function StepGenerate({
   formData,
   updateFormData,
-  onBack,
   currentStep,
   totalSteps,
   stepTitle,
   showProgress,
+  isGenerating = false,
+  setIsGenerating = () => {},
+  generatedImage = null,
+  setGeneratedImage = () => {},
 }: StepGenerateProps) {
   const [prompt, setPrompt] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
 
+  // Helper function to clean and validate prompt
+  const getValidPrompt = (userPrompt: string): string => {
+    const trimmedPrompt = userPrompt.trim()
+    
+    // If prompt is empty or only whitespace, use default
+    if (!trimmedPrompt) {
+      return "Professional product photo with outfit styling"
+    }
+    
+    // If prompt is too short (less than 3 characters), use default
+    if (trimmedPrompt.length < 3) {
+      return "Professional product photo with outfit styling"
+    }
+    
+    // Return the cleaned prompt
+    return trimmedPrompt
+  }
+
+  // Handle generation when triggered from parent
+  useEffect(() => {
+    if (isGenerating && !generatedImage) {
+      handleGenerate()
+    }
+  }, [isGenerating])
+
+  const deductCreditAndSaveProject = async (generatedImageUrl: string) => {
+    if (!auth.currentUser) return
+
+    try {
+      // Deduct one credit from user
+      const creditDeducted = await deductUserCredit(auth.currentUser.uid)
+      if (!creditDeducted) {
+        setError("Failed to deduct credit. Please try again.")
+        return
+      }
+
+      // Save project to Firebase
+      const result = await addProject({
+        name: getValidPrompt(prompt) || `${formData.aesthetic} Photoshoot`,
+        status: "completed",
+        aesthetic: formData.aesthetic || "N/A",
+        prompt: getValidPrompt(prompt),
+        garmentImage: await fileToDataUrl(formData.garmentImage!),
+        referenceImage: await fileToDataUrl(formData.referenceImage!),
+        thumbnail: await fileToDataUrl(formData.garmentImage!),
+        downloads: 0,
+        generatedImages: [generatedImageUrl],
+      })
+
+      if (!result) {
+        setError("Failed to save project. Please try again.")
+        return
+      }
+
+      console.log("Project saved successfully and credit deducted")
+    } catch (error) {
+      console.error("Error saving project:", error)
+      setError("Failed to save project. Please try again.")
+    }
+  }
+
   const handleGenerate = async () => {
-    setIsGenerating(true)
     setGeneratedImage(null)
     setError("")
     
     try {
-      // Convert images to base64 if they exist
-      const garmentImageBase64 = formData.garmentImage ? await fileToDataUrl(formData.garmentImage) : undefined
-      const referenceImageBase64 = formData.referenceImage ? await fileToDataUrl(formData.referenceImage) : undefined
+      // Validate required inputs following the structured flow
+      if (!formData.garmentImage) {
+        setError("Model reference image is required")
+        return
+      }
+      if (!formData.referenceImage) {
+        setError("Outfit reference image is required")
+        return
+      }
+      if (!formData.aesthetic_ref) {
+        setError("Aesthetic reference image is required")
+        return
+      }
 
-      // Call the OpenAI API
+      // Check if user is logged in
+      if (!auth.currentUser) {
+        // Store onboarding data for non-signed users
+        const onboardingData = {
+          formData,
+          prompt: getValidPrompt(prompt),
+          timestamp: new Date().toISOString(),
+        }
+        localStorage.setItem("onboardingState", JSON.stringify(onboardingData))
+        
+        // Redirect to login page
+        router.push("/login")
+        return
+      }
+
+      // User is logged in - check their credit balance
+      const userData = await getUserData(auth.currentUser.uid)
+      if (!userData) {
+        setError("Unable to load user data. Please try again.")
+        return
+      }
+
+      // Check if user has available credits
+      const availableCredits = userData.credits || 0
+      if (availableCredits <= 0) {
+        // No credits - redirect to billing for upsell
+        router.push("/billing")
+        return
+      }
+
+      // User has credits - proceed with generation
+      console.log(`User has ${availableCredits} credits, proceeding with generation`)
+
+      // Convert images to base64 following the structured flow
+      const model_ref = await fileToDataUrl(formData.garmentImage!) // Base image for editing
+      const outfit_ref = await fileToDataUrl(formData.referenceImage!) // Outfit reference
+      const aesthetic_ref = await fileToDataUrl(formData.aesthetic_ref!) // Aesthetic reference image
+
+      // Get validated prompt (handles empty strings, whitespace, etc.)
+      const validatedPrompt = getValidPrompt(prompt)
+
+      // Call the OpenAI API with structured flow
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: prompt || `Professional product photo in ${formData.aesthetic || 'modern'} style`,
-          garmentImage: garmentImageBase64,
-          referenceImage: referenceImageBase64,
-          aesthetic: formData.aesthetic,
+          prompt: validatedPrompt,
+          model_ref, // Base image for editing
+          outfit_ref, // Outfit reference image
+          aesthetic_ref, // Aesthetic reference image
           size: '1024x1024',
-          quality: 'standard',
-          style: 'vivid',
         }),
       })
 
       const data = await response.json()
 
       if (data.success && data.images && data.images.length > 0) {
-        setGeneratedImage(data.images[0])
+        const generatedImageUrl = data.images[0]
+        setGeneratedImage(generatedImageUrl)
+
+        // Deduct credit and save project to Firebase
+        await deductCreditAndSaveProject(generatedImageUrl)
       } else {
         setError(data.error || 'Failed to generate image')
       }
@@ -147,26 +266,17 @@ export default function StepGenerate({
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto px-4">
       {/* Progress and Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex-1">
+      <div className="mb-6">
+        <div className="mb-4">
           {showProgress && (
             <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} stepTitle={stepTitle} />
           )}
         </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={onBack}
-            className="border-gray-700 text-gray-300 bg-transparent hover:bg-gray-800 px-6 py-2"
-          >
-            Back
-          </Button>
-        </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
         {/* Left Column: Placeholder/Loading/Result */}
         <div className="w-full aspect-square rounded-xl border-2 border-dashed border-gray-600 flex items-center justify-center bg-gray-900/30 p-2">
           {isGenerating ? (
@@ -187,7 +297,7 @@ export default function StepGenerate({
             <div className="text-center p-8">
               <ImageIcon className="h-14 w-14 text-gray-400 mb-4 mx-auto" />
               <h3 className="font-sora text-lg font-semibold text-white mb-2">Your result will appear here</h3>
-              <p className="text-gray-400">Customize your prompt and click "Generate".</p>
+              <p className="text-gray-400">Customize your prompt and use the Generate button below.</p>
             </div>
           )}
         </div>
@@ -258,17 +368,8 @@ export default function StepGenerate({
               />
             </div>
 
-            {/* Conditional Button */}
-            {!generatedImage ? (
-              <Button
-                onClick={handleGenerate}
-                disabled={isGenerating || !formData.garmentImage}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate AI Photoshoot
-              </Button>
-            ) : (
+            {/* Save Button (only shown after generation) */}
+            {generatedImage && (
               <Button
                 onClick={handleSaveAndFinish}
                 disabled={saving}

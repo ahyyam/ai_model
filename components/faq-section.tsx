@@ -1,4 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import StructuredData, { FAQData } from "@/components/seo/structured-data"
 
 const faqs = [
   {
@@ -30,7 +31,8 @@ const faqs = [
 
 export default function FaqSection() {
   return (
-    <section id="faq" className="py-20 md:py-32">
+    <section id="faq" className="py-20 md:py-32" itemScope itemType="https://schema.org/FAQPage">
+      <StructuredData type="faq" data={FAQData} />
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="font-sora text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
         <p className="text-gray-400 text-lg mb-12">Have questions? We've got answers.</p>
@@ -38,9 +40,28 @@ export default function FaqSection() {
       <div className="max-w-3xl mx-auto">
         <Accordion type="single" collapsible className="w-full">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-gray-800">
-              <AccordionTrigger className="text-left text-lg hover:no-underline">{faq.question}</AccordionTrigger>
-              <AccordionContent className="text-gray-400 text-base">{faq.answer}</AccordionContent>
+            <AccordionItem 
+              key={index} 
+              value={`item-${index}`} 
+              className="border-gray-800"
+              itemScope 
+              itemProp="mainEntity" 
+              itemType="https://schema.org/Question"
+            >
+              <AccordionTrigger 
+                className="text-left text-lg hover:no-underline"
+                itemProp="name"
+              >
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent 
+                className="text-gray-400 text-base"
+                itemScope 
+                itemProp="acceptedAnswer" 
+                itemType="https://schema.org/Answer"
+              >
+                <div itemProp="text">{faq.answer}</div>
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

@@ -13,6 +13,7 @@ import Image from "next/image"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged } from "firebase/auth"
 import { addProject } from "@/lib/projects"
+import { getUserData, deductUserCredit } from "@/lib/users"
 
 const trustedBrands = [
   { name: "BrandA", logo: "/placeholder.svg?height=40&width=100&text=BrandA" },
@@ -29,6 +30,25 @@ export default function ResultsPage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [error, setError] = useState("")
+
+  // Helper function to clean and validate prompt
+  const getValidPrompt = (userPrompt: string): string => {
+    const trimmedPrompt = userPrompt.trim()
+    
+    // If prompt is empty or only whitespace, use default
+    if (!trimmedPrompt) {
+      return "Professional product photo with outfit styling"
+    }
+    
+    // If prompt is too short (less than 3 characters), use default
+    if (trimmedPrompt.length < 3) {
+      return "Professional product photo with outfit styling"
+    }
+    
+    // Return the cleaned prompt
+    return trimmedPrompt
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -53,12 +73,122 @@ export default function ResultsPage() {
     // Optionally, fetch last project for logged-in users if needed
   }, [])
 
+  const deductCreditAndSaveProject = async (generatedImageUrl: string) => {
+    if (!user) return
+
+    try {
+      // Deduct one credit from user
+      const creditDeducted = await deductUserCredit(user.uid)
+      if (!creditDeducted) {
+        setError("Failed to deduct credit. Please try again.")
+        return
+      }
+
+      // Get onboarding data for project details
+      const onboardingState = localStorage.getItem("onboardingState")
+      if (!onboardingState) {
+        setError("No onboarding data found. Please try again.")
+        return
+      }
+
+      const onboardingData = JSON.parse(onboardingState)
+
+      // Save project to Firebase
+      const result = await addProject({
+        name: getValidPrompt(prompt) || `${onboardingData.formData.aesthetic} Photoshoot`,
+        status: "completed",
+        aesthetic: onboardingData.formData.aesthetic || "N/A",
+        prompt: getValidPrompt(prompt),
+        garmentImage: onboardingData.formData.garmentImage,
+        referenceImage: onboardingData.formData.referenceImage,
+        thumbnail: onboardingData.formData.garmentImage,
+        downloads: 0,
+        generatedImages: [generatedImageUrl],
+      })
+
+      if (!result) {
+        setError("Failed to save project. Please try again.")
+        return
+      }
+
+      console.log("Project saved successfully and credit deducted")
+      
+      // Clear onboarding state after successful save
+      localStorage.removeItem("onboardingState")
+    } catch (error) {
+      console.error("Error saving project:", error)
+      setError("Failed to save project. Please try again.")
+    }
+  }
+
   const handleEditPrompt = async () => {
+    if (!user) return
+    
     setIsLoading(true)
-    // Simulate re-generation (replace with real API call if needed)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setGeneratedImage("/placeholder.svg?height=800&width=800&prompt=" + encodeURIComponent(prompt))
-    setIsLoading(false)
+    setError("")
+    
+    try {
+      // Check user's credit balance
+      const userData = await getUserData(user.uid)
+      if (!userData) {
+        setError("Unable to load user data. Please try again.")
+        return
+      }
+
+      const availableCredits = userData.credits || 0
+      if (availableCredits <= 0) {
+        // No credits - redirect to billing for upsell
+        router.push("/billing")
+        return
+      }
+
+      // User has credits - proceed with generation
+      console.log(`User has ${availableCredits} credits, proceeding with regeneration`)
+
+      // Get onboarding data
+      const onboardingState = localStorage.getItem("onboardingState")
+      if (!onboardingState) {
+        setError("No onboarding data found. Please start over.")
+        return
+      }
+
+      const onboardingData = JSON.parse(onboardingState)
+      
+      // Get validated prompt (handles empty strings, whitespace, etc.)
+      const validatedPrompt = getValidPrompt(prompt)
+
+      // Call the OpenAI API with structured flow
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: validatedPrompt,
+          model_ref: onboardingData.formData.garmentImage,
+          outfit_ref: onboardingData.formData.referenceImage,
+          aesthetic_ref: onboardingData.formData.aesthetic_ref,
+          size: '1024x1024',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.images && data.images.length > 0) {
+        const generatedImageUrl = data.images[0]
+        setGeneratedImage(generatedImageUrl)
+
+        // Deduct credit and save project to Firebase
+        await deductCreditAndSaveProject(generatedImageUrl)
+      } else {
+        setError(data.error || 'Failed to generate image')
+      }
+    } catch (error) {
+      console.error('Error generating image:', error)
+      setError('Failed to generate image. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSaveProject = async () => {
@@ -138,6 +268,11 @@ export default function ResultsPage() {
                   className="bg-gray-800/50 border-gray-700 h-12"
                   placeholder="Describe your desired style..."
                 />
+                {error && (
+                  <div className="text-red-500 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                    {error}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Button
                     onClick={handleEditPrompt}

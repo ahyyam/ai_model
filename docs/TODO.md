@@ -92,8 +92,14 @@
 - [x] Build for production (`pnpm build` or `npm run build`/`yarn build`).
 - [x] Set up Firebase Functions deployment for complete Next.js app with API routes.
 - [x] Fixed build errors: added missing getProjectById function, added critters dependency, fixed Next.js config.
+- [x] Clean up repository: removed unnecessary node_modules and build files from functions directory
+- [x] Updated .gitignore to properly exclude build artifacts and environment files
+- [x] Created comprehensive environment setup documentation
+- [x] Created .env.example template file
+- [ ] Create .env.local file with your actual API keys
 - [ ] Test core flows: upload images, generate, auth, usage tracking, billing.
 - [ ] Review UI/UX: responsiveness, branding, polish.
-- [ ] Deploy complete app to Firebase using deploy-firebase.js script.
+- [ ] Deploy to Vercel using `pnpm run deploy`
+- [ ] Deploy to Firebase using `node deploy-firebase.js` (optional)
 - [ ] Final QA: test in production, check analytics/logging.
 - [ ] Launch and monitor feedback.

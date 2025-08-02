@@ -38,3 +38,5 @@ next-env.d.ts
 
 # lock files in functions (will be generated during deployment)
 /functions/pnpm-lock.yaml
+.vercel
+.env*.local

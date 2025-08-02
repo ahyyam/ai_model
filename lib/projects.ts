@@ -9,7 +9,7 @@ export interface Project {
   createdAt: string
   status: string
   thumbnail: string
-  aesthetic: string
+  aesthetic?: string
   downloads: number
   generatedImages: string[]
   garmentImage?: string

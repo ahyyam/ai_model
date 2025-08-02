@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import StepAesthetic from "./step-aesthetic"
 import StepUploadGarment from "./step-upload-garment"
 import StepUploadReference from "./step-upload-reference"
 import { AnimatePresence, motion } from "framer-motion"
@@ -10,19 +9,11 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
 export type FormData = {
-  aesthetic?: string // Aesthetic name (for display)
-  aesthetic_ref?: File | null // Aesthetic reference image
   garmentImage?: File | null // Model reference image (base image for editing)
   referenceImage?: File | null // Outfit reference image
 }
 
 const steps = [
-  {
-    id: "aesthetic",
-    component: StepAesthetic,
-    showProgress: false,
-    title: "Choose Aesthetic",
-  },
   {
     id: "garment",
     component: StepUploadGarment,
@@ -64,13 +55,11 @@ export default function OnboardingFlow() {
   // Check if current step can proceed
   const canProceed = () => {
     switch (step) {
-      case 0: // aesthetic
-        return formData.aesthetic && formData.aesthetic.length > 0
-      case 1: // garment
+      case 0: // garment
         return formData.garmentImage
-      case 2: // reference
+      case 1: // reference
         return formData.referenceImage
-      case 3: // generate
+      case 2: // generate
         return formData.garmentImage && formData.referenceImage
       default:
         return false

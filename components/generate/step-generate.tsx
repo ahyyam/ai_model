@@ -93,9 +93,8 @@ export default function StepGenerate({
 
       // Save project to Firebase
       const result = await addProject({
-        name: getValidPrompt(prompt) || `${formData.aesthetic} Photoshoot`,
+        name: getValidPrompt(prompt) || "AI Photoshoot",
         status: "completed",
-        aesthetic: formData.aesthetic || "N/A",
         prompt: getValidPrompt(prompt),
         garmentImage: await fileToDataUrl(formData.garmentImage!),
         referenceImage: await fileToDataUrl(formData.referenceImage!),
@@ -130,10 +129,7 @@ export default function StepGenerate({
         setError("Outfit reference image is required")
         return
       }
-      if (!formData.aesthetic_ref) {
-        setError("Aesthetic reference image is required")
-        return
-      }
+
 
       // Check if user is logged in
       if (!auth.currentUser) {
@@ -171,7 +167,6 @@ export default function StepGenerate({
       // Convert images to base64 following the structured flow
       const model_ref = await fileToDataUrl(formData.garmentImage!) // Base image for editing
       const outfit_ref = await fileToDataUrl(formData.referenceImage!) // Outfit reference
-      const aesthetic_ref = await fileToDataUrl(formData.aesthetic_ref!) // Aesthetic reference image
 
       // Get validated prompt (handles empty strings, whitespace, etc.)
       const validatedPrompt = getValidPrompt(prompt)
@@ -186,7 +181,6 @@ export default function StepGenerate({
           prompt: validatedPrompt,
           model_ref, // Base image for editing
           outfit_ref, // Outfit reference image
-          aesthetic_ref, // Aesthetic reference image
           size: '1024x1024',
         }),
       })
@@ -242,9 +236,8 @@ export default function StepGenerate({
 
       // Only generate for premium users
       const result = await addProject({
-        name: prompt || `${formData.aesthetic} Photoshoot`,
+        name: prompt || "AI Photoshoot",
         status: "completed",
-        aesthetic: formData.aesthetic || "N/A",
         prompt,
         garmentImage,
         referenceImage,

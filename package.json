@@ -6,7 +6,9 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "node deploy-vercel.js",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

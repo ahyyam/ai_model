@@ -26,7 +26,7 @@ const plans = [
     features: ["10 image generations", "Basic styling options", "Email support", "$3.00 per image"],
     isPopular: false,
     color: "border-blue-400",
-    buttonColor: "bg-blue-600 hover:bg-blue-700",
+    buttonColor: "btn-primary",
     badge: "Starter"
   },
   {
@@ -37,7 +37,7 @@ const plans = [
     features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support", "$2.00 per image"],
     isPopular: true,
     color: "border-blue-500",
-    buttonColor: "bg-blue-600 hover:bg-blue-700",
+    buttonColor: "btn-primary",
     badge: "Better Value"
   },
   {
@@ -48,7 +48,7 @@ const plans = [
     features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support", "$1.50 per image"],
     isPopular: false,
     color: "border-blue-600",
-    buttonColor: "bg-blue-600 hover:bg-blue-700",
+    buttonColor: "btn-primary",
     badge: "Best Value ⭐"
   },
 ]

@@ -78,6 +78,17 @@
 - [x] Optimized website performance: lazy loading, intersection observers, image optimization, and caching.
 - [x] Enhanced prompt validation: handles empty strings, whitespace, and short inputs with smart defaults.
 - [x] Comprehensive SEO optimization: metadata, structured data, sitemap, robots.txt, and semantic HTML.
+- [x] Landing page SEO optimization: enhanced content, semantic HTML, structured data, and keyword-rich descriptions.
+- [x] Modernized hero section: instant AI photoshoot messaging, modern design, enhanced SEO, and social proof.
+- [x] Implemented consistent design system: brand colors, typography, spacing, and component patterns.
+- [x] Fixed button border radius consistency: updated header and pricing buttons to use consistent styling.
+- [x] Fixed font-sora CSS error: added font family configuration to Tailwind config.
+- [x] Removed SEO content section from landing page as requested.
+- [x] Improved hero section layout: changed from vertical stacking to horizontal spread for better screen utilization.
+- [x] Integrated hero section with website design: removed isolated background effects and container wrappers for seamless blending.
+- [x] Removed aesthetic selection step from onboarding flow: simplified AI generation process to 3 steps (upload garment, add reference, generate).
+- [x] Added credit/token count display in navigation for logged-in users: shows available credits with coin icon in both desktop and mobile views.
+- [x] Migrated hosting to Vercel: configured Vercel deployment with Firebase Auth, Firestore, and Storage.
 - [x] Build for production (`pnpm build` or `npm run build`/`yarn build`).
 - [x] Set up Firebase Functions deployment for complete Next.js app with API routes.
 - [x] Fixed build errors: added missing getProjectById function, added critters dependency, fixed Next.js config.

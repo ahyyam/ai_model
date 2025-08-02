@@ -12,11 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Menu, X, LayoutGrid, Settings, LifeBuoy, LogOut } from "lucide-react"
+import { Menu, X, LayoutGrid, Settings, LifeBuoy, LogOut, Coins } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
 import { usePathname } from "next/navigation"
+import { getUserData } from "@/lib/users"
 
 const navLinks = [
   { href: "#how-it-works", label: "How It Works" },
@@ -29,11 +30,25 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [user, setUser] = useState<FirebaseUser | null>(null)
+  const [userCredits, setUserCredits] = useState<number | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
+      
+      // Fetch user credits when user is logged in
+      if (firebaseUser) {
+        try {
+          const userData = await getUserData(firebaseUser.uid)
+          setUserCredits(userData?.credits || 0)
+        } catch (error) {
+          console.error('Error fetching user credits:', error)
+          setUserCredits(0)
+        }
+      } else {
+        setUserCredits(null)
+      }
     })
     return () => unsubscribe()
   }, [])
@@ -137,7 +152,16 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-2">
             {/* Only show avatar/dropdown if user is logged in and not on the landing page */}
             {user && pathname !== "/" ? (
-              <DropdownMenu>
+              <>
+                {/* Credit Display */}
+                {userCredits !== null && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-sm">
+                    <Coins className="h-4 w-4 text-blue-400" />
+                    <span className="text-blue-400 font-medium">{userCredits}</span>
+                    <span className="text-gray-400">credits</span>
+                  </div>
+                )}
+                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10 border-2 border-transparent hover:border-blue-500 transition-colors">
@@ -182,12 +206,13 @@ export default function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </>
             ) : (
               <>
                 <Button asChild variant="ghost" className="text-gray-300 hover:text-white">
                   <Link href="/login">Log In</Link>
                 </Button>
-                <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+                <Button asChild className="btn-primary">
                   <Link href="/generate">Get Started</Link>
                 </Button>
               </>
@@ -236,6 +261,14 @@ export default function Header() {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-white">{user?.displayName || user?.email || "User"}</p>
                       <p className="text-xs text-gray-400">{user?.email || ""}</p>
+                      {/* Credit Display for Mobile */}
+                      {userCredits !== null && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <Coins className="h-3 w-3 text-blue-400" />
+                          <span className="text-xs text-blue-400 font-medium">{userCredits}</span>
+                          <span className="text-xs text-gray-400">credits</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

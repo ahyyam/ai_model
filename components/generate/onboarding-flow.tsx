@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import StepUploadCombined from "./step-upload-combined"
+import StepUploadGarment from "./step-upload-garment"
+import StepUploadReference from "./step-upload-reference"
 import { AnimatePresence, motion } from "framer-motion"
 import StepGenerate from "./step-generate"
+import ProgressIndicator from "./progress-indicator"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, ArrowRight, Sparkles, HelpCircle } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -18,18 +20,25 @@ export type FormData = {
 
 const steps = [
   {
-    id: "upload",
-    component: StepUploadCombined,
+    id: "garment",
+    component: StepUploadGarment,
     showProgress: true,
-    title: "Upload Images",
-    description: "Upload your garment and style reference",
+    title: "Upload Your Garment",
+    description: "Take a clear photo of the item you want to style",
+  },
+  {
+    id: "style",
+    component: StepUploadReference,
+    showProgress: true,
+    title: "Upload Your Reference",
+    description: "Select a style reference for your AI photoshoot",
   },
   {
     id: "generate",
     component: StepGenerate,
     showProgress: true,
-    title: "Generate Images",
-    description: "Create your AI photoshoot",
+    title: "Generate",
+    description: "Create your professional fashion photography",
   },
 ]
 
@@ -74,9 +83,11 @@ export default function OnboardingFlow() {
   // Check if current step can proceed
   const canProceed = () => {
     switch (step) {
-      case 0: // upload (combined step)
-        return formData.garmentImage && formData.referenceImage
-      case 1: // generate
+      case 0: // garment upload
+        return formData.garmentImage
+      case 1: // style reference upload
+        return formData.referenceImage
+      case 2: // generate
         return formData.garmentImage && formData.referenceImage
       default:
         return false
@@ -103,12 +114,12 @@ export default function OnboardingFlow() {
 
     // Only auto-advance on mobile and if user hasn't manually navigated
     if (isMobile && !isTransitioning) {
-      if (step === 0 && formData.garmentImage && formData.referenceImage) {
+      if (step === 0 && formData.garmentImage) {
         const timer = setTimeout(() => {
           handleNext()
         }, 2000) // Increased delay for better UX
         setAutoAdvanceTimer(timer)
-      } else if (step === 1 && formData.garmentImage && formData.referenceImage) {
+      } else if (step === 1 && formData.referenceImage) {
         const timer = setTimeout(() => {
           handleNext()
         }, 2000) // Increased delay for better UX
@@ -137,82 +148,109 @@ export default function OnboardingFlow() {
       {/* Top Navigation */}
       <TopNav />
 
-      {/* Main Content Area */}
-      <main className="flex-1 w-full px-0 py-0 pb-14 md:pb-16 overflow-y-auto">
+      {/* Progress Indicator */}
+      <div className="px-4 md:px-6 py-4">
+        <ProgressIndicator
+          currentStep={currentProgressIndex}
+          totalSteps={progressSteps.length}
+          stepTitle={currentStepConfig.title}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: isMobile ? 20 : 0, y: isMobile ? 0 : 20 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: isMobile ? -20 : 0, y: isMobile ? 0 : -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="w-full min-h-full"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="h-full"
           >
-            <CurrentStepComponent
-              formData={formData}
-              updateFormData={updateFormData}
-              onNext={handleNext}
-              onBack={handleBack}
-              currentStep={currentProgressIndex}
-              totalSteps={progressSteps.length}
-              stepTitle={currentStepConfig.title}
-              showProgress={currentStepConfig.showProgress}
-              isGenerating={isGenerating}
-              setIsGenerating={setIsGenerating}
-              generatedImage={generatedImage}
-              setGeneratedImage={setGeneratedImage}
-              setShowVisualGuide={setShowVisualGuide}
-            />
+            {step === 0 && (
+              <StepUploadGarment
+                formData={formData}
+                updateFormData={updateFormData}
+                currentStep={currentProgressIndex + 1}
+                totalSteps={progressSteps.length}
+                stepTitle={currentStepConfig.title}
+                setShowVisualGuide={setShowVisualGuide}
+              />
+            )}
+            {step === 1 && (
+              <StepUploadReference
+                formData={formData}
+                updateFormData={updateFormData}
+                currentStep={currentProgressIndex + 1}
+                totalSteps={progressSteps.length}
+                stepTitle={currentStepConfig.title}
+              />
+            )}
+            {step === 2 && (
+              <StepGenerate
+                formData={formData}
+                updateFormData={updateFormData}
+                onBack={handleBack}
+                currentStep={currentProgressIndex + 1}
+                totalSteps={progressSteps.length}
+                stepTitle={currentStepConfig.title}
+                showProgress={currentStepConfig.showProgress}
+                isGenerating={isGenerating}
+                setIsGenerating={setIsGenerating}
+                generatedImage={generatedImage}
+                setGeneratedImage={setGeneratedImage}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
-      </main>
+      </div>
 
-      {/* Enhanced Fixed Navigation Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-md border-t border-gray-800/50 px-4 py-3 z-50">
-        <div className="container mx-auto">
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              {step > 0 ? (
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  disabled={isTransitioning}
-                  className="border-gray-700 text-gray-300 bg-gray-800/50 hover:bg-gray-700/50 px-6 py-3 transition-all duration-200"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  {isMobile ? "Back" : "Previous Step"}
-                </Button>
-              ) : (
-                <div></div>
-              )}
-            </div>
-
+      {/* Fixed Bottom Navigation */}
+      <div className="px-4 md:px-6 py-4 sm:py-6 border-t border-gray-800 bg-gradient-to-t from-[#0a0a0a] to-transparent">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          {/* Back Button */}
+          {step > 0 && (
             <Button
-              onClick={handleGenerate}
-              disabled={!canProceed() || isGenerating || isTransitioning}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+              onClick={handleBack}
+              variant="outline"
+              className="flex items-center gap-2 border-gray-600 text-gray-300 hover:bg-gray-800 px-4 sm:px-6 py-3 sm:py-2 text-sm sm:text-base touch-manipulation"
             >
-              {step === steps.length - 1 ? (
-                isGenerating ? (
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              Back
+            </Button>
+          )}
+          
+          {/* Empty div for spacing when back button is hidden */}
+          {step === 0 && <div></div>}
+
+          {/* Next/Generate Button */}
+          <Button
+            onClick={handleGenerate}
+            disabled={!canProceed() || isGenerating}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-2 text-sm sm:text-base touch-manipulation"
+          >
+            {step === steps.length - 1 ? (
+              <>
+                {isGenerating ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                     Generating...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate
+                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+                    Generate AI Photoshoot
                   </>
-                )
-              ) : (
-                <>
-                  {isMobile ? "Next" : "Continue"}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </div>
+                )}
+              </>
+            ) : (
+              <>
+                Next
+                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
+              </>
+            )}
+          </Button>
         </div>
       </div>
 

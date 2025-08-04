@@ -131,49 +131,54 @@ export default function Header() {
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+        <div className="flex items-center justify-between h-16 sm:h-18 md:h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center overflow-hidden">
               <img 
                 src="/logo/logo.png" 
                 alt="Zarta Logo" 
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="text-2xl font-bold font-sora text-white">Zarta</span>
+            <span className="text-xl sm:text-2xl font-bold font-sora text-white">Zarta</span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                onClick={(e) => handleNavLinkClick(e, link.href)}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* Centered Navigation */}
+          <nav className="hidden md:flex items-center justify-center flex-1 px-4 lg:px-8">
+            <div className="flex items-center space-x-6 lg:space-x-8">
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.href} 
+                  href={link.href} 
+                  onClick={(e) => handleNavLinkClick(e, link.href)}
+                  className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base whitespace-nowrap"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </nav>
 
-          <div className="hidden md:flex items-center gap-2">
+          {/* User Actions */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0">
             {/* Only show avatar/dropdown if user is logged in and not on the landing page */}
             {user && pathname !== "/" ? (
               <>
                 {/* Credit Display */}
                 {userCredits !== null && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-sm">
-                    <Coins className="h-4 w-4 text-blue-400" />
+                  <div className="flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-1 lg:py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs lg:text-sm">
+                    <Coins className="h-3 w-3 lg:h-4 lg:w-4 text-blue-400" />
                     <span className="text-blue-400 font-medium">{userCredits}</span>
-                    <span className="text-gray-400">credits</span>
+                    <span className="text-gray-400 hidden lg:inline">credits</span>
                   </div>
                 )}
                 <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10 border-2 border-transparent hover:border-blue-500 transition-colors">
+                  <Button variant="ghost" className="relative h-8 w-8 lg:h-10 lg:w-10 rounded-full">
+                    <Avatar className="h-8 w-8 lg:h-10 lg:w-10 border-2 border-transparent hover:border-blue-500 transition-colors">
                       <AvatarImage src={user?.photoURL || "/placeholder.svg?height=40&width=40&text=U"} alt="User Avatar" />
-                      <AvatarFallback className="bg-gray-700">{user?.email?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                      <AvatarFallback className="bg-gray-700 text-xs lg:text-sm">{user?.email?.[0]?.toUpperCase() || "U"}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -216,22 +221,24 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Button asChild variant="ghost" className="text-gray-300 hover:text-white">
+                <Button asChild variant="ghost" className="text-gray-300 hover:text-white text-sm lg:text-base">
                   <Link href="/login">Log In</Link>
                 </Button>
-                <Button asChild className="btn-primary">
+                <Button asChild className="btn-primary text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3">
                   <Link href="/generate">Get Started</Link>
                 </Button>
               </>
             )}
           </div>
 
-          <div className="md:hidden">
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex-shrink-0">
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="mobile-menu-button p-2 text-gray-300 hover:text-white transition-colors"
+              className="mobile-menu-button p-2 text-gray-300 hover:text-white transition-colors touch-manipulation"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -240,15 +247,15 @@ export default function Header() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="mobile-menu md:hidden absolute top-full left-0 right-0 bg-[#111111]/95 backdrop-blur-md border-b border-gray-800 shadow-xl animate-in slide-in-from-top-2 duration-200">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 py-4 sm:py-6">
             {/* Navigation Links */}
-            <nav className="space-y-4 mb-6">
+            <nav className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={(e) => handleNavLinkClick(e, link.href)}
-                  className="block text-gray-300 hover:text-white transition-colors py-2 text-lg"
+                  className="block text-gray-300 hover:text-white transition-colors py-2.5 sm:py-3 text-base sm:text-lg touch-manipulation"
                 >
                   {link.label}
                 </Link>
@@ -283,7 +290,7 @@ export default function Header() {
                   <Link
                     href="/settings"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors"
+                    className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors touch-manipulation"
                   >
                     <Settings className="h-5 w-5" />
                     <span>Settings</span>
@@ -291,7 +298,7 @@ export default function Header() {
                   <Link
                     href="/billing"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors"
+                    className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors touch-manipulation"
                   >
                     <LayoutGrid className="h-5 w-5" />
                     <span>Billing</span>
@@ -299,7 +306,7 @@ export default function Header() {
                   <Link
                     href="/support"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors"
+                    className="flex items-center space-x-3 py-3 text-gray-300 hover:text-white transition-colors touch-manipulation"
                   >
                     <LifeBuoy className="h-5 w-5" />
                     <span>Support</span>
@@ -309,7 +316,7 @@ export default function Header() {
                       handleLogout()
                       setIsMenuOpen(false)
                     }}
-                    className="flex items-center space-x-3 py-3 text-red-400 hover:text-red-300 transition-colors w-full"
+                    className="flex items-center space-x-3 py-3 text-red-400 hover:text-red-300 transition-colors w-full touch-manipulation"
                   >
                     <LogOut className="h-5 w-5" />
                     <span>Log out</span>
@@ -320,7 +327,7 @@ export default function Header() {
                   <Link
                     href="/login"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center w-full py-3 px-4 text-gray-300 hover:text-white transition-colors border border-gray-700 rounded-lg hover:bg-gray-800/50"
+                    className="flex items-center justify-center w-full py-3 px-4 text-gray-300 hover:text-white transition-colors border border-gray-700 rounded-lg hover:bg-gray-800/50 touch-manipulation"
                   >
                     Log In
                   </Link>

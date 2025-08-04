@@ -67,18 +67,18 @@ export default function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-20 md:py-32">
-      <div className="text-center max-w-3xl mx-auto px-4 mb-12">
-        <h2 className="font-sora text-3xl md:text-4xl font-bold mb-4">Choose Your Plan</h2>
-        <p className="text-gray-400 text-lg">Simple, transparent pricing that scales with your needs.</p>
+    <section id="pricing" className="section-padding">
+      <div className="container-base mx-auto text-center mb-12">
+        <h2 className="heading-2 mb-4">Choose Your Plan</h2>
+        <p className="body-large">Simple, transparent pricing that scales with your needs.</p>
       </div>
       
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="container-lg mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((plan) => (
             <div key={plan.id} className="relative h-full pt-2">
               <Card
-                className={`bg-[#1c1c1c] border-gray-800 text-white flex flex-col h-full min-h-[400px] transition-all duration-200 hover:scale-105 ${
+                className={`card-zarta flex flex-col h-full min-h-[400px] transition-all duration-200 hover:scale-105 ${
                   plan.popular 
                     ? `${plan.color} border-2` 
                     : "border-gray-700 hover:border-gray-600"
@@ -86,16 +86,16 @@ export default function PricingSection() {
               >
                 {plan.popular && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-50">
-                    <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg border-2 border-blue-400">
+                    <div className="badge-primary bg-blue-500 text-white shadow-lg border-2 border-blue-400">
                       Most Popular
                     </div>
                   </div>
                 )}
                 
                 <CardHeader className="flex-shrink-0 pb-3">
-                  <CardTitle className="font-sora text-lg sm:text-xl flex items-center gap-2">
+                  <CardTitle className="heading-3 flex items-center gap-2">
                     {plan.name}
-                    {plan.name === "Elite" && <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />}
+                    {plan.name === "Elite" && <Star className="icon-sm text-yellow-400" />}
                   </CardTitle>
                   <div className="flex items-baseline">
                     <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>

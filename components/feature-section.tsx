@@ -24,8 +24,8 @@ export default function FeatureSection({
       <meta itemProp="name" content={title} />
       <meta itemProp="description" content={description} />
       <div className={cn("md:order-1", reverse && "md:order-2")}>
-        <div className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-sm font-medium mb-4">
-          <Icon className="h-4 w-4" />
+        <div className="badge-primary mb-4">
+          <Icon className="icon-base" />
           {benefit}
         </div>
         <h3 className="heading-3 mb-4" itemProp="name">{title}</h3>
@@ -37,7 +37,7 @@ export default function FeatureSection({
           alt={`${title} - ${description}`}
           width={500}
           height={500}
-          className="rounded-xl object-cover w-full h-full shadow-2xl shadow-blue-500/10"
+          className="rounded-xl object-cover w-full h-full"
           itemProp="image"
         />
       </div>

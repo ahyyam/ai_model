@@ -288,140 +288,74 @@ export default function StepGenerate({
 
   return (
     <div className="w-full min-h-full flex flex-col py-2 md:py-4">
-      {/* Header */}
-      <div className="px-4 md:px-6 mb-4 flex flex-col items-start">
-        <h2 className="text-lg md:text-xl font-sora font-semibold text-white">Generate Your AI Photoshoot</h2>
-        <p className="text-gray-400 text-sm">Review and customize your AI fashion photoshoot</p>
-      </div>
-
       {/* Main Content */}
-      <div className="flex-1 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* Left Column: Result Display */}
+      <div className="flex-1 px-4 md:px-6 pb-6 sm:pb-8 flex items-center justify-center">
+        <div className="container-lg mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Left Column: Uploaded Images Side by Side */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="flex flex-col items-start justify-start space-y-2"
+              className="space-y-4 sm:space-y-6"
             >
-              <div className="w-full max-w-sm aspect-[4/3] rounded-xl border-2 border-dashed border-gray-600 flex items-center justify-center bg-gray-900/30 p-2 relative overflow-hidden">
-                <AnimatePresence mode="wait">
-                  {isGenerating ? (
-                    <motion.div
-                      key="generating"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="text-center p-3"
-                    >
-                      <div className="relative mb-2">
-                        <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-blue-400 mx-auto animate-pulse" />
-                        <div className="absolute inset-0 bg-blue-400/20 rounded-full animate-ping"></div>
-                      </div>
-                      <h3 className="font-sora text-xs md:text-sm font-semibold text-white mb-1">Creating your AI photoshoot...</h3>
-                      <p className="text-gray-400 text-xs mb-2">This may take 30-60 seconds</p>
-                      
-                      {/* Progress bar */}
-                      <div className="w-full bg-gray-700 rounded-full h-1 mb-2">
-                        <motion.div 
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-1 rounded-full"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${generationProgress}%` }}
-                          transition={{ duration: 0.5 }}
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500">{Math.round(generationProgress)}% complete</p>
-                    </motion.div>
-                  ) : generatedImage ? (
-                    <motion.div
-                      key="result"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="w-full h-full relative"
-                    >
-                      <Image
-                        src={generatedImage}
-                        alt="Generated AI Fashion Photo"
-                        fill
-                        className="object-cover rounded-lg"
+              {/* Images Side by Side */}
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                {/* Garment Image */}
+                <div className="space-y-3 sm:space-y-4">
+                  <label className="text-lg sm:text-xl font-bold text-white">Your Garment</label>
+                  <div className="aspect-[4/3] rounded-lg border-2 border-gray-600 bg-gray-800/30 flex items-center justify-center overflow-hidden">
+                    {formData.garmentImage ? (
+                      <img
+                        src={URL.createObjectURL(formData.garmentImage)}
+                        alt="Uploaded Garment"
+                        className="w-full h-full object-cover"
                       />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="placeholder"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-center p-3"
-                    >
-                      <ImageIcon className="h-6 w-6 md:h-8 md:w-8 text-gray-500 mx-auto mb-2" />
-                      <h3 className="text-xs md:text-sm font-semibold text-white mb-1">Your AI Photoshoot</h3>
-                      <p className="text-gray-400 text-xs">Generated image will appear here</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Action Buttons */}
-              {generatedImage && (
-                <div className="flex flex-col sm:flex-row gap-2 w-full max-w-sm">
-                  <Button
-                    onClick={handleSaveAndFinish}
-                    disabled={saving}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm"
-                  >
-                    {saving ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Download className="h-4 w-4" />
+                      <div className="text-center text-gray-400">
+                        <p className="text-sm">No garment uploaded</p>
+                      </div>
                     )}
-                    {saving ? 'Saving...' : 'Save & Finish'}
-                  </Button>
-                  <Button
-                    onClick={() => window.open(generatedImage, '_blank')}
-                    variant="outline"
-                    className="flex items-center gap-2 border-gray-600 text-gray-300 hover:bg-gray-800 px-4 py-2 text-sm"
-                  >
-                    <Share2 className="h-4 w-4" />
-                    View Full Size
-                  </Button>
+                  </div>
                 </div>
-              )}
+
+                {/* Reference Image */}
+                <div className="space-y-3 sm:space-y-4">
+                  <label className="text-lg sm:text-xl font-bold text-white">Your Reference</label>
+                  <div className="aspect-[4/3] rounded-lg border-2 border-gray-600 bg-gray-800/30 flex items-center justify-center overflow-hidden">
+                    {formData.referenceImage ? (
+                      <img
+                        src={URL.createObjectURL(formData.referenceImage)}
+                        alt="Uploaded Reference"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center text-gray-400">
+                        <p className="text-sm">No reference uploaded</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
-            {/* Right Column: Customization */}
+            {/* Right Column: Prompt Input */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="space-y-4"
+              className="space-y-4 sm:space-y-6"
             >
               {/* Prompt Input */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white">Customize Your Prompt</label>
+              <div className="space-y-3 sm:space-y-4">
+                <label className="text-lg sm:text-xl font-bold text-white">Customize Your Prompt</label>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Describe any specific details you'd like to see in your AI photoshoot..."
-                  className="w-full min-h-[80px] md:min-h-[100px] px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 text-base sm:text-lg md:text-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent leading-relaxed"
                 />
-                <p className="text-xs text-gray-500">Add specific details like poses, expressions, or style preferences</p>
-              </div>
-
-              {/* Tips Card */}
-              <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
-                <div className="flex items-start gap-3">
-                  <Lightbulb className="h-4 w-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium text-white">Pro Tips</h4>
-                    <ul className="text-xs text-gray-400 space-y-1">
-                      <li>• Be specific about poses and expressions</li>
-                      <li>• Mention lighting preferences (natural, studio, dramatic)</li>
-                      <li>• Include style details (casual, formal, artistic)</li>
-                      <li>• Specify background preferences if desired</li>
-                    </ul>
-                  </div>
-                </div>
+                <p className="text-sm sm:text-base text-gray-500">Add specific details like poses, expressions, or style preferences</p>
               </div>
             </motion.div>
           </div>

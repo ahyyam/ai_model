@@ -58,8 +58,8 @@ export default function PricingSection() {
 
   const handleGetStarted = (planName: string) => {
     if (user) {
-      // User is logged in, navigate to billing
-      router.push("/billing")
+      // User is logged in, navigate to subscribe page
+      router.push("/subscribe")
     } else {
       // User is not logged in, navigate to signup page
       router.push("/signup")

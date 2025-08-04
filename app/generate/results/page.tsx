@@ -137,8 +137,8 @@ export default function ResultsPage() {
 
       const availableCredits = userData.credits || 0
       if (availableCredits <= 0) {
-        // No credits - redirect to billing for upsell
-        router.push("/billing")
+        // No credits - redirect to subscribe page for plan selection
+        router.push("/subscribe")
         return
       }
 

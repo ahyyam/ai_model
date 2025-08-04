@@ -175,8 +175,8 @@ export default function StepGenerate({
       // Check if user has available credits
       const availableCredits = userData.credits || 0
       if (availableCredits <= 0) {
-        // No credits - redirect to billing for upsell
-        router.push("/billing")
+        // No credits - redirect to subscribe page for plan selection
+        router.push("/subscribe")
         return
       }
 
@@ -246,10 +246,18 @@ export default function StepGenerate({
         return
       }
 
-      // Placeholder: Check if user is premium
-      const isPremium = true // TODO: Replace with real premium check
-      if (!isPremium) {
-        setError("You must be a premium user to generate results. Please upgrade your plan.")
+      // Check if user has available credits
+      const userData = await getUserData(auth.currentUser.uid)
+      if (!userData) {
+        setError("Unable to load user data. Please try again.")
+        setSaving(false)
+        return
+      }
+
+      const availableCredits = userData.credits || 0
+      if (availableCredits <= 0) {
+        // No credits - redirect to subscribe page for plan selection
+        router.push("/subscribe")
         setSaving(false)
         return
       }

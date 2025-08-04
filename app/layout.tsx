@@ -25,6 +25,15 @@ export const metadata: Metadata = {
     default: "Zarta - AI-Powered Fashion Photography | Transform Product Photos",
     template: "%s | Zarta"
   },
+  icons: {
+    icon: [
+      { url: '/logo/logo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo/logo.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logo/logo.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   description: "Transform plain clothing product photos into styled, high-quality, scroll-stopping visuals using AI. Save 95% on photoshoot costs with instant professional fashion photography for e-commerce brands.",
   keywords: [
     "AI fashion photography",

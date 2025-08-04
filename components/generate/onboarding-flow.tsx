@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import StepUploadGarment from "./step-upload-garment"
-import StepUploadReference from "./step-upload-reference"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import StepUploadCombined from "./step-upload-combined"
 import { AnimatePresence, motion } from "framer-motion"
 import StepGenerate from "./step-generate"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Sparkles, HelpCircle } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+import VisualGuide from "./visual-guide"
+import { TopNav } from "@/components/dashboard/top-nav"
 
 export type FormData = {
   garmentImage?: File | null // Model reference image (base image for editing)
@@ -15,33 +18,49 @@ export type FormData = {
 
 const steps = [
   {
-    id: "garment",
-    component: StepUploadGarment,
+    id: "upload",
+    component: StepUploadCombined,
     showProgress: true,
-    title: "Upload Garment",
-  },
-  {
-    id: "reference",
-    component: StepUploadReference,
-    showProgress: true,
-    title: "Add Reference",
+    title: "Upload Images",
+    description: "Upload your garment and style reference",
   },
   {
     id: "generate",
     component: StepGenerate,
     showProgress: true,
     title: "Generate Images",
+    description: "Create your AI photoshoot",
   },
 ]
 
 export default function OnboardingFlow() {
+  const router = useRouter()
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState<FormData>({})
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [showVisualGuide, setShowVisualGuide] = useState(false)
+  const [autoAdvanceTimer, setAutoAdvanceTimer] = useState<NodeJS.Timeout | null>(null)
+  const isMobile = useIsMobile()
 
-  const handleNext = () => setStep((prev) => Math.min(prev + 1, steps.length - 1))
-  const handleBack = () => setStep((prev) => Math.max(prev - 1, 0))
+  const handleNext = () => {
+    if (canProceed()) {
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setStep((prev) => Math.min(prev + 1, steps.length - 1))
+        setIsTransitioning(false)
+      }, 150)
+    }
+  }
+
+  const handleBack = () => {
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setStep((prev) => Math.max(prev - 1, 0))
+      setIsTransitioning(false)
+    }, 150)
+  }
 
   const updateFormData = (newData: Partial<FormData>) => setFormData((prev) => ({ ...prev, ...newData }))
 
@@ -55,11 +74,9 @@ export default function OnboardingFlow() {
   // Check if current step can proceed
   const canProceed = () => {
     switch (step) {
-      case 0: // garment
-        return formData.garmentImage
-      case 1: // reference
-        return formData.referenceImage
-      case 2: // generate
+      case 0: // upload (combined step)
+        return formData.garmentImage && formData.referenceImage
+      case 1: // generate
         return formData.garmentImage && formData.referenceImage
       default:
         return false
@@ -77,18 +94,59 @@ export default function OnboardingFlow() {
     }
   }
 
+  // Improved auto-advance logic with better timing and user control
+  useEffect(() => {
+    // Clear any existing timer
+    if (autoAdvanceTimer) {
+      clearTimeout(autoAdvanceTimer)
+    }
+
+    // Only auto-advance on mobile and if user hasn't manually navigated
+    if (isMobile && !isTransitioning) {
+      if (step === 0 && formData.garmentImage && formData.referenceImage) {
+        const timer = setTimeout(() => {
+          handleNext()
+        }, 2000) // Increased delay for better UX
+        setAutoAdvanceTimer(timer)
+      } else if (step === 1 && formData.garmentImage && formData.referenceImage) {
+        const timer = setTimeout(() => {
+          handleNext()
+        }, 2000) // Increased delay for better UX
+        setAutoAdvanceTimer(timer)
+      }
+    }
+
+    return () => {
+      if (autoAdvanceTimer) {
+        clearTimeout(autoAdvanceTimer)
+      }
+    }
+  }, [formData.garmentImage, formData.referenceImage, step, isMobile, isTransitioning])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimer) {
+        clearTimeout(autoAdvanceTimer)
+      }
+    }
+  }, [autoAdvanceTimer])
+
   return (
-    <div className="min-h-screen bg-[#111111] text-white flex flex-col">
+    <div className="fixed inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a] text-white flex flex-col z-50">
+      {/* Top Navigation */}
+      <TopNav />
+
       {/* Main Content Area */}
-      <main className="flex-1 container mx-auto px-4 md:px-6 py-4 sm:py-6 pb-24">
+      <main className="flex-1 w-full px-0 py-0 pb-14 md:pb-16 overflow-y-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="w-full"
+            initial={{ opacity: 0, x: isMobile ? 20 : 0, y: isMobile ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: isMobile ? -20 : 0, y: isMobile ? 0 : -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="w-full min-h-full"
           >
             <CurrentStepComponent
               formData={formData}
@@ -103,37 +161,67 @@ export default function OnboardingFlow() {
               setIsGenerating={setIsGenerating}
               generatedImage={generatedImage}
               setGeneratedImage={setGeneratedImage}
+              setShowVisualGuide={setShowVisualGuide}
             />
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Fixed Navigation Bar at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#111111] border-t border-gray-800 px-4 py-4 z-50">
-        <div className="container mx-auto flex justify-between items-center">
-          {step > 0 ? (
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="border-gray-700 text-gray-300 bg-transparent hover:bg-gray-800 px-6 py-2"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-          ) : (
-            <div></div>
-          )}
+      {/* Enhanced Fixed Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-md border-t border-gray-800/50 px-4 py-3 z-50">
+        <div className="container mx-auto">
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              {step > 0 ? (
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={isTransitioning}
+                  className="border-gray-700 text-gray-300 bg-gray-800/50 hover:bg-gray-700/50 px-6 py-3 transition-all duration-200"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  {isMobile ? "Back" : "Previous Step"}
+                </Button>
+              ) : (
+                <div></div>
+              )}
+            </div>
 
-          <Button
-            onClick={handleGenerate}
-            disabled={!canProceed() || isGenerating}
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {step === steps.length - 1 ? (isGenerating ? "Generating..." : "Generate") : "Next"}
-            {step !== steps.length - 1 && <ArrowRight className="ml-2 h-4 w-4" />}
-          </Button>
+            <Button
+              onClick={handleGenerate}
+              disabled={!canProceed() || isGenerating || isTransitioning}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+            >
+              {step === steps.length - 1 ? (
+                isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Generate
+                  </>
+                )
+              ) : (
+                <>
+                  {isMobile ? "Next" : "Continue"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Visual Guide Modal */}
+      <AnimatePresence>
+        {showVisualGuide && (
+          <VisualGuide onClose={() => setShowVisualGuide(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

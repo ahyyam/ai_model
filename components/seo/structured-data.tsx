@@ -31,7 +31,7 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
 export const OrganizationData = {
   name: 'Zarta',
   url: 'https://zarta.com',
-  logo: 'https://zarta.com/logo.png',
+      logo: 'https://zarta.com/logo/logo.png',
   description: 'AI-powered fashion photography platform that transforms plain product photos into styled, professional visuals.',
   sameAs: [
     'https://twitter.com/zarta',

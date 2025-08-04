@@ -1,43 +1,74 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const brands = [
-  { name: "Zara", logo: "/placeholder.svg?height=60&width=120&text=ZARA" },
-  { name: "H&M", logo: "/placeholder.svg?height=60&width=120&text=H%26M" },
-  { name: "Nike", logo: "/placeholder.svg?height=60&width=120&text=NIKE" },
-  { name: "Adidas", logo: "/placeholder.svg?height=60&width=120&text=ADIDAS" },
-  { name: "Uniqlo", logo: "/placeholder.svg?height=60&width=120&text=UNIQLO" },
-  { name: "Gap", logo: "/placeholder.svg?height=60&width=120&text=GAP" },
-  { name: "Levi's", logo: "/placeholder.svg?height=60&width=120&text=LEVI'S" },
-  { name: "Calvin Klein", logo: "/placeholder.svg?height=60&width=120&text=CK" },
+  { name: "Brand 1", logo: "/Brand Logos/1.png" },
+  { name: "Brand 2", logo: "/Brand Logos/2.png" },
+  { name: "Brand 3", logo: "/Brand Logos/3.png" },
+  { name: "Brand 4", logo: "/Brand Logos/4.png" },
+  { name: "Brand 5", logo: "/Brand Logos/5.png" },
+  { name: "Brand 6", logo: "/Brand Logos/6.png" },
+  { name: "Brand 7", logo: "/Brand Logos/7.png" },
+  { name: "Brand 8", logo: "/Brand Logos/8.png" },
+  { name: "Brand 9", logo: "/Brand Logos/9.png" },
 ]
 
 export default function TrustedBrands() {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
+    // Intersection Observer to start animation when component is visible
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (scrollRef.current) {
+      observer.observe(scrollRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isVisible) return
+
     const scrollContainer = scrollRef.current
     if (!scrollContainer) return
 
-    const scrollWidth = scrollContainer.scrollWidth
-    const clientWidth = scrollContainer.clientWidth
+    let animationId: number
     let scrollPosition = 0
+    const scrollSpeed = 0.5 // Slower, smoother scrolling
 
     const scroll = () => {
-      scrollPosition += 1
-      if (scrollPosition >= scrollWidth - clientWidth) {
+      scrollPosition += scrollSpeed
+      const maxScroll = scrollContainer.scrollWidth / 2 // Since we duplicate the brands
+      
+      if (scrollPosition >= maxScroll) {
         scrollPosition = 0
       }
+      
       scrollContainer.scrollLeft = scrollPosition
+      animationId = requestAnimationFrame(scroll)
     }
 
-    const intervalId = setInterval(scroll, 30)
-    return () => clearInterval(intervalId)
-  }, [])
+    animationId = requestAnimationFrame(scroll)
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId)
+      }
+    }
+  }, [isVisible])
 
   return (
-    <section className="py-16 md:py-24 border-t border-gray-800">
+    <section className="py-16 md:py-24 border-t border-gray-800/50">
       <div className="text-center mb-12">
         <h3 className="font-sora text-xl md:text-2xl font-semibold text-gray-400 mb-8">
           Trusted by Leading Fashion Brands
@@ -47,29 +78,30 @@ export default function TrustedBrands() {
       <div className="relative overflow-hidden">
         <div
           ref={scrollRef}
-          className="flex gap-12 md:gap-16 items-center overflow-hidden"
+          className="flex gap-8 md:gap-12 lg:gap-16 items-center overflow-hidden"
           style={{ scrollBehavior: "auto" }}
         >
           {/* Duplicate the brands array to create seamless loop */}
           {[...brands, ...brands].map((brand, index) => (
             <div
               key={`${brand.name}-${index}`}
-              className="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-300"
+              className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
             >
               <img
                 src={brand.logo || "/placeholder.svg"}
                 alt={`${brand.name} logo`}
-                className="h-8 md:h-12 w-auto filter brightness-0 invert"
+                className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto object-contain"
                 style={{ minWidth: "80px" }}
+                loading="lazy"
               />
             </div>
           ))}
         </div>
 
         {/* Gradient overlays for smooth fade effect */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#111111] to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#111111] to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-20 bg-gradient-to-r from-[#111111] via-[#111111]/80 to-transparent pointer-events-none z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-20 bg-gradient-to-l from-[#111111] via-[#111111]/80 to-transparent pointer-events-none z-10" />
       </div>
     </section>
   )
-}
+} 

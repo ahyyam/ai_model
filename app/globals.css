@@ -13,18 +13,18 @@ body {
   
   /* Zarta Design System Utilities */
   .bg-zarta-gradient {
-    background: linear-gradient(135deg, hsl(var(--zarta-blue)) 0%, hsl(var(--zarta-purple)) 100%);
+    background: linear-gradient(135deg, hsl(var(--zarta-blue)) 0%, hsl(var(--zarta-blue)) 100%);
   }
   
   .text-zarta-gradient {
-    background: linear-gradient(135deg, hsl(var(--zarta-blue)) 0%, hsl(var(--zarta-purple)) 100%);
+    background: linear-gradient(135deg, hsl(var(--zarta-blue)) 0%, hsl(var(--zarta-blue)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .border-zarta-gradient {
-    border-image: linear-gradient(135deg, hsl(var(--zarta-blue)) 0%, hsl(var(--zarta-purple)) 100%) 1;
+    border-image: linear-gradient(135deg, hsl(var(--zarta-blue)) 0%, hsl(var(--zarta-blue)) 100%) 1;
   }
   
   .shadow-zarta {
@@ -67,7 +67,7 @@ body {
   
   /* Consistent buttons */
   .btn-primary {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-full shadow-zarta transition-all duration-300 transform hover:scale-105;
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-4 rounded-full shadow-zarta transition-all duration-300 transform hover:scale-105;
   }
   
   .btn-secondary {
@@ -84,7 +84,7 @@ body {
   :root {
     /* Zarta Brand Colors */
     --zarta-blue: 217 91% 60%;
-    --zarta-purple: 262 83% 58%;
+    --zarta-purple: 217 85% 55%;
     --zarta-green: 142 76% 36%;
     --zarta-gray: 0 0% 11%;
     --zarta-light-gray: 0 0% 27%;
@@ -102,7 +102,7 @@ body {
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: var(--zarta-purple);
+    --accent: var(--zarta-blue);
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -110,7 +110,7 @@ body {
     --input: 0 0% 89.8%;
     --ring: var(--zarta-blue);
     --chart-1: var(--zarta-blue);
-    --chart-2: var(--zarta-purple);
+    --chart-2: var(--zarta-blue);
     --chart-3: var(--zarta-green);
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
@@ -127,7 +127,7 @@ body {
   .dark {
     /* Zarta Brand Colors - Dark Mode */
     --zarta-blue: 217 91% 60%;
-    --zarta-purple: 262 83% 58%;
+    --zarta-purple: 217 85% 55%;
     --zarta-green: 142 76% 36%;
     --zarta-gray: 0 0% 11%;
     --zarta-light-gray: 0 0% 27%;
@@ -145,7 +145,7 @@ body {
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: var(--zarta-purple);
+    --accent: var(--zarta-blue);
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -153,7 +153,7 @@ body {
     --input: 0 0% 14.9%;
     --ring: var(--zarta-blue);
     --chart-1: var(--zarta-blue);
-    --chart-2: var(--zarta-purple);
+    --chart-2: var(--zarta-blue);
     --chart-3: var(--zarta-green);
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;

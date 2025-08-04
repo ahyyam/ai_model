@@ -299,16 +299,16 @@ export default function BillingPage() {
                   </Card>
 
                   {/* Pro Plan Card */}
-                  <Card className="bg-gray-800/30 border-purple-500/50 text-white relative">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                      <Badge className="bg-purple-500 text-white px-3 py-1 text-xs font-semibold">
+                                  <Card className="bg-gray-800/30 border-blue-500/50 text-white relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-blue-500 text-white px-3 py-1 text-xs font-semibold">
                         Most Popular
                       </Badge>
                     </div>
                     <CardContent className="p-4 pt-6">
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-lg font-semibold">Pro</h3>
-                        <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Better Value</Badge>
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Better Value</Badge>
                       </div>
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between">
@@ -327,7 +327,7 @@ export default function BillingPage() {
                       <Button 
                         onClick={() => handleSubscribe('pro')} 
                         disabled={isLoading}
-                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        className="w-full bg-blue-600 hover:bg-blue-700"
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Subscribe
@@ -413,7 +413,7 @@ export default function BillingPage() {
                           <Button 
                             onClick={() => handleSubscribe('pro')} 
                             disabled={isLoading}
-                            className="bg-purple-600 hover:bg-purple-700"
+                            className="bg-blue-600 hover:bg-blue-700"
                             size="sm"
                           >
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -500,7 +500,7 @@ export default function BillingPage() {
                       <Button 
                         onClick={() => handleSubscribe('standard')} 
                         disabled={isLoading}
-                        className="bg-purple-600 hover:bg-purple-700"
+                        className="bg-blue-600 hover:bg-blue-700"
                         size="sm"
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

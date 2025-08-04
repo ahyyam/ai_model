@@ -11,7 +11,6 @@ import { CheckCircle, Zap, Infinity } from "lucide-react"
 import StructuredData, { OrganizationData, WebsiteData, ProductData } from "@/components/seo/structured-data"
 
 // Lazy load components that are below the fold
-const BeforeAfterSlider = lazy(() => import("@/components/before-after-slider"))
 const PricingSection = lazy(() => import("@/components/pricing-section"))
 const FaqSection = lazy(() => import("@/components/faq-section"))
 const Footer = lazy(() => import("@/components/footer"))
@@ -49,10 +48,10 @@ export default function LandingPage() {
         <Suspense fallback={<div className="h-32 bg-gray-800 animate-pulse rounded-lg" />}>
           <TrustedBrands />
         </Suspense>
-        <section id="features" className="section-padding space-y-24" itemScope itemType="https://schema.org/ItemList">
+        <section id="features" className="section-padding space-y-12 -mt-8" itemScope itemType="https://schema.org/ItemList">
           <meta itemProp="name" content="AI Fashion Photography Features" />
           <meta itemProp="description" content="Key features of Zarta's AI-powered fashion photography platform" />
-          <header className="text-center mb-16">
+          <header className="text-center mb-12">
             <h2 className="heading-2 mb-6" itemProp="name">AI Fashion Photography Features</h2>
             <p className="body-large max-w-3xl mx-auto" itemProp="description">
               Transform your e-commerce photography with AI-powered fashion photography tools. Generate professional product photography, lifestyle shots, and brand-consistent visuals in minutes.
@@ -81,9 +80,6 @@ export default function LandingPage() {
             benefit="Strengthen Brand Identity"
           />
         </section>
-        <Suspense fallback={<div className="h-[500px] bg-gray-800 animate-pulse rounded-lg" />}>
-          <BeforeAfterSlider />
-        </Suspense>
         <Suspense fallback={<div className="h-96 bg-gray-800 animate-pulse rounded-lg" />}>
           <TestimonialsSection />
         </Suspense>

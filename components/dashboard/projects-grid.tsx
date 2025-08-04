@@ -87,8 +87,8 @@ export function ProjectsGrid() {
           <p className="mb-4">No projects yet.</p>
           {!isSubscribed && (
             <Link 
-              href="/billing" 
-              className="inline-block px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
+              href="/subscribe" 
+              className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
             >
               Upgrade to Pro
             </Link>
@@ -101,7 +101,7 @@ export function ProjectsGrid() {
               key={project.id}
               className={`bg-[#1c1c1c] border-gray-800 text-white overflow-hidden group transition-all duration-300 flex flex-col ${
                 !isSubscribed 
-                  ? 'hover:border-yellow-500/50 hover:shadow-lg hover:shadow-yellow-500/20 cursor-pointer' 
+                  ? 'hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer' 
                   : 'hover:border-gray-600'
               }`}
             >
@@ -121,12 +121,12 @@ export function ProjectsGrid() {
                   {!isSubscribed && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="text-center p-4">
-                        <Lock className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
+                        <Lock className="h-8 w-8 text-blue-400 mx-auto mb-2" />
                         <p className="text-white font-semibold mb-1">Upgrade to Pro</p>
                         <p className="text-sm text-gray-300">Unlock unlimited generations and advanced features</p>
                         <Link 
-                          href="/billing" 
-                          className="inline-block mt-3 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
+                          href="/subscribe" 
+                          className="inline-block mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
                         >
                           Subscribe Now
                         </Link>
@@ -166,16 +166,16 @@ export function ProjectsGrid() {
       
       {/* Subscription reminder for non-subscribed users */}
       {!isSubscribed && projects.length > 0 && (
-        <div className="mt-8 p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg">
+        <div className="mt-8 p-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-lg">
           <div className="flex items-center gap-3">
-            <Crown className="h-6 w-6 text-yellow-400" />
+            <Crown className="h-6 w-6 text-blue-400" />
             <div className="flex-1">
               <h3 className="font-semibold text-white">Upgrade to Pro</h3>
               <p className="text-sm text-gray-300">Get unlimited generations, priority processing, and advanced features</p>
             </div>
             <Link 
-              href="/billing" 
-              className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
+              href="/subscribe" 
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
             >
               Subscribe Now
             </Link>

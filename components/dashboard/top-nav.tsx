@@ -12,21 +12,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CreditCard, LifeBuoy, LogOut, User } from "lucide-react"
+import { CreditCard, LifeBuoy, LogOut, User, Coins } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
+import { getUserData } from "@/lib/users"
 
 // Removed navLinks as they will no longer be displayed in the header for logged-in users
 
 export function TopNav() {
   const pathname = usePathname()
   const [user, setUser] = useState<FirebaseUser | null>(null)
+  const [userCredits, setUserCredits] = useState<number | null>(null)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
+      
+      // Fetch user credits when user is logged in
+      if (firebaseUser) {
+        try {
+          const userData = await getUserData(firebaseUser.uid)
+          setUserCredits(userData?.credits || 0)
+        } catch (error) {
+          console.error('Error fetching user credits:', error)
+          setUserCredits(0)
+        }
+      } else {
+        setUserCredits(null)
+      }
     })
     return () => unsubscribe()
   }, [])
@@ -80,9 +95,18 @@ export function TopNav() {
             </nav>
           )}
 
-          {/* Right: Profile Dropdown - only show when logged in */}
+          {/* Right: Credit Display and Profile Dropdown - only show when logged in */}
           {user && (
-            <DropdownMenu>
+            <div className="flex items-center gap-3">
+              {/* Credit Display */}
+              {userCredits !== null && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-sm">
+                  <Coins className="h-4 w-4 text-blue-400" />
+                  <span className="text-blue-400 font-medium">{userCredits}</span>
+                  <span className="text-gray-400">credits</span>
+                </div>
+              )}
+              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10 border-2 border-transparent hover:border-blue-500 transition-colors">
@@ -125,8 +149,9 @@ export function TopNav() {
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                              </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
         </div>
       </div>

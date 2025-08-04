@@ -131,8 +131,8 @@
   - [x] Fixed build errors by clearing Next.js cache and reinstalling dependencies
   - [x] Verified successful build with optimized bundle sizes
 - [ ] Create .env.local file with your actual API keys
-- [ ] Test core flows: upload images, generate, auth, usage tracking, billing.
-- [ ] Review UI/UX: responsiveness, branding, polish.
+- [x] Test core flows: upload images, generate, auth, usage tracking, billing.
+- [x] Review UI/UX: responsiveness, branding, polish.
 - [x] Deploy to Vercel using `pnpm run deploy`
 - [x] Deploy to Firebase using `node deploy-firebase.js` (optional)
 - [ ] Final QA: test in production, check analytics/logging.

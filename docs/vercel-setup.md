@@ -7,12 +7,13 @@ This project uses Vercel for hosting while keeping Firebase for Auth, Database, 
 | Layer | Tool | Why |
 |-------|------|-----|
 | **Frontend** | Vercel | Fastest React hosting + clean CI/CD |
-| **Auth** | Firebase Auth | Simple, scalable, great with Firebase UI SDK |
-| **Database** | Firestore | Flexible, real-time, image-friendly |
-| **Storage** | Firebase Storage | Ideal for uploading product/reference images |
-| **Image Gen** | OpenAI API (DALL·E) | External API |
+| **Authentication** | Firebase Auth | Built-in |
+| **Database** | Firestore | Built-in |
+| **Storage** | Firebase Storage | Built-in |
+| **Payments** | Stripe | External API |
+| **Image Gen** | Mock/Placeholder | Simulated |
+| **Backend Functions** | Vercel Edge Functions | Handle API calls securely |
 | **Dashboard Hosting** | Vercel | Push to Git = live deploy |
-| **Backend Functions** | Vercel Edge Functions | Handle OpenAI calls securely |
 
 ## Setup Instructions
 
@@ -34,9 +35,6 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key
 
 # Stripe Configuration
 STRIPE_SECRET_KEY=your_stripe_secret_key

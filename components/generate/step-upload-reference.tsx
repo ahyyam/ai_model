@@ -29,9 +29,9 @@ export default function StepUploadReference({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Main Content */}
-      <div className="flex-1 px-4 md:px-6 pb-6 sm:pb-8">
+      <div className="flex-1 px-4 md:px-6 pb-2">
         <div className="container-xl mx-auto h-full">
-          <div className="max-w-4xl mx-auto flex justify-center items-center h-full">
+          <div className="max-w-2xl mx-auto flex justify-center items-center h-full">
             {/* File Uploader */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

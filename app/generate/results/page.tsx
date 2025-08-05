@@ -157,32 +157,17 @@ export default function ResultsPage() {
       // Get validated prompt (handles empty strings, whitespace, etc.)
       const validatedPrompt = getValidPrompt(prompt)
 
-      // Call the OpenAI API with structured flow
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: validatedPrompt,
-          model_ref: onboardingData.formData.garmentImage,
-          outfit_ref: onboardingData.formData.referenceImage,
-          aesthetic_ref: onboardingData.formData.aesthetic_ref,
-          size: '1024x1024',
-        }),
-      })
+      // Simulate image generation process
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-      const data = await response.json()
+      // For now, use the reference image as the "generated" image
+      // In a real implementation, this would be replaced with actual AI image generation
+      const generatedImageUrl = onboardingData.formData.referenceImage
+      setGeneratedImage(generatedImageUrl)
 
-      if (data.success && data.images && data.images.length > 0) {
-        const generatedImageUrl = data.images[0]
-        setGeneratedImage(generatedImageUrl)
-
-        // Deduct credit and save project to Firebase
-        await deductCreditAndSaveProject(generatedImageUrl)
-      } else {
-        setError(data.error || 'Failed to generate image')
-      }
+      // Deduct credit and save project to Firebase
+      await deductCreditAndSaveProject(generatedImageUrl)
+      
     } catch (error) {
       console.error('Error generating image:', error)
       setError('Failed to generate image. Please try again.')

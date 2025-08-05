@@ -56,8 +56,7 @@ export default function Header() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY || window.pageYOffset
-      const shouldBeScrolled = scrollY > 5 // Reduced threshold for earlier trigger
-      console.log('Scroll Y:', scrollY, 'Should be scrolled:', shouldBeScrolled) // Debug log
+      const shouldBeScrolled = scrollY > 10
       setIsScrolled(shouldBeScrolled)
     }
     
@@ -126,7 +125,7 @@ export default function Header() {
       className={cn(
         "sticky top-0 z-50 transition-all duration-300",
         isScrolled 
-          ? "bg-[#1a1a1a]/90 backdrop-blur-lg border-b border-gray-700 shadow-xl" 
+          ? "bg-[#1a1a1a]/95 backdrop-blur-lg border-b border-gray-700/50 shadow-xl" 
           : "bg-transparent backdrop-blur-sm",
       )}
     >
@@ -152,7 +151,7 @@ export default function Header() {
                   key={link.href} 
                   href={link.href} 
                   onClick={(e) => handleNavLinkClick(e, link.href)}
-                  className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base whitespace-nowrap"
+                  className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base whitespace-nowrap font-medium"
                 >
                   {link.label}
                 </Link>
@@ -255,7 +254,7 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={(e) => handleNavLinkClick(e, link.href)}
-                  className="block text-gray-300 hover:text-white transition-colors py-2.5 sm:py-3 text-base sm:text-lg touch-manipulation"
+                  className="block text-gray-300 hover:text-white transition-colors py-2.5 sm:py-3 text-base sm:text-lg touch-manipulation font-medium"
                 >
                   {link.label}
                 </Link>

@@ -101,7 +101,8 @@ export default function SubscribePage() {
       }
     } catch (error) {
       console.error("Subscription error:", error)
-      alert(`Failed to start subscription: ${error.message}. Please check your Stripe configuration.`)
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred"
+      alert(`Failed to start subscription: ${errorMessage}. Please check your Stripe configuration.`)
     } finally {
       setIsLoading(false)
     }
@@ -147,7 +148,7 @@ export default function SubscribePage() {
         {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {plans.map((plan) => (
-            <div key={plan.id} className="relative h-full pt-2">
+            <div key={plan.id} className="relative h-full">
               <Card
                 className={`bg-[#1c1c1c] border-gray-800 text-white flex flex-col h-full min-h-[400px] transition-all duration-200 hover:scale-105 ${
                   selectedPlan === plan.id
@@ -157,14 +158,6 @@ export default function SubscribePage() {
                       : "border-gray-700 hover:border-gray-600"
                 }`}
               >
-                {plan.popular && (
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-50">
-                    <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg border-2 border-blue-400">
-                      Most Popular
-                    </div>
-                  </div>
-                )}
-                
                 <CardHeader className="flex-shrink-0 pb-3">
                   <CardTitle className="font-sora text-lg sm:text-xl flex items-center gap-2">
                     {plan.name}

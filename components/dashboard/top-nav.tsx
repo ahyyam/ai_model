@@ -69,7 +69,7 @@ export function TopNav() {
 
           {/* Center: Simple Navigation Links - only show when logged in */}
           {user && (
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
               <Link
                 href="/projects"
                 className={cn(

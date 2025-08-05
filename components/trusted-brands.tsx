@@ -69,10 +69,13 @@ export default function TrustedBrands() {
 
   return (
     <section className="py-16 md:py-24 border-t border-gray-800/50">
-      <div className="text-center mb-12">
-        <h3 className="font-sora text-xl md:text-2xl font-semibold text-gray-400 mb-8">
+      <div className="text-center mb-16">
+        <h3 className="font-sora text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-300 mb-4">
           Trusted by Leading Fashion Brands
         </h3>
+        <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto">
+          Join thousands of brands already using Zarta to transform their product photography
+        </p>
       </div>
 
       <div className="relative overflow-hidden">
@@ -87,13 +90,13 @@ export default function TrustedBrands() {
               key={`${brand.name}-${index}`}
               className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
             >
-              <img
-                src={brand.logo || "/placeholder.svg"}
-                alt={`${brand.name} logo`}
-                className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto object-contain"
-                style={{ minWidth: "80px" }}
-                loading="lazy"
-              />
+                              <img
+                  src={brand.logo || "/placeholder.svg"}
+                  alt={`${brand.name} logo`}
+                  className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain"
+                  style={{ minWidth: "140px" }}
+                  loading="lazy"
+                />
             </div>
           ))}
         </div>

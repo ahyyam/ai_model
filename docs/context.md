@@ -4,22 +4,24 @@ Zarta is an AI-powered SaaS tool for fashion brands and e-commerce sellers to ge
 
 ## Core Features
 
-- Upload product image
-- Upload style reference image
-- Generate styled photos using OpenAI’s DALL·E API
-- Download or view generated results
-- Simple user dashboard with 3-step flow
-- Authentication (signup/login)
-- Usage tracking & credit management
-- Pricing plans with free and paid tiers
+- User authentication and account management
+- Upload and manage garment photos
+- Upload reference style images
+- Generate styled photos using mock/placeholder implementation
+- Save and organize generated projects
+- Subscription management with Stripe
+- Credit-based usage tracking
 
 ## Tech Stack
 
-- **Frontend**: React (no Next.js)
-- **Backend/Auth**: Firebase (Firestore, Auth, Storage)
-- **Image Generation**: DALL·E via OpenAI API
-- **Styling**: Black UI (#111111), white text, blue highlights
-- **Prototyping**: Bubble (used for testing initial flow)
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS, Radix UI components
+- **Authentication**: Firebase Auth
+- **Database**: Firestore
+- **Storage**: Firebase Storage
+- **Payments**: Stripe
+- **Image Generation**: Mock/Placeholder (simulated)
+- **Deployment**: Vercel
 
 ## UI Design
 

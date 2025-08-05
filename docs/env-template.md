@@ -3,6 +3,14 @@
 Create a `.env` file in your project root with the following variables:
 
 ```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id_here
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id_here
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id_here
+
 # Stripe Configuration
 STRIPE_SECRET_KEY=sk_test_your_secret_key_here
 STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
@@ -20,17 +28,6 @@ STRIPE_PLUS_PRICE_ID=price_plus_placeholder
 
 # App URL for webhooks and redirects
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 ## Important Notes:

@@ -11,19 +11,13 @@ This guide will help you set up all the required environment variables for deplo
 ## Required Environment Variables
 
 ### Firebase Configuration
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
 
-### OpenAI Configuration
-```env
-OPENAI_API_KEY=your_openai_api_key
-```
+FIREBASE_API_KEY=your_firebase_api_key
+FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+FIREBASE_APP_ID=your_app_id
 
 ### Stripe Configuration
 ```env
@@ -51,12 +45,6 @@ STRIPE_PLUS_PRICE_ID=price_xxx
 4. Scroll down to "Your apps" section
 5. Click on the web app (</>) icon
 6. Copy the config values
-
-### OpenAI Setup
-1. Go to [OpenAI Platform](https://platform.openai.com/)
-2. Navigate to API Keys
-3. Create a new API key
-4. Copy the key (starts with `sk-`)
 
 ### Stripe Setup
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)

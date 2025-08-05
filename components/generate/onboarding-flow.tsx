@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import StepGenerate from "./step-generate"
 import ProgressIndicator from "./progress-indicator"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, Sparkles, HelpCircle } from "lucide-react"
+import { ArrowLeft, ArrowRight, Sparkles, HelpCircle, AlertCircle } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import VisualGuide from "./visual-guide"
 import { TopNav } from "@/components/dashboard/top-nav"
@@ -51,19 +51,29 @@ export default function OnboardingFlow() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [showVisualGuide, setShowVisualGuide] = useState(false)
   const [autoAdvanceTimer, setAutoAdvanceTimer] = useState<NodeJS.Timeout | null>(null)
+  const [validationError, setValidationError] = useState<string>("")
   const isMobile = useIsMobile()
 
   const handleNext = () => {
+    setValidationError("") // Clear any previous errors
+    
     if (canProceed()) {
       setIsTransitioning(true)
       setTimeout(() => {
         setStep((prev) => Math.min(prev + 1, steps.length - 1))
         setIsTransitioning(false)
       }, 150)
+    } else {
+      // Show validation error
+      const error = getValidationError()
+      setValidationError(error)
+      // Clear error after 3 seconds
+      setTimeout(() => setValidationError(""), 3000)
     }
   }
 
   const handleBack = () => {
+    setValidationError("") // Clear errors when going back
     setIsTransitioning(true)
     setTimeout(() => {
       setStep((prev) => Math.max(prev - 1, 0))
@@ -71,7 +81,10 @@ export default function OnboardingFlow() {
     }, 150)
   }
 
-  const updateFormData = (newData: Partial<FormData>) => setFormData((prev) => ({ ...prev, ...newData }))
+  const updateFormData = (newData: Partial<FormData>) => {
+    setFormData((prev) => ({ ...prev, ...newData }))
+    setValidationError("") // Clear errors when data is updated
+  }
 
   const CurrentStepComponent = steps[step].component
   const currentStepConfig = steps[step]
@@ -84,13 +97,30 @@ export default function OnboardingFlow() {
   const canProceed = () => {
     switch (step) {
       case 0: // garment upload
-        return formData.garmentImage
+        return formData.garmentImage && formData.garmentImage.size > 0
       case 1: // style reference upload
-        return formData.referenceImage
+        return formData.referenceImage && formData.referenceImage.size > 0
       case 2: // generate
-        return formData.garmentImage && formData.referenceImage
+        return formData.garmentImage && formData.referenceImage && 
+               formData.garmentImage.size > 0 && formData.referenceImage.size > 0
       default:
         return false
+    }
+  }
+
+  // Get specific validation error message
+  const getValidationError = () => {
+    switch (step) {
+      case 0:
+        return "Please upload a garment image to continue"
+      case 1:
+        return "Please upload a style reference image to continue"
+      case 2:
+        if (!formData.garmentImage) return "Garment image is required"
+        if (!formData.referenceImage) return "Reference image is required"
+        return "Both images are required to generate your AI photoshoot"
+      default:
+        return "Please complete the current step to continue"
     }
   }
 
@@ -113,16 +143,16 @@ export default function OnboardingFlow() {
     }
 
     // Only auto-advance on mobile and if user hasn't manually navigated
-    if (isMobile && !isTransitioning) {
-      if (step === 0 && formData.garmentImage) {
+    if (isMobile && !isTransitioning && !validationError) {
+      if (step === 0 && formData.garmentImage && formData.garmentImage.size > 0) {
         const timer = setTimeout(() => {
           handleNext()
-        }, 2000) // Increased delay for better UX
+        }, 2500) // Increased delay for better UX
         setAutoAdvanceTimer(timer)
-      } else if (step === 1 && formData.referenceImage) {
+      } else if (step === 1 && formData.referenceImage && formData.referenceImage.size > 0) {
         const timer = setTimeout(() => {
           handleNext()
-        }, 2000) // Increased delay for better UX
+        }, 2500) // Increased delay for better UX
         setAutoAdvanceTimer(timer)
       }
     }
@@ -132,7 +162,7 @@ export default function OnboardingFlow() {
         clearTimeout(autoAdvanceTimer)
       }
     }
-  }, [formData.garmentImage, formData.referenceImage, step, isMobile, isTransitioning])
+  }, [formData.garmentImage, formData.referenceImage, step, isMobile, isTransitioning, validationError])
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -149,13 +179,28 @@ export default function OnboardingFlow() {
       <TopNav />
 
       {/* Progress Indicator */}
-      <div className="px-4 md:px-6 py-4">
+      <div className="px-4 md:px-6 py-2">
         <ProgressIndicator
           currentStep={currentProgressIndex}
           totalSteps={progressSteps.length}
           stepTitle={currentStepConfig.title}
         />
       </div>
+
+      {/* Validation Error Banner */}
+      <AnimatePresence>
+        {validationError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mx-4 md:mx-6 mb-2 bg-red-500/10 border border-red-500/30 rounded-lg p-2 flex items-center gap-2"
+          >
+            <AlertCircle className="h-3 w-3 text-red-400 flex-shrink-0" />
+            <p className="text-red-400 text-xs font-medium">{validationError}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
@@ -207,14 +252,14 @@ export default function OnboardingFlow() {
       </div>
 
       {/* Fixed Bottom Navigation */}
-      <div className="px-4 md:px-6 py-4 sm:py-6 border-t border-gray-800 bg-gradient-to-t from-[#0a0a0a] to-transparent">
+      <div className="px-4 md:px-6 py-3 border-t border-gray-800 bg-gradient-to-t from-[#0a0a0a] to-transparent">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           {/* Back Button */}
           {step > 0 && (
             <Button
               onClick={handleBack}
               variant="outline"
-              className="flex items-center gap-2 border-gray-600 text-gray-300 hover:bg-gray-800 px-4 sm:px-6 py-3 sm:py-2 text-sm sm:text-base touch-manipulation"
+              className="flex items-center gap-2 border-gray-600 text-gray-300 hover:bg-gray-800 px-4 sm:px-6 py-2 text-sm sm:text-base touch-manipulation"
             >
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               Back
@@ -228,7 +273,11 @@ export default function OnboardingFlow() {
           <Button
             onClick={handleGenerate}
             disabled={!canProceed() || isGenerating}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-2 text-sm sm:text-base touch-manipulation"
+            className={`flex items-center gap-2 px-6 sm:px-8 py-2 text-sm sm:text-base touch-manipulation ${
+              canProceed() && !isGenerating
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-gray-600 text-gray-400 cursor-not-allowed"
+            }`}
           >
             {step === steps.length - 1 ? (
               <>

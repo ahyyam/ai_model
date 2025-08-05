@@ -127,7 +127,7 @@ export default function FileUploader({ file, setFile, title, description }: File
   }
 
   return (
-    <motion.div
+    <div
       {...getRootProps()}
       className={`w-full ${isMobile ? 'aspect-[4/3]' : 'aspect-[3/2]'} border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 touch-manipulation relative overflow-hidden ${
         dragActive
@@ -136,8 +136,6 @@ export default function FileUploader({ file, setFile, title, description }: File
           ? "bg-yellow-500/10 border-yellow-500"
           : "bg-gray-900/30 border-gray-600 hover:bg-gray-800/50 hover:border-gray-500 active:bg-gray-800/70"
       }`}
-      whileHover={{ scale: isMobile ? 1 : 1.02 }}
-      whileTap={{ scale: 0.98 }}
     >
       <input {...getInputProps()} />
       
@@ -224,6 +222,6 @@ export default function FileUploader({ file, setFile, title, description }: File
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }

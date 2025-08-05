@@ -299,13 +299,8 @@ export default function BillingPage() {
                   </Card>
 
                   {/* Pro Plan Card */}
-                                  <Card className="bg-gray-800/30 border-blue-500/50 text-white relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <Badge className="bg-blue-500 text-white px-3 py-1 text-xs font-semibold">
-                        Most Popular
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4 pt-6">
+                  <Card className="bg-gray-800/30 border-blue-500/50 text-white relative">
+                    <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-lg font-semibold">Pro</h3>
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Better Value</Badge>

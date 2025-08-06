@@ -96,7 +96,7 @@ export default function ResultsPage() {
       // Save project to Firebase
       const result = await addProject({
         name: getValidPrompt(prompt) || `${onboardingData.formData.aesthetic} Photoshoot`,
-        status: "completed",
+        status: "complete",
         aesthetic: onboardingData.formData.aesthetic || "N/A",
         prompt: getValidPrompt(prompt),
         garmentImage: onboardingData.formData.garmentImage,
@@ -180,7 +180,7 @@ export default function ResultsPage() {
     if (!user) return
     await addProject({
       name: prompt || "AI Photoshoot",
-      status: "completed",
+      status: "complete",
       aesthetic: "N/A",
       prompt,
       garmentImage: garmentImage || undefined,

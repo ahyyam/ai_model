@@ -1,45 +1,84 @@
 # Environment Variables Template
 
-Create a `.env` file in your project root with the following variables:
+This document lists all the required environment variables for the AI image generation pipeline.
+
+## Firebase Configuration
 
 ```env
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+# Firebase Client SDK (for frontend)
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id_here
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id_here
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id_here
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef123456
 
-# Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_your_secret_key_here
-STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
-
-# Stripe Subscription Plan Price IDs
-STRIPE_BASIC_PRICE_ID=price_basic_placeholder
-STRIPE_PRO_PRICE_ID=price_pro_placeholder
-STRIPE_ELITE_PRICE_ID=price_elite_placeholder
-
-# Stripe Token Pack Add-on Price IDs
-STRIPE_MINI_PRICE_ID=price_mini_placeholder
-STRIPE_STANDARD_PRICE_ID=price_standard_placeholder
-STRIPE_PLUS_PRICE_ID=price_plus_placeholder
-
-# App URL for webhooks and redirects
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+# Firebase Admin SDK (for backend API endpoints)
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your_project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----\n"
+FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 ```
 
-## Important Notes:
+## AI Services
 
-1. **STRIPE_WEBHOOK_SECRET**: This is NOT a URL. It's a secret key that starts with `whsec_` provided by Stripe when you create a webhook endpoint.
+```env
+# OpenAI API (for prompt generation)
+OPENAI_API_KEY=
 
-2. **For Local Development**: Use Stripe CLI to get a webhook secret:
-   ```bash
-   stripe listen --forward-to localhost:3000/api/stripe/webhook
-   ```
-   The CLI will output a webhook secret like `whsec_1234567890abcdef...` - use this in your `.env` file.
+# Runway ML API (for image generation)
+RUNWAY_API_KEY=your_runway_api_key_here
+```
 
-3. **Price IDs**: Replace the placeholder values with actual Stripe price IDs from your Stripe dashboard.
+## Stripe Configuration (for billing)
 
-4. **Never commit your `.env` file**: Make sure `.env` is in your `.gitignore` file. 
+```env
+# Stripe Keys
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
+# Stripe Price IDs
+STRIPE_BASIC_PRICE_ID=price_basic_monthly
+STRIPE_PRO_PRICE_ID=price_pro_monthly
+STRIPE_ELITE_PRICE_ID=price_elite_monthly
+```
+
+## Vercel Configuration
+
+```env
+# Vercel (if deploying to Vercel)
+VERCEL_URL=your-app.vercel.app
+```
+
+## Setup Instructions
+
+1. **Firebase Setup:**
+   - Create a Firebase project at https://console.firebase.google.com
+   - Enable Authentication, Firestore, and Storage
+   - Download the service account key for Admin SDK
+   - Set up Firestore security rules
+   - Set up Storage security rules
+
+2. **OpenAI Setup:**
+   - Create an account at https://platform.openai.com
+   - Generate an API key
+   - Ensure you have access to GPT-4o-mini model
+
+3. **Runway Setup:**
+   - Create an account at https://runwayml.com
+   - Generate an API key
+   - Ensure you have access to Gen-4 Image model
+
+4. **Stripe Setup:**
+   - Create a Stripe account at https://stripe.com
+   - Set up products and pricing plans
+   - Configure webhooks for subscription management
+
+## Security Notes
+
+- Never commit `.env` files to version control
+- Use different API keys for development and production
+- Regularly rotate API keys
+- Set up proper CORS and security headers
+- Use environment-specific Firebase projects 

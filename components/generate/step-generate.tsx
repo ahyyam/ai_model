@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { addProject } from "@/lib/projects"
 import { auth } from "@/lib/firebase"
 import { getUserData, deductUserCredit } from "@/lib/users"
+import { uploadImageToStorage } from "@/lib/storage"
+import { apiClient } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
 import { useIsMobile } from "@/hooks/use-mobile"
 
@@ -134,7 +136,7 @@ export default function StepGenerate({
       // Save project to Firebase
       const result = await addProject({
         name: getValidPrompt(prompt) || "AI Photoshoot",
-        status: "completed",
+        status: "complete" as const,
         prompt: getValidPrompt(prompt),
         garmentImage: await fileToDataUrl(formData.garmentImage!),
         referenceImage: await fileToDataUrl(formData.referenceImage!),
@@ -200,28 +202,73 @@ export default function StepGenerate({
       // User has credits - proceed with generation
       console.log(`User has ${availableCredits} credits, proceeding with generation`)
 
-      // Simulate image generation process
-      setGenerationProgress(25)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Upload images to Firebase Storage first
+      setGenerationProgress(10)
+      const garmentImageURL = await uploadImageToStorage(
+        formData.garmentImage!,
+        `temp/${auth.currentUser.uid}/garment-${Date.now()}.jpg`
+      )
       
-      setGenerationProgress(50)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      setGenerationProgress(20)
+      const referenceImageURL = await uploadImageToStorage(
+        formData.referenceImage!,
+        `temp/${auth.currentUser.uid}/reference-${Date.now()}.jpg`
+      )
+
+      // Get auth token for API call
+      const token = await auth.currentUser.getIdToken()
       
-      setGenerationProgress(75)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      setGenerationProgress(30)
+      
+      // Call the real generation API
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          referenceImageURL,
+          garmentImageURL,
+          userPrompt: getValidPrompt(prompt)
+        })
+      })
 
-      // For now, use the reference image as the "generated" image
-      // In a real implementation, this would be replaced with actual AI image generation
-      const generatedImageUrl = await fileToDataUrl(formData.referenceImage!)
-      setGeneratedImage(generatedImageUrl)
-      setGenerationProgress(100)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate image')
+      }
 
-      // Deduct credit and save project to Firebase
-      await deductCreditAndSaveProject(generatedImageUrl)
+      setGenerationProgress(90)
+      
+      const result = await response.json()
+      
+      if (result.success && result.finalImageURL) {
+        setGeneratedImage(result.finalImageURL)
+        setGenerationProgress(100)
+        
+        // Save project to local state for navigation
+        const projectData = {
+          id: result.projectId,
+          name: getValidPrompt(prompt) || "AI Photoshoot",
+          status: "complete" as const,
+          prompt: result.prompt,
+          garmentImage: garmentImageURL,
+          referenceImage: referenceImageURL,
+          thumbnail: result.finalImageURL,
+          downloads: 0,
+          generatedImages: [result.finalImageURL],
+        }
+        
+        // Store project data for navigation
+        localStorage.setItem("lastGeneratedProject", JSON.stringify(projectData))
+      } else {
+        throw new Error('No image URL received from generation')
+      }
       
     } catch (error) {
       console.error('Error generating image:', error)
-      setError('Failed to generate image. Please check your connection and try again.')
+      setError(error instanceof Error ? error.message : 'Failed to generate image. Please check your connection and try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -270,7 +317,7 @@ export default function StepGenerate({
       // Only generate for premium users
       const result = await addProject({
         name: prompt || "AI Photoshoot",
-        status: "completed",
+        status: "complete" as const,
         prompt,
         garmentImage,
         referenceImage,

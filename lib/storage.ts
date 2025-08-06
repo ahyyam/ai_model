@@ -1,91 +1,81 @@
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
-import { storage } from "./firebase"
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { storage } from './firebase'
 
-// Storage bucket names
-export const STORAGE_BUCKETS = {
-  IMAGES: 'images',
-  PROJECTS: 'projects',
-  USER_AVATARS: 'avatars',
-} as const
-
-// Upload file to Firebase Storage
-export async function uploadFile(
-  file: File | Blob,
-  path: string,
-  bucket: string = STORAGE_BUCKETS.IMAGES
+export async function uploadImageToStorage(
+  file: File,
+  path: string
 ): Promise<string> {
   try {
-    const storageRef = ref(storage, `${bucket}/${path}`)
+    const storageRef = ref(storage, path)
     const snapshot = await uploadBytes(storageRef, file)
     const downloadURL = await getDownloadURL(snapshot.ref)
     return downloadURL
   } catch (error) {
-    console.error('Error uploading file:', error)
-    throw new Error('Failed to upload file')
+    console.error('Error uploading image to storage:', error)
+    throw error
   }
 }
 
-// Upload image with automatic path generation
-export async function uploadImage(
-  file: File,
-  userId: string,
-  type: 'garment' | 'reference' | 'generated' | 'avatar' = 'generated'
+export async function uploadBase64ToStorage(
+  base64Data: string,
+  path: string
 ): Promise<string> {
-  const timestamp = Date.now()
-  const fileName = `${type}_${timestamp}_${file.name}`
-  const path = `${userId}/${fileName}`
-  
-  return uploadFile(file, path, STORAGE_BUCKETS.IMAGES)
-}
-
-// Upload project image
-export async function uploadProjectImage(
-  file: File,
-  userId: string,
-  projectId: string
-): Promise<string> {
-  const timestamp = Date.now()
-  const fileName = `project_${timestamp}_${file.name}`
-  const path = `${userId}/${projectId}/${fileName}`
-  
-  return uploadFile(file, path, STORAGE_BUCKETS.PROJECTS)
-}
-
-// Delete file from Firebase Storage
-export async function deleteFile(path: string, bucket: string = STORAGE_BUCKETS.IMAGES): Promise<void> {
   try {
-    const storageRef = ref(storage, `${bucket}/${path}`)
-    await deleteObject(storageRef)
+    // Convert base64 to blob
+    const response = await fetch(base64Data)
+    const blob = await response.blob()
+    
+    const storageRef = ref(storage, path)
+    const snapshot = await uploadBytes(storageRef, blob)
+    const downloadURL = await getDownloadURL(snapshot.ref)
+    return downloadURL
   } catch (error) {
-    console.error('Error deleting file:', error)
-    throw new Error('Failed to delete file')
+    console.error('Error uploading base64 to storage:', error)
+    throw error
   }
 }
 
-// Convert file to base64 (for API calls)
-export function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      const result = reader.result as string
-      // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
-      const base64 = result.split(',')[1]
-      resolve(base64)
+export async function uploadImageFromURL(
+  imageURL: string,
+  path: string
+): Promise<string> {
+  try {
+    // Fetch the image from URL
+    const response = await fetch(imageURL)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image from URL: ${response.status}`)
     }
-    reader.onerror = error => reject(error)
-  })
+    
+    const blob = await response.blob()
+    const storageRef = ref(storage, path)
+    const snapshot = await uploadBytes(storageRef, blob)
+    const downloadURL = await getDownloadURL(snapshot.ref)
+    return downloadURL
+  } catch (error) {
+    console.error('Error uploading image from URL:', error)
+    throw error
+  }
 }
 
-// Convert base64 to blob
-export function base64ToBlob(base64: string, mimeType: string = 'image/jpeg'): Blob {
-  const byteCharacters = atob(base64)
-  const byteNumbers = new Array(byteCharacters.length)
+// Helper function to generate unique file paths
+export function generateImagePath(
+  userId: string,
+  projectId: string,
+  imageType: 'garment' | 'reference' | 'final' | 'version',
+  version?: number
+): string {
+  const timestamp = Date.now()
   
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i)
+  switch (imageType) {
+    case 'garment':
+      return `projects/${userId}/${projectId}/garment-${timestamp}.jpg`
+    case 'reference':
+      return `projects/${userId}/${projectId}/reference-${timestamp}.jpg`
+    case 'final':
+      return `projects/${userId}/${projectId}/final-${timestamp}.jpg`
+    case 'version':
+      return `projects/${userId}/${projectId}/version-${version}-${timestamp}.jpg`
+    default:
+      return `projects/${userId}/${projectId}/image-${timestamp}.jpg`
   }
-  
-  const byteArray = new Uint8Array(byteNumbers)
-  return new Blob([byteArray], { type: mimeType })
 } 

@@ -5,30 +5,46 @@ import { auth, db } from "@/lib/firebase"
 
 export interface Project {
   id: string
+  userId: string
   name: string
   createdAt: string
-  status: string
+  updatedAt: string
+  status: 'processing' | 'complete' | 'error'
   thumbnail: string
   aesthetic?: string
   downloads: number
   generatedImages: string[]
   garmentImage?: string
   referenceImage?: string
+  finalImageURL?: string
   prompt?: string
+  aspect_ratio?: string
+  version?: number
+  versions?: Array<{
+    version: number
+    prompt: string
+    finalImageURL: string
+    status: string
+    createdAt: string
+  }>
+  error?: string
 }
 
-export async function addProject(newProjectData: Omit<Project, "id" | "createdAt">): Promise<Project | null> {
+export async function addProject(newProjectData: Omit<Project, "id" | "createdAt" | "updatedAt" | "userId">): Promise<Project | null> {
   const user = auth.currentUser
   if (!user) return null
   const docRef = await addDoc(collection(db, "projects"), {
     ...newProjectData,
     userId: user.uid,
     createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
   })
   return {
     ...newProjectData,
     id: docRef.id,
+    userId: user.uid,
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   }
 }
 
@@ -43,8 +59,10 @@ export async function getProjectsForUser(): Promise<Project[]> {
       const data = doc.data()
       return {
         id: doc.id,
+        userId: data.userId,
         name: data.name,
         createdAt: data.createdAt?.toDate().toISOString() || "",
+        updatedAt: data.updatedAt?.toDate().toISOString() || "",
         status: data.status,
         thumbnail: data.thumbnail,
         aesthetic: data.aesthetic,
@@ -52,7 +70,12 @@ export async function getProjectsForUser(): Promise<Project[]> {
         generatedImages: data.generatedImages,
         garmentImage: data.garmentImage,
         referenceImage: data.referenceImage,
+        finalImageURL: data.finalImageURL,
         prompt: data.prompt,
+        aspect_ratio: data.aspect_ratio,
+        version: data.version,
+        versions: data.versions,
+        error: data.error,
       }
     })
   } catch (error) {
@@ -76,8 +99,10 @@ export async function getProjectById(projectId: string): Promise<Project | null>
       if (data.userId === user.uid) {
         return {
           id: docSnap.id,
+          userId: data.userId,
           name: data.name,
           createdAt: data.createdAt?.toDate().toISOString() || "",
+          updatedAt: data.updatedAt?.toDate().toISOString() || "",
           status: data.status,
           thumbnail: data.thumbnail,
           aesthetic: data.aesthetic,
@@ -85,7 +110,12 @@ export async function getProjectById(projectId: string): Promise<Project | null>
           generatedImages: data.generatedImages,
           garmentImage: data.garmentImage,
           referenceImage: data.referenceImage,
+          finalImageURL: data.finalImageURL,
           prompt: data.prompt,
+          aspect_ratio: data.aspect_ratio,
+          version: data.version,
+          versions: data.versions,
+          error: data.error,
         }
       }
     }

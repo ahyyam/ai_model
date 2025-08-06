@@ -112,23 +112,14 @@ export default function HeroSection() {
             {/* Main Headline */}
             <header className="mb-6 md:mb-8">
               <h1 className="heading-1 mb-4 md:mb-6 leading-tight" itemProp="headline">
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 md:gap-3 lg:gap-4 mb-3">
-                  <span className="text-zarta-gradient text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold">
-                    Instant AI
-                  </span>
-                  <span className="text-blue-500 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold">Photoshoot</span>
-                </div>
-                <div className="text-center lg:text-left">
-                  <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-gray-300 font-bold">
-                    in Seconds
-                  </span>
-                </div>
+                <span className="text-zarta-gradient text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold block text-center lg:text-left">
+                  From Plain Photo To Professional Fashion Campaign in Seconds
+                </span>
               </h1>
               
               {/* Subtitle */}
               <p className="max-w-2xl mx-auto lg:mx-0 body-large mb-6 md:mb-8 text-sm sm:text-base md:text-lg lg:text-xl" itemProp="description">
-                Transform any product photo into <strong className="text-blue-300">professional fashion photography</strong> instantly. 
-                No studio, no models, no waiting. <strong className="text-gray-300">AI-powered photoshoots in seconds</strong>.
+                Upload your garment and model and style reference. Get Hyper Realistic Ai fashion imagery with a single click
               </p>
               
               {/* Key Benefits */}
@@ -143,7 +134,7 @@ export default function HeroSection() {
                 </div>
                 <div className="flex items-center gap-2 md:gap-2.5 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
                   <Zap className="h-3 w-3 md:h-4 md:w-4 text-blue-400" />
-                  <span className="font-medium">95% Cost Savings</span>
+                  <span className="font-medium">98% Less Cost</span>
                 </div>
               </div>
             </header>
@@ -156,7 +147,7 @@ export default function HeroSection() {
                 aria-label="Start instant AI photoshoot"
               >
                 <Link href="/generate" title="Start Instant AI Photoshoot - Professional Fashion Photography in Seconds">
-                  Start Instant Photoshoot <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
+                  Start Creating Now <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
                 </Link>
               </Button>
               

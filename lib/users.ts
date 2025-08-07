@@ -80,27 +80,54 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       return existingUser
     }
     
-    // Try to create the user document
+    // Try to create the user document client-side first
     try {
       await setDoc(doc(db, "users", user.uid), userData)
       console.log("User data created successfully for:", user.uid)
       return userData
     } catch (writeError) {
-      console.error("Error writing to Firestore:", writeError)
+      console.error("Client-side write failed, trying server-side fallback:", writeError)
       
-      // Check if it's a permission error
-      if (writeError instanceof Error) {
-        if (writeError.message.includes('permission-denied') || writeError.message.includes('Missing or insufficient permissions')) {
-          throw new Error("Firebase permission denied. Please check Firestore security rules. Users need permission to write to their own documents.")
-        } else if (writeError.message.includes('unavailable') || writeError.message.includes('network')) {
-          throw new Error("Firebase service unavailable. Please check your internet connection and try again.")
-        } else if (writeError.message.includes('quota-exceeded')) {
-          throw new Error("Firebase quota exceeded. Please contact support.")
-        } else {
-          throw new Error(`Failed to create user data: ${writeError.message}`)
+      // If client-side fails, try server-side API as fallback
+      try {
+        const response = await fetch('/api/create-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Server-side creation failed')
         }
-      } else {
-        throw new Error("Failed to create user data: Unknown write error")
+
+        const result = await response.json()
+        console.log("User data created successfully via server-side fallback for:", user.uid)
+        return result.userData
+      } catch (serverError) {
+        console.error("Server-side fallback also failed:", serverError)
+        
+        // Provide detailed error information
+        if (writeError instanceof Error) {
+          if (writeError.message.includes('permission-denied') || writeError.message.includes('Missing or insufficient permissions')) {
+            throw new Error("Firebase permission denied. Please check Firestore security rules. Users need permission to write to their own documents.")
+          } else if (writeError.message.includes('unavailable') || writeError.message.includes('network')) {
+            throw new Error("Firebase service unavailable. Please check your internet connection and try again.")
+          } else if (writeError.message.includes('quota-exceeded')) {
+            throw new Error("Firebase quota exceeded. Please contact support.")
+          } else {
+            throw new Error(`Failed to create user data: ${writeError.message}`)
+          }
+        } else {
+          throw new Error("Failed to create user data: Unknown write error")
+        }
       }
     }
   } catch (error) {

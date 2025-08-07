@@ -27,19 +27,46 @@ export async function POST(request: NextRequest) {
     }
 
     const userData = userDoc.data()
-    if (!userData?.stripeCustomerId) {
+    let stripeCustomerId = userData?.stripeCustomerId
+
+    // If no stripeCustomerId, try to find customer by email
+    if (!stripeCustomerId && userData?.email) {
+      console.log("No stripeCustomerId found, searching by email:", userData.email)
+      
+      try {
+        const customers = await stripe?.customers.list({
+          email: userData.email,
+          limit: 1
+        })
+        
+        if (customers?.data.length > 0) {
+          stripeCustomerId = customers.data[0].id
+          console.log("Found Stripe customer by email:", stripeCustomerId)
+          
+          // Update the user document with the found stripeCustomerId
+          await userDoc.ref.update({
+            stripeCustomerId: stripeCustomerId,
+            updatedAt: new Date().toISOString()
+          })
+        }
+      } catch (searchError) {
+        console.error("Error searching for customer by email:", searchError)
+      }
+    }
+
+    if (!stripeCustomerId) {
       return NextResponse.json({ error: 'No Stripe customer ID found' }, { status: 400 })
     }
 
     // Get customer data from Stripe
-    const customer = await stripe?.customers.retrieve(userData.stripeCustomerId) as any
+    const customer = await stripe?.customers.retrieve(stripeCustomerId) as any
     if (!customer) {
       return NextResponse.json({ error: 'Customer not found in Stripe' }, { status: 404 })
     }
 
     // Get active subscription
     const subscriptions = await stripe?.subscriptions.list({
-      customer: userData.stripeCustomerId,
+      customer: stripeCustomerId,
       status: 'active',
       limit: 1,
     })
@@ -64,6 +91,13 @@ export async function POST(request: NextRequest) {
     let planName: 'basic' | 'pro' | 'elite' = 'basic'
     let credits = PLAN_CREDITS.BASIC
 
+    console.log("Found subscription with priceId:", priceId)
+    console.log("Environment variables:", {
+      BASIC: process.env.STRIPE_BASIC_PRICE_ID,
+      PRO: process.env.STRIPE_PRO_PRICE_ID,
+      ELITE: process.env.STRIPE_ELITE_PRICE_ID
+    })
+
     if (priceId === process.env.STRIPE_BASIC_PRICE_ID) {
       planName = 'basic'
       credits = PLAN_CREDITS.BASIC
@@ -74,6 +108,8 @@ export async function POST(request: NextRequest) {
       planName = 'elite'
       credits = PLAN_CREDITS.ELITE
     }
+
+    console.log("Determined plan:", planName, "with credits:", credits)
 
     // Update user data with current subscription status and credits
     const updatedData = {
@@ -99,12 +135,8 @@ export async function POST(request: NextRequest) {
         }
       }
     })
-
   } catch (error) {
     console.error('Error syncing subscription:', error)
-    return NextResponse.json(
-      { error: 'Failed to sync subscription' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to sync subscription' }, { status: 500 })
   }
 }

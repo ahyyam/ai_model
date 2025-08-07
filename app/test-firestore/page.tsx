@@ -130,6 +130,41 @@ export default function TestFirestorePage() {
     }
   }
 
+  const testSubscriptionSync = async () => {
+    setIsLoading(true)
+    setTestResult('Testing subscription sync...')
+    
+    try {
+      const currentUser = auth.currentUser
+      if (!currentUser) {
+        setTestResult('❌ No user logged in. Please log in first.')
+        return
+      }
+      
+      const response = await fetch('/api/stripe/sync-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+        }),
+      })
+
+      const data = await response.json()
+      
+      if (data.subscriptionStatus) {
+        setTestResult(`✅ Subscription sync successful!\n\nStatus: ${data.subscriptionStatus}\nCredits: ${data.credits}\n\nSubscription: ${JSON.stringify(data.subscription, null, 2)}`)
+      } else {
+        setTestResult(`❌ Subscription sync failed: ${data.error}`)
+      }
+    } catch (error) {
+      setTestResult(`❌ Error testing subscription sync: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">Firestore Debug Test</h1>
@@ -186,6 +221,17 @@ export default function TestFirestorePage() {
           <CardContent>
             <Button onClick={testServerUserCreation} disabled={isLoading} className="w-full">
               {isLoading ? 'Testing...' : 'Test Server User Creation'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Test Subscription Sync</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={testSubscriptionSync} disabled={isLoading} className="w-full">
+              {isLoading ? 'Testing...' : 'Test Subscription Sync'}
             </Button>
           </CardContent>
         </Card>

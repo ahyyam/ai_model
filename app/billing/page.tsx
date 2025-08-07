@@ -242,14 +242,22 @@ export default function BillingPage() {
           
           setUserData(userDataResult)
           
-          // If user has a Stripe customer ID, sync subscription status and fetch Stripe data
-          if (userDataResult?.stripeCustomerId) {
-            // Sync subscription status from Stripe
+          // Always try to sync subscription status from Stripe (it will search by email if needed)
+          try {
+            console.log("Attempting to sync subscription status for user:", firebaseUser.uid)
             const syncedData = await syncSubscriptionFromStripe(firebaseUser.uid)
             if (syncedData) {
+              console.log("Successfully synced subscription data:", syncedData)
               setUserData(syncedData)
+            } else {
+              console.log("No subscription data found or sync failed")
             }
-            
+          } catch (syncError) {
+            console.error("Error syncing subscription:", syncError)
+          }
+          
+          // If user has a Stripe customer ID, fetch additional Stripe data
+          if (userDataResult?.stripeCustomerId) {
             // Fetch customer data
             const customerResponse = await fetch(`/api/stripe/customer?customerId=${userDataResult.stripeCustomerId}`)
             const customerData = await customerResponse.json()

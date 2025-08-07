@@ -2,17 +2,17 @@ import { UploadCloud, Scan, Sparkles } from "lucide-react"
 
 const steps = [
   {
-    icon: <UploadCloud className="h-8 w-8 text-blue-500" />,
+    icon: <UploadCloud className="h-12 w-12 text-blue-500" />,
     title: "Upload Your Garment",
     description: "Upload your clothing item on a plain background.",
   },
   {
-    icon: <Scan className="h-8 w-8 text-blue-500" />,
+    icon: <Scan className="h-12 w-12 text-blue-500" />,
     title: "Add Model & Style Reference",
     description: "Add your model photo and style inspiration for the look you want.",
   },
   {
-    icon: <Sparkles className="h-8 w-8 text-blue-500" />,
+    icon: <Sparkles className="h-12 w-12 text-blue-500" />,
     title: "Generate & Customize",
     description: "Get hyper-realistic AI fashion images and customize as needed.",
   },
@@ -28,19 +28,19 @@ export default function HowItWorks() {
         <p className="text-gray-400 text-sm md:text-base">3 Simple Steps</p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
         {steps.map((step, index) => (
           <div
             key={index}
-            className="text-center p-6 bg-gray-800/30 rounded-lg border border-gray-700/50"
+            className="text-center p-8 md:p-10 bg-gray-800/30 rounded-xl border border-gray-700/50 min-h-[280px] md:min-h-[320px] flex flex-col justify-center"
             itemScope
             itemProp="step"
             itemType="https://schema.org/HowToStep"
           >
             <meta itemProp="position" content={String(index + 1)} />
-            <div className="flex justify-center mb-4">{step.icon}</div>
-            <h3 className="text-lg font-semibold text-white mb-2" itemProp="name">{step.title}</h3>
-            <p className="text-sm text-gray-400" itemProp="text">{step.description}</p>
+            <div className="flex justify-center mb-6">{step.icon}</div>
+            <h3 className="text-xl md:text-2xl font-semibold text-white mb-3" itemProp="name">{step.title}</h3>
+            <p className="text-base md:text-lg text-gray-400" itemProp="text">{step.description}</p>
           </div>
         ))}
       </div>

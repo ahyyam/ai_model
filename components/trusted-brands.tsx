@@ -73,9 +73,6 @@ export default function TrustedBrands() {
         <h3 className="font-sora text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-300 mb-4">
           Trusted by Leading Fashion Brands
         </h3>
-        <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto">
-          Join thousands of brands already using Zarta to transform their product photography
-        </p>
       </div>
 
       <div className="relative overflow-hidden">

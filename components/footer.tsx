@@ -8,13 +8,13 @@ export default function Footer() {
           Zarta
         </div>
         <div className="flex items-center gap-6 mt-4 md:mt-0">
-          <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
+          <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">
             Terms of Service
           </Link>
-          <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
+          <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">
             Privacy Policy
           </Link>
-          <Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
+          <Link href="/contact" className="text-sm text-gray-400 hover:text-white transition-colors">
             Contact
           </Link>
         </div>

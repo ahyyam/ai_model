@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Star } from "lucide-react"
+import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { auth } from "@/lib/firebase"
@@ -23,7 +23,7 @@ const plans = [
     price: "$30",
     period: "",
     description: "Perfect for getting started with image generation.",
-    features: ["10 image generations", "Basic styling options", "Email support", "$3.00 per image"],
+    features: ["10 image generations", "Basic styling options", "Email support"],
     popular: false,
     color: "border-blue-400",
     badge: "Starter"
@@ -34,7 +34,7 @@ const plans = [
     price: "$40",
     period: "",
     description: "Great value for growing businesses and creators.",
-    features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support", "$2.00 per image"],
+    features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support"],
     popular: true,
     color: "border-blue-500",
     badge: "Better Value"
@@ -45,10 +45,10 @@ const plans = [
     price: "$75",
     period: "",
     description: "Best value for high-volume image generation needs.",
-    features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support", "$1.50 per image"],
+    features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support"],
     popular: false,
     color: "border-blue-600",
-    badge: "Best Value ⭐"
+    badge: "Best Value"
   }
 ]
 
@@ -139,7 +139,6 @@ export default function PricingSection() {
                     <CardHeader className="flex-shrink-0 pb-3">
                       <CardTitle className="heading-3 flex items-center gap-2">
                         {plan.name}
-                        {plan.name === "Elite" && <Star className="icon-sm text-yellow-400" />}
                       </CardTitle>
                       <div className="flex items-baseline">
                         <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
@@ -148,7 +147,6 @@ export default function PricingSection() {
                       <p className="pt-1 text-gray-400 text-xs sm:text-sm">{plan.description}</p>
                       <div className="flex items-center gap-1 pt-1">
                         <span className="text-xs text-gray-300">{plan.badge}</span>
-                        {plan.name === "Elite" && <Star className="h-2 w-2 text-yellow-400" />}
                       </div>
                     </CardHeader>
                     
@@ -201,7 +199,6 @@ export default function PricingSection() {
                             <CardHeader className="flex-shrink-0 pb-3">
                               <CardTitle className="heading-3 flex items-center gap-2">
                                 {plan.name}
-                                {plan.name === "Elite" && <Star className="icon-sm text-yellow-400" />}
                               </CardTitle>
                               <div className="flex items-baseline">
                                 <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
@@ -210,7 +207,6 @@ export default function PricingSection() {
                               <p className="pt-1 text-gray-400 text-xs sm:text-sm">{plan.description}</p>
                               <div className="flex items-center gap-1 pt-1">
                                 <span className="text-xs text-gray-300">{plan.badge}</span>
-                                {plan.name === "Elite" && <Star className="h-2 w-2 text-yellow-400" />}
                               </div>
                             </CardHeader>
                             

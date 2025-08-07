@@ -59,8 +59,11 @@ export default function StepGenerate({
   const [error, setError] = useState("")
   const [generationProgress, setGenerationProgress] = useState(0)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [promptLoading, setPromptLoading] = useState(false)
   const router = useRouter()
   const isMobile = useIsMobile()
+  const [userHasCredit, setUserHasCredit] = useState<boolean | null>(null);
+  const [checkingCredit, setCheckingCredit] = useState(true);
 
   // Helper function to clean and validate prompt
   const getValidPrompt = (userPrompt: string): string => {
@@ -121,6 +124,89 @@ export default function StepGenerate({
       setGenerationProgress(0)
     }
   }, [isGenerating])
+
+  // Pre-fill prompt for registered users with credits
+  useEffect(() => {
+    async function fetchPrompt() {
+      if (!auth.currentUser || prompt) return;
+      setPromptLoading(true);
+      setError("");
+      try {
+        // Check user credits
+        const userData = await getUserData(auth.currentUser.uid);
+        if (!userData || (userData.credits || 0) <= 0) return;
+        // Upload images to storage
+        const garmentImageURL = await uploadImageToStorage(
+          formData.garmentImage!,
+          `temp/${auth.currentUser.uid}/garment-prompt-${Date.now()}.jpg`
+        );
+        const referenceImageURL = await uploadImageToStorage(
+          formData.referenceImage!,
+          `temp/${auth.currentUser.uid}/reference-prompt-${Date.now()}.jpg`
+        );
+        // Get auth token
+        const token = await auth.currentUser.getIdToken();
+        // Call backend to generate prompt
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            referenceImageURL,
+            garmentImageURL,
+            userPrompt: ""
+          })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to generate prompt');
+        }
+        const result = await response.json();
+        if (result.prompt) {
+          setPrompt(result.prompt);
+        }
+      } catch (err) {
+        setError('Could not auto-generate prompt. You can write your own.');
+      } finally {
+        setPromptLoading(false);
+      }
+    }
+    if (
+      formData.garmentImage &&
+      formData.referenceImage &&
+      !prompt &&
+      auth.currentUser
+    ) {
+      fetchPrompt();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.garmentImage, formData.referenceImage]);
+
+  // Check user and credit status on mount
+  useEffect(() => {
+    async function checkCredit() {
+      setCheckingCredit(true);
+      if (!auth.currentUser) {
+        setUserHasCredit(false);
+        setCheckingCredit(false);
+        return;
+      }
+      try {
+        const userData = await getUserData(auth.currentUser.uid);
+        if (userData && (userData.credits || 0) > 0) {
+          setUserHasCredit(true);
+        } else {
+          setUserHasCredit(false);
+        }
+      } catch {
+        setUserHasCredit(false);
+      } finally {
+        setCheckingCredit(false);
+      }
+    }
+    checkCredit();
+  }, []);
 
   const deductCreditAndSaveProject = async (generatedImageUrl: string) => {
     if (!auth.currentUser) return
@@ -338,6 +424,10 @@ export default function StepGenerate({
     }
   }
 
+  const canProceed = () => {
+    return prompt.trim() !== "" && prompt.trim().length >= 3;
+  };
+
   return (
     <div className="w-full min-h-full flex flex-col py-2 md:py-4">
       {/* Main Content */}
@@ -427,14 +517,36 @@ export default function StepGenerate({
             >
               {/* Prompt Input */}
               <div className="space-y-3 sm:space-y-4">
-                <label className="text-lg sm:text-xl font-bold text-white">Customize Your Prompt</label>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe any specific details you'd like to see in your AI photoshoot..."
-                  className="w-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 text-base sm:text-lg md:text-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent leading-relaxed"
-                />
-                <p className="text-sm sm:text-base text-gray-500">Add specific details like poses, expressions, or style preferences</p>
+                <label className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                  Customize Your Prompt
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 text-xs font-medium">Optional</span>
+                </label>
+                {checkingCredit ? (
+                  <div className="text-gray-400 text-sm py-2">Checking account status...</div>
+                ) : !auth.currentUser ? (
+                  <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-200 rounded-lg p-4 flex flex-col items-start gap-2">
+                    <span>You must be logged in to generate AI photoshoots.</span>
+                    <Button onClick={() => router.push('/login')} variant="secondary">Log In</Button>
+                  </div>
+                ) : userHasCredit === false ? (
+                  <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-200 rounded-lg p-4 flex flex-col items-start gap-2">
+                    <span>You do not have enough credits to generate an AI photoshoot.</span>
+                    <Button onClick={() => router.push('/subscribe')} variant="secondary">Get Credits</Button>
+                  </div>
+                ) : (
+                  <>
+                    {promptLoading ? (
+                      <div className="text-gray-400 text-sm py-2">Generating prompt...</div>
+                    ) : null}
+                    <textarea
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Describe any specific details you'd like to see in your AI photoshoot..."
+                      className="w-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 text-base sm:text-lg md:text-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent leading-relaxed"
+                      disabled={promptLoading}
+                    />
+                  </>
+                )}
               </div>
 
               {/* Error Display */}

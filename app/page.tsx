@@ -53,13 +53,10 @@ export default function LandingPage() {
           <meta itemProp="description" content="Key features of Zarta's AI-powered fashion photography platform" />
           <header className="text-center mb-8 sm:mb-12">
             <h2 className="heading-2 mb-4 sm:mb-6" itemProp="name">AI Fashion Photography Features</h2>
-            <p className="body-large container-base mx-auto" itemProp="description">
-              Transform your e-commerce photography with AI-powered fashion photography tools. Generate professional product photography, lifestyle shots, and brand-consistent visuals in minutes.
-            </p>
           </header>
           <FeatureSection
             title="Unlimited Looks. No Photoshoot Needed."
-            description="Create endless, professional model shots in minutes\nNo camera, no crew. From simple garment upload to professional visuals, Zarta AI handles it all at a fraction of the time and cost."
+            description="Create endless, professional model shots in minutes No camera, no crew. From simple garment upload to professional visuals, Zarta AI handles it all at a fraction of the time and cost."
             imageUrl="/images/pic 1.png"
             Icon={Infinity}
             benefit="Save Time & Money"

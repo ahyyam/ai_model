@@ -4,23 +4,12 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Lock, Sparkles, Star } from "lucide-react"
 import Image from "next/image"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged } from "firebase/auth"
 import { addProject } from "@/lib/projects"
-import { getUserData, deductUserCredit } from "@/lib/users"
-
-const trustedBrands = [
-  { name: "BrandA", logo: "/placeholder.svg?height=40&width=100&text=BrandA" },
-  { name: "BrandB", logo: "/placeholder.svg?height=40&width=100&text=BrandB" },
-  { name: "BrandC", logo: "/placeholder.svg?height=40&width=100&text=BrandC" },
-  { name: "BrandD", logo: "/placeholder.svg?height=40&width=100&text=BrandD" },
-]
+import { TopNav } from "@/components/dashboard/top-nav"
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -28,27 +17,7 @@ export default function ResultsPage() {
   const [referenceImage, setReferenceImage] = useState<string | null>(null)
   const [prompt, setPrompt] = useState("")
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const [error, setError] = useState("")
-
-  // Helper function to clean and validate prompt
-  const getValidPrompt = (userPrompt: string): string => {
-    const trimmedPrompt = userPrompt.trim()
-    
-    // If prompt is empty or only whitespace, use default
-    if (!trimmedPrompt) {
-      return "Professional product photo with outfit styling"
-    }
-    
-    // If prompt is too short (less than 3 characters), use default
-    if (trimmedPrompt.length < 3) {
-      return "Professional product photo with outfit styling"
-    }
-    
-    // Return the cleaned prompt
-    return trimmedPrompt
-  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -73,109 +42,6 @@ export default function ResultsPage() {
     // Optionally, fetch last project for logged-in users if needed
   }, [])
 
-  const deductCreditAndSaveProject = async (generatedImageUrl: string) => {
-    if (!user) return
-
-    try {
-      // Deduct one credit from user
-      const creditDeducted = await deductUserCredit(user.uid)
-      if (!creditDeducted) {
-        setError("Failed to deduct credit. Please try again.")
-        return
-      }
-
-      // Get onboarding data for project details
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (!onboardingState) {
-        setError("No onboarding data found. Please try again.")
-        return
-      }
-
-      const onboardingData = JSON.parse(onboardingState)
-
-      // Save project to Firebase
-      const result = await addProject({
-        name: getValidPrompt(prompt) || `${onboardingData.formData.aesthetic} Photoshoot`,
-        status: "complete",
-        aesthetic: onboardingData.formData.aesthetic || "N/A",
-        prompt: getValidPrompt(prompt),
-        garmentImage: onboardingData.formData.garmentImage,
-        referenceImage: onboardingData.formData.referenceImage,
-        thumbnail: onboardingData.formData.garmentImage,
-        downloads: 0,
-        generatedImages: [generatedImageUrl],
-      })
-
-      if (!result) {
-        setError("Failed to save project. Please try again.")
-        return
-      }
-
-      console.log("Project saved successfully and credit deducted")
-      
-      // Clear onboarding state after successful save
-      localStorage.removeItem("onboardingState")
-    } catch (error) {
-      console.error("Error saving project:", error)
-      setError("Failed to save project. Please try again.")
-    }
-  }
-
-  const handleEditPrompt = async () => {
-    if (!user) return
-    
-    setIsLoading(true)
-    setError("")
-    
-    try {
-      // Check user's credit balance
-      const userData = await getUserData(user.uid)
-      if (!userData) {
-        setError("Unable to load user data. Please try again.")
-        return
-      }
-
-      const availableCredits = userData.credits || 0
-      if (availableCredits <= 0) {
-        // No credits - redirect to subscribe page for plan selection
-        router.push("/subscribe")
-        return
-      }
-
-      // User has credits - proceed with generation
-      console.log(`User has ${availableCredits} credits, proceeding with regeneration`)
-
-      // Get onboarding data
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (!onboardingState) {
-        setError("No onboarding data found. Please start over.")
-        return
-      }
-
-      const onboardingData = JSON.parse(onboardingState)
-      
-      // Get validated prompt (handles empty strings, whitespace, etc.)
-      const validatedPrompt = getValidPrompt(prompt)
-
-      // Simulate image generation process
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // For now, use the reference image as the "generated" image
-      // In a real implementation, this would be replaced with actual AI image generation
-      const generatedImageUrl = onboardingData.formData.referenceImage
-      setGeneratedImage(generatedImageUrl)
-
-      // Deduct credit and save project to Firebase
-      await deductCreditAndSaveProject(generatedImageUrl)
-      
-    } catch (error) {
-      console.error('Error generating image:', error)
-      setError('Failed to generate image. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleSaveProject = async () => {
     if (!user) return
     await addProject({
@@ -194,94 +60,83 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen bg-[#111111] text-white">
+      <TopNav />
       <main className="container mx-auto px-4 md:px-6 py-12 md:py-16">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 md:gap-16 items-start">
-          {/* Left Column: Visual Result & Proof */}
-          <div className="space-y-8 lg:sticky lg:top-8">
-            <div className="relative w-full aspect-square rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shadow-blue-900/10">
-              <Image
-                src={generatedImage || "/placeholder.svg?height=800&width=800"}
-                alt="Your AI generated result"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm text-gray-400 ml-1">Your Garment</Label>
-                {garmentImage ? (
-                  <Image
-                    src={garmentImage}
-                    alt="Uploaded garment"
-                    width={300}
-                    height={300}
-                    className="rounded-lg object-cover aspect-square border border-gray-800"
-                  />
-                ) : (
-                  <div className="w-full h-[300px] bg-gray-800 rounded-lg flex items-center justify-center text-gray-500">No garment image</div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm text-gray-400 ml-1">Your Reference</Label>
-                {referenceImage ? (
-                  <Image
-                    src={referenceImage}
-                    alt="Reference style"
-                    width={300}
-                    height={300}
-                    className="rounded-lg object-cover aspect-square border border-gray-800"
-                  />
-                ) : (
-                  <div className="w-full h-[300px] bg-gray-800 rounded-lg flex items-center justify-center text-gray-500">No reference image</div>
-                )}
-              </div>
-            </div>
-          </div>
-          {/* Right Column: Prompt Editing & Actions */}
-          <div className="w-full max-w-md mx-auto lg:mx-0 lg:justify-self-end">
-            <Card className="bg-[#1c1c1c] border-gray-800 text-white rounded-2xl">
-              <CardHeader>
-                <CardTitle className="font-sora text-3xl font-bold">Edit Prompt & Regenerate</CardTitle>
-                <p className="text-gray-400 pt-1">Change your prompt and generate a new result.</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Label htmlFor="prompt">Prompt</Label>
-                <Input
-                  id="prompt"
-                  value={prompt}
-                  onChange={e => setPrompt(e.target.value)}
-                  className="bg-gray-800/50 border-gray-700 h-12"
-                  placeholder="Describe your desired style..."
+        <div className="max-w-7xl mx-auto">
+          {/* Generated Result and Actions - Side by Side */}
+          <div className="grid lg:grid-cols-2 gap-12 md:gap-16 items-start">
+            {/* Left Column: Generated Result */}
+            <div className="flex flex-col items-center lg:items-start">
+              <Label className="text-lg font-semibold text-white mb-6">Generated Result</Label>
+              <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shadow-blue-900/10">
+                <Image
+                  src={generatedImage || "/placeholder.svg?height=800&width=800"}
+                  alt="Your AI generated result"
+                  fill
+                  className="object-cover"
                 />
-                {error && (
-                  <div className="text-red-500 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                    {error}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleEditPrompt}
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-base"
-                  >
-                    {isLoading ? "Generating..." : "Regenerate"}
-                  </Button>
-                  <Button
-                    onClick={handleSaveProject}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 text-base"
-                  >
-                    Save
-                  </Button>
+              </div>
+            </div>
+            
+            {/* Right Column: Action Buttons */}
+            <div className="flex flex-col gap-6 items-center lg:items-start">
+              <h3 className="text-xl font-semibold text-white">What would you like to do?</h3>
+              
+              {/* Garment and Reference Images - Side by Side */}
+              <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-white">Your Garment</Label>
+                  {garmentImage ? (
+                    <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-gray-800">
+                      <Image
+                        src={garmentImage}
+                        alt="Uploaded garment"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-square bg-gray-800 rounded-xl flex items-center justify-center text-gray-500 border border-gray-700 text-xs">
+                      No garment
+                    </div>
+                  )}
                 </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-white">Your Reference</Label>
+                  {referenceImage ? (
+                    <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-gray-800">
+                      <Image
+                        src={referenceImage}
+                        alt="Reference style"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-square bg-gray-800 rounded-xl flex items-center justify-center text-gray-500 border border-gray-700 text-xs">
+                      No reference
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-3 w-full max-w-md">
+                <Button
+                  onClick={handleSaveProject}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8"
+                >
+                  Download
+                </Button>
                 <Button
                   onClick={() => router.push("/projects")}
                   variant="outline"
-                  className="w-full mt-2 border-blue-600 text-blue-400 hover:bg-blue-900/10"
+                  className="w-full border-blue-600 text-blue-400 hover:bg-blue-900/10 py-3 px-8"
                 >
                   Go to Projects
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </main>

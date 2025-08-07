@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { auth } from "@/lib/firebase"
-import { Check, Sparkles, Zap, Crown, ArrowRight, Star } from "lucide-react"
+import { Check, Sparkles, Zap, Crown, ArrowRight, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 const plans = [
@@ -15,7 +15,7 @@ const plans = [
     price: "$30",
     period: "",
     description: "Perfect for getting started with image generation.",
-    features: ["10 image generations", "Basic styling options", "Email support", "$3.00 per image"],
+    features: ["10 image generations", "Basic styling options", "Email support"],
     popular: false,
     color: "border-blue-400",
     badge: "Starter"
@@ -26,7 +26,7 @@ const plans = [
     price: "$40",
     period: "",
     description: "Great value for growing businesses and creators.",
-    features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support", "$2.00 per image"],
+    features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support"],
     popular: true,
     color: "border-blue-500",
     badge: "Better Value"
@@ -37,18 +37,21 @@ const plans = [
     price: "$75",
     period: "",
     description: "Best value for high-volume image generation needs.",
-    features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support", "$1.50 per image"],
+    features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support"],
     popular: false,
     color: "border-blue-600",
-    badge: "Best Value ⭐"
+    badge: "Best Value"
   }
 ]
 
 export default function SubscribePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState("pro")
   const [user, setUser] = useState<any>(null)
+
+  const handleBack = () => {
+    router.back()
+  }
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -72,15 +75,13 @@ export default function SubscribePage() {
         throw new Error(`Plan ${planId} not found`)
       }
 
-      console.log("Creating checkout session for plan:", plan.name)
-
       const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          plan: planId.toUpperCase(), // Use plan name instead of priceId
+          plan: planId.toUpperCase(),
           email: user.email,
           successUrl: `${window.location.origin}/projects`,
           cancelUrl: `${window.location.origin}/subscribe`,
@@ -94,7 +95,6 @@ export default function SubscribePage() {
 
       const data = await response.json()
       if (data.url) {
-        console.log("Redirecting to Stripe checkout:", data.url)
         window.location.href = data.url
       } else {
         throw new Error("No checkout URL received from server")
@@ -126,6 +126,17 @@ export default function SubscribePage() {
   return (
     <div className="min-h-screen bg-[#111111] text-white py-6 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button
+            onClick={handleBack}
+            variant="ghost"
+            className="text-gray-400 hover:text-white hover:bg-gray-800/50"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex flex-col items-center mb-4">
@@ -151,17 +162,14 @@ export default function SubscribePage() {
             <div key={plan.id} className="relative h-full">
               <Card
                 className={`bg-[#1c1c1c] border-gray-800 text-white flex flex-col h-full min-h-[400px] transition-all duration-200 hover:scale-105 ${
-                  selectedPlan === plan.id
-                    ? "border-blue-500 bg-blue-500/5"
-                    : plan.popular 
-                      ? `${plan.color} border-2` 
-                      : "border-gray-700 hover:border-gray-600"
+                  plan.popular 
+                    ? `${plan.color} border-2` 
+                    : "border-gray-700 hover:border-gray-600"
                 }`}
               >
                 <CardHeader className="flex-shrink-0 pb-3">
                   <CardTitle className="font-sora text-lg sm:text-xl flex items-center gap-2">
                     {plan.name}
-                    {plan.name === "Elite" && <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />}
                   </CardTitle>
                   <div className="flex items-baseline">
                     <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
@@ -170,10 +178,8 @@ export default function SubscribePage() {
                   <p className="pt-1 text-gray-400 text-xs sm:text-sm">{plan.description}</p>
                   <div className="flex items-center gap-1 pt-1">
                     <span className="text-xs text-gray-300">{plan.badge}</span>
-                    {plan.name === "Elite" && <Star className="h-2 w-2 text-yellow-400" />}
                   </div>
                 </CardHeader>
-                
                 <CardContent className="flex flex-col flex-1 pt-0">
                   <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 flex-1">
                     {plan.features.map((feature, index) => (
@@ -183,42 +189,17 @@ export default function SubscribePage() {
                       </li>
                     ))}
                   </ul>
-                  
                   <Button
-                    onClick={() => setSelectedPlan(plan.id)}
-                    className={`w-full py-2 text-white text-xs sm:text-sm ${
-                      selectedPlan === plan.id
-                        ? "bg-blue-600 hover:bg-blue-700"
-                        : "bg-gray-700 hover:bg-gray-600"
-                    }`}
+                    onClick={() => handleSubscribe(plan.id)}
+                    className="w-full py-2 text-white text-xs sm:text-sm bg-blue-600 hover:bg-blue-700"
+                    disabled={isLoading}
                   >
-                    {selectedPlan === plan.id ? "Selected" : "Select Plan"}
+                    {isLoading ? "Processing..." : `Subscribe to ${plan.name}`}
                   </Button>
                 </CardContent>
               </Card>
             </div>
           ))}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-center mb-6">
-          <Button
-            onClick={() => handleSubscribe(selectedPlan)}
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 text-base"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Processing...
-              </>
-            ) : (
-              <>
-                Start {plans.find(p => p.id === selectedPlan)?.name} Plan
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </>
-            )}
-          </Button>
         </div>
 
         {/* Additional Info */}

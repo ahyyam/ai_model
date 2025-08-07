@@ -150,13 +150,6 @@ export default function HeroSection() {
                   Start Creating Now <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
                 </Link>
               </Button>
-              
-              <Button
-                variant="outline"
-                className="btn-secondary text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 md:py-4 w-full sm:w-auto"
-              >
-                Watch Demo
-              </Button>
             </div>
             
             {/* Social Proof */}

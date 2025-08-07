@@ -10,6 +10,7 @@ import { getProjectsForUser, type Project } from "@/lib/projects"
 import { getUserData, type UserData } from "@/lib/users"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
+import { createUserData } from "@/lib/users"
 
 export function ProjectsGrid() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -23,10 +24,38 @@ export function ProjectsGrid() {
       setUser(firebaseUser)
       
       if (firebaseUser) {
+        // Ensure user is properly authenticated
         try {
+          // Get the current user's ID token to verify authentication
+          const token = await firebaseUser.getIdToken()
+          if (!token) {
+            throw new Error("User not properly authenticated")
+          }
+          
           const userDataResult = await getUserData(firebaseUser.uid)
-          setUserData(userDataResult)
-          setUserDataError(false)
+          if (userDataResult) {
+            setUserData(userDataResult)
+            setUserDataError(false)
+          } else {
+            // User data doesn't exist, create it
+            try {
+              const newUserData = await createUserData(firebaseUser)
+              setUserData(newUserData)
+              setUserDataError(false)
+            } catch (createError) {
+              console.error("Error creating user data:", createError)
+              setUserDataError(true)
+              // Set default user data to prevent errors
+              setUserData({
+                uid: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                subscriptionStatus: 'free',
+                credits: 0,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              })
+            }
+          }
         } catch (error) {
           console.error("Error fetching user data:", error)
           setUserDataError(true)
@@ -35,10 +64,14 @@ export function ProjectsGrid() {
             uid: firebaseUser.uid,
             email: firebaseUser.email || '',
             subscriptionStatus: 'free',
+            credits: 0,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           })
         }
+      } else {
+        setUserData(null)
+        setUserDataError(false)
       }
       
       setIsLoading(false)
@@ -51,18 +84,27 @@ export function ProjectsGrid() {
     if (user) {
       getProjectsForUser().then(setProjects).catch(error => {
         console.error("Error fetching projects:", error)
-        setProjects([])
+        // If it's a permissions error, show empty state instead of crashing
+        if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+          console.log("Permission denied for projects, showing empty state")
+          setProjects([])
+        } else {
+          // For other errors, still show empty state but log the error
+          setProjects([])
+        }
       })
+    } else {
+      setProjects([])
     }
   }, [user])
 
   const getStatusColor = (status: Project["status"]) => {
     switch (status) {
-      case "completed":
+      case "complete":
         return "bg-green-500/20 text-green-400 border-green-500/30"
       case "processing":
         return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-      case "failed":
+      case "error":
         return "bg-red-500/20 text-red-400 border-red-500/30"
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30"
@@ -90,7 +132,7 @@ export function ProjectsGrid() {
               href="/subscribe" 
               className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
             >
-              Upgrade to Pro
+              Subscribe
             </Link>
           )}
         </div>
@@ -122,7 +164,7 @@ export function ProjectsGrid() {
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="text-center p-4">
                         <Lock className="h-8 w-8 text-blue-400 mx-auto mb-2" />
-                        <p className="text-white font-semibold mb-1">Upgrade to Pro</p>
+                        <p className="text-white font-semibold mb-1">Subscribe</p>
                         <p className="text-sm text-gray-300">Unlock unlimited generations and advanced features</p>
                         <Link 
                           href="/subscribe" 
@@ -151,7 +193,7 @@ export function ProjectsGrid() {
                     <Calendar className="h-3 w-3" />
                     {new Date(project.createdAt).toLocaleDateString()}
                   </div>
-                  {project.status === "completed" && (
+                  {project.status === "complete" && (
                     <div className="flex items-center gap-1">
                       <Download className="h-3 w-3" />
                       {project.downloads}
@@ -170,7 +212,7 @@ export function ProjectsGrid() {
           <div className="flex items-center gap-3">
             <Crown className="h-6 w-6 text-blue-400" />
             <div className="flex-1">
-              <h3 className="font-semibold text-white">Upgrade to Pro</h3>
+              <h3 className="font-semibold text-white">Subscribe</h3>
               <p className="text-sm text-gray-300">Get unlimited generations, priority processing, and advanced features</p>
             </div>
             <Link 

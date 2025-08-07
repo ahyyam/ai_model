@@ -80,22 +80,35 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       return existingUser
     }
     
-    await setDoc(doc(db, "users", user.uid), userData)
-    console.log("User data created successfully for:", user.uid)
-    
-    return userData
+    // Try to create the user document
+    try {
+      await setDoc(doc(db, "users", user.uid), userData)
+      console.log("User data created successfully for:", user.uid)
+      return userData
+    } catch (writeError) {
+      console.error("Error writing to Firestore:", writeError)
+      
+      // Check if it's a permission error
+      if (writeError instanceof Error) {
+        if (writeError.message.includes('permission-denied') || writeError.message.includes('Missing or insufficient permissions')) {
+          throw new Error("Firebase permission denied. Please check Firestore security rules. Users need permission to write to their own documents.")
+        } else if (writeError.message.includes('unavailable') || writeError.message.includes('network')) {
+          throw new Error("Firebase service unavailable. Please check your internet connection and try again.")
+        } else if (writeError.message.includes('quota-exceeded')) {
+          throw new Error("Firebase quota exceeded. Please contact support.")
+        } else {
+          throw new Error(`Failed to create user data: ${writeError.message}`)
+        }
+      } else {
+        throw new Error("Failed to create user data: Unknown write error")
+      }
+    }
   } catch (error) {
     console.error("Error creating user data:", error)
     
-    // Provide more specific error information
+    // Re-throw the error with more context
     if (error instanceof Error) {
-      if (error.message.includes('permission-denied')) {
-        throw new Error("Firebase permission denied. Please check Firestore security rules.")
-      } else if (error.message.includes('unavailable')) {
-        throw new Error("Firebase service unavailable. Please try again later.")
-      } else {
-        throw new Error(`Failed to create user data: ${error.message}`)
-      }
+      throw error
     } else {
       throw new Error("Failed to create user data: Unknown error")
     }

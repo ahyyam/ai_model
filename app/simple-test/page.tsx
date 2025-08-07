@@ -10,7 +10,7 @@ export default function SimpleTestPage() {
 
   const testSimpleWrite = async () => {
     setIsLoading(true)
-    setResult('Testing simple Firestore write...')
+    setResult('Testing simple Firestore write...first commit')
     
     try {
       const response = await fetch('/api/simple-test')

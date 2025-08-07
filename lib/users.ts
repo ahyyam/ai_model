@@ -126,43 +126,31 @@ export async function syncSubscriptionFromStripe(uid: string): Promise<UserData 
       return userData
     }
 
-    // Call the backend API to get Stripe customer data
-    const response = await fetch(`/api/stripe/customer?customerId=${userData.stripeCustomerId}`)
+    // Call the new sync API endpoint
+    const response = await fetch('/api/stripe/sync-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uid }),
+    })
+
     if (!response.ok) {
-      console.error("Failed to fetch Stripe customer data")
+      console.error("Failed to sync subscription from Stripe")
       return userData
     }
 
-    const stripeData = await response.json()
-    if (!stripeData.customer || !stripeData.customer.subscription) {
-      // No active subscription, update status to free
-      await updateUserData(uid, { subscriptionStatus: 'free' })
-      return { ...userData, subscriptionStatus: 'free' }
+    const syncData = await response.json()
+    
+    if (syncData.error) {
+      console.error("Error syncing subscription:", syncData.error)
+      return userData
     }
 
-    const subscription = stripeData.customer.subscription
-    const priceId = subscription.plan?.id || subscription.plan?.price_id
-
-    // Determine plan and credits based on price ID
-    let planName: 'basic' | 'pro' | 'elite' = 'basic'
-    let credits = PLAN_CREDITS.BASIC
-
-    // Use the same price IDs as defined in lib/stripe.ts
-    if (priceId === process.env.STRIPE_BASIC_PRICE_ID) {
-      planName = 'basic'
-      credits = PLAN_CREDITS.BASIC
-    } else if (priceId === process.env.STRIPE_PRO_PRICE_ID) {
-      planName = 'pro'
-      credits = PLAN_CREDITS.PRO
-    } else if (priceId === process.env.STRIPE_ELITE_PRICE_ID) {
-      planName = 'elite'
-      credits = PLAN_CREDITS.ELITE
-    }
-
-    // Update user data with current subscription status and credits
+    // Update user data with synced information
     const updatedData = {
-      subscriptionStatus: planName,
-      credits: Math.max(userData.credits || 0, credits), // Don't reduce credits if user already has more
+      subscriptionStatus: syncData.subscriptionStatus,
+      credits: syncData.credits,
       updatedAt: new Date().toISOString()
     }
 

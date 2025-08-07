@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth, adminDb } from '@/lib/firebase-admin'
 import { generateImageWithRunway, waitForRunwayGeneration } from '@/lib/runway'
 import { uploadImageFromURL, generateImagePath } from '@/lib/storage'
-import { doc, getDoc, updateDoc, arrayUnion } from 'firebase-admin/firestore'
+import { FieldValue } from 'firebase-admin/firestore'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,13 +23,13 @@ export async function POST(request: NextRequest) {
     const userId = decodedToken.uid
 
     // 2. Check User Credits
-    const userDoc = await getDoc(doc(adminDb, 'users', userId))
-    if (!userDoc.exists()) {
+    const userDoc = await adminDb.collection('users').doc(userId).get()
+    if (!userDoc.exists) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     const userData = userDoc.data()
-    const availableCredits = userData.credits || 0
+    const availableCredits = userData?.credits || 0
     if (availableCredits <= 0) {
       return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 })
     }
@@ -43,25 +43,25 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Fetch original project data
-    const projectDoc = await getDoc(doc(adminDb, 'projects', projectId))
-    if (!projectDoc.exists()) {
+    const projectDoc = await adminDb.collection('projects').doc(projectId).get()
+    if (!projectDoc.exists) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
     const projectData = projectDoc.data()
     
     // Check if project belongs to user
-    if (projectData.userId !== userId) {
+    if (projectData?.userId !== userId) {
       return NextResponse.json({ error: 'Unauthorized access to project' }, { status: 403 })
     }
 
     // Check if project is complete
-    if (projectData.status !== 'complete') {
+    if (projectData?.status !== 'complete') {
       return NextResponse.json({ error: 'Project is not ready for editing' }, { status: 400 })
     }
 
     // 5. Update project status to processing
-    await updateDoc(doc(adminDb, 'projects', projectId), {
+    await adminDb.collection('projects').doc(projectId).update({
       status: 'processing',
       updatedAt: new Date()
     })
@@ -100,40 +100,45 @@ export async function POST(request: NextRequest) {
       }
 
       // 9. Update project with new version
-      await updateDoc(doc(adminDb, 'projects', projectId), {
+      await adminDb.collection('projects').doc(projectId).update({
         status: 'complete',
+        updatedAt: new Date(),
         version: newVersion,
-        finalImageURL: newVersionStorageURL,
-        prompt: newPrompt,
-        versions: arrayUnion(versionMetadata),
-        updatedAt: new Date()
+        versions: FieldValue.arrayUnion(versionMetadata)
       })
 
       // 10. Deduct credit from user
-      await updateDoc(doc(adminDb, 'users', userId), {
+      await adminDb.collection('users').doc(userId).update({
         credits: availableCredits - 1,
         updatedAt: new Date()
       })
 
       return NextResponse.json({
         success: true,
-        projectId,
         version: newVersion,
         finalImageURL: newVersionStorageURL,
         prompt: newPrompt
       })
 
     } catch (error) {
-      console.error('Error generating new version:', error)
-      await updateDoc(doc(adminDb, 'projects', projectId), {
-        status: 'error',
-        error: 'Failed to generate new version'
+      // Revert project status on error
+      await adminDb.collection('projects').doc(projectId).update({
+        status: 'complete',
+        updatedAt: new Date()
       })
-      return NextResponse.json({ error: 'Failed to generate new version' }, { status: 500 })
+      
+      console.error('Error generating image:', error)
+      return NextResponse.json(
+        { error: 'Failed to generate image' },
+        { status: 500 }
+      )
     }
 
   } catch (error) {
-    console.error('Error in edit endpoint:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error in edit API:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

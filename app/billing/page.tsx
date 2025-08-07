@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { CreditCard, ExternalLink, Loader2, AlertCircle, Sparkles, Check, ArrowRight, Crown, Zap } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { CreditCard, ExternalLink, Loader2, AlertCircle, Sparkles, Check, ArrowRight, Crown, Zap, X, ChevronDown, ChevronUp } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
 import { getUserData, UserData, syncSubscriptionFromStripe } from "@/lib/users"
@@ -72,7 +73,7 @@ const addOnPacks = [
     name: "Mini Pack",
     price: "$10",
     description: "Quick boost for small projects",
-    features: ["3 additional tokens", "Instant delivery", "Same quality"],
+    features: ["5 additional tokens", "Instant delivery", "Same quality"],
     popular: false,
     color: "border-green-400",
     badge: "Quick Boost"
@@ -82,7 +83,7 @@ const addOnPacks = [
     name: "Standard Pack",
     price: "$20",
     description: "Perfect for most projects",
-    features: ["6 additional tokens", "Instant delivery", "Priority processing"],
+    features: ["15 additional tokens", "Instant delivery", "Priority processing"],
     popular: true,
     color: "border-blue-500",
     badge: "Most Popular"
@@ -92,7 +93,7 @@ const addOnPacks = [
     name: "Plus Pack",
     price: "$30",
     description: "Best value for larger projects",
-    features: ["10 additional tokens", "Instant delivery", "Priority processing", "Dedicated support"],
+    features: ["25 additional tokens", "Instant delivery", "Priority processing", "Dedicated support"],
     popular: false,
     color: "border-purple-500",
     badge: "Best Value"
@@ -108,6 +109,8 @@ export default function BillingPage() {
   const [invoices, setInvoices] = useState<any[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [hasOnboardingState, setHasOnboardingState] = useState(false)
+  const [showUnsubscribeDialog, setShowUnsubscribeDialog] = useState(false)
+  const [showChangePlanOptions, setShowChangePlanOptions] = useState(false)
   const router = useRouter()
   
   // Extract subscription from stripeCustomer
@@ -202,10 +205,9 @@ export default function BillingPage() {
     router.push("/subscribe")
   }
 
-  const handleCancel = async () => {
-    if (confirm("Are you sure you want to cancel your subscription? You'll lose access to your current plan benefits.")) {
-      await handleManageSubscription()
-    }
+  const handleUnsubscribe = async () => {
+    setShowUnsubscribeDialog(false)
+    await handleManageSubscription()
   }
 
   // Fetch user data and Stripe customer information
@@ -434,12 +436,12 @@ export default function BillingPage() {
             </div>
             <div className="flex gap-2">
               <Button 
-                onClick={handleUpgrade}
+                onClick={() => setShowChangePlanOptions(!showChangePlanOptions)}
                 variant="outline"
                 className="border-gray-700 text-gray-300 hover:bg-gray-800 bg-transparent"
               >
-                <Zap className="mr-2 h-4 w-4" />
-                Upgrade
+                {showChangePlanOptions ? <ChevronUp className="mr-2 h-4 w-4" /> : <ChevronDown className="mr-2 h-4 w-4" />}
+                Change Plan
               </Button>
               <Button onClick={handleManageSubscription} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ExternalLink className="mr-2 h-4 w-4" />}
@@ -459,6 +461,75 @@ export default function BillingPage() {
                 </Badge>
               </div>
               <p className="text-sm text-gray-400">Next billing date: {formatDate(subscription.current_period_end)}</p>
+            </div>
+
+            {/* Change Plan Options */}
+            {showChangePlanOptions && (
+              <div className="mt-6 space-y-4">
+                <div className="border-t border-gray-700 pt-4">
+                  <h4 className="text-lg font-semibold mb-4">Upgrade or Downgrade Your Plan</h4>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {plans.map((plan) => (
+                      <div key={plan.id} className="relative">
+                        <Card className="bg-gray-800/30 border-gray-600 hover:border-gray-500 transition-colors">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-lg">{plan.name}</CardTitle>
+                            <div className="flex items-baseline">
+                              <span className="text-xl font-bold">{plan.price}</span>
+                            </div>
+                            <p className="text-sm text-gray-400">{plan.description}</p>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <Button
+                              onClick={() => handleSubscribe(plan.id as 'basic' | 'pro' | 'elite')}
+                              disabled={isLoading}
+                              className="w-full bg-blue-600 hover:bg-blue-700"
+                              size="sm"
+                            >
+                              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                              {plan.id === subscription.plan.nickname?.toLowerCase() ? 'Current Plan' : 'Switch to ' + plan.name}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Unsubscribe Button */}
+            <div className="mt-6 pt-4 border-t border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-lg font-semibold text-red-400">Cancel Subscription</h4>
+                  <p className="text-sm text-gray-400">You'll lose access to your current plan benefits at the end of your billing period.</p>
+                </div>
+                <Dialog open={showUnsubscribeDialog} onOpenChange={setShowUnsubscribeDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                      <X className="mr-2 h-4 w-4" />
+                      Unsubscribe
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-[#1c1c1c] border-gray-700 text-white">
+                    <DialogHeader>
+                      <DialogTitle className="text-red-400">Cancel Subscription</DialogTitle>
+                      <DialogDescription className="text-gray-300">
+                        Are you sure you want to cancel your subscription? You'll lose access to your current plan benefits at the end of your billing period.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowUnsubscribeDialog(false)} className="border-gray-600 text-gray-300">
+                        Keep Subscription
+                      </Button>
+                      <Button variant="destructive" onClick={handleUnsubscribe} className="bg-red-600 hover:bg-red-700">
+                        Yes, Cancel Subscription
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </CardContent>
         </Card>

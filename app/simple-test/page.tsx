@@ -10,7 +10,7 @@ export default function SimpleTestPage() {
 
   const testSimpleWrite = async () => {
     setIsLoading(true)
-    setResult('Testing simple Firestore write...first commit')
+    setResult('Testing simple Firestore write...')
     
     try {
       const response = await fetch('/api/simple-test')
@@ -29,32 +29,34 @@ export default function SimpleTestPage() {
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Simple Firestore Test</h1>
-      
-      <Card className="max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle>Test Basic Firestore Write</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button 
-            onClick={testSimpleWrite} 
-            disabled={isLoading} 
-            className="w-full"
-          >
-            {isLoading ? 'Testing...' : 'Test Simple Write'}
-          </Button>
-          
-          {result && (
-            <div className="mt-4">
-              <h3 className="font-semibold mb-2">Result:</h3>
-              <pre className="bg-gray-100 p-4 rounded-lg overflow-auto text-sm">
-                {result}
-              </pre>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto p-8">
+        <h1 className="text-3xl font-bold mb-8 text-white">Simple Firestore Test</h1>
+        
+        <Card className="max-w-md mx-auto bg-gray-800 border-gray-700 text-white">
+          <CardHeader>
+            <CardTitle className="text-white">Test Basic Firestore Write</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={testSimpleWrite} 
+              disabled={isLoading} 
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              {isLoading ? 'Testing...' : 'Test Simple Write'}
+            </Button>
+            
+            {result && (
+              <div className="mt-4">
+                <h3 className="font-semibold mb-2 text-white">Result:</h3>
+                <pre className="bg-gray-700 p-4 rounded-lg overflow-auto text-sm text-white border border-gray-600">
+                  {result}
+                </pre>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

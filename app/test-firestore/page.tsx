@@ -166,89 +166,91 @@ export default function TestFirestorePage() {
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Firestore Debug Test</h1>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Firestore Access</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testFirestore} disabled={isLoading} className="w-full">
-              {isLoading ? 'Testing...' : 'Test Access'}
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto p-8">
+        <h1 className="text-3xl font-bold mb-8 text-white">Firestore Debug Test</h1>
+        
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card className="bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test Firestore Access</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={testFirestore} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                {isLoading ? 'Testing...' : 'Test Access'}
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Test User Creation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testUserCreation} disabled={isLoading} className="w-full">
-              {isLoading ? 'Testing...' : 'Test User Creation'}
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test User Creation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={testUserCreation} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                {isLoading ? 'Testing...' : 'Test User Creation'}
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Test API Endpoint</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testApiEndpoint} disabled={isLoading} className="w-full">
-              {isLoading ? 'Testing...' : 'Test API'}
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test API Endpoint</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={testApiEndpoint} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                {isLoading ? 'Testing...' : 'Test API'}
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Debug Endpoint</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testDebugEndpoint} disabled={isLoading} className="w-full">
-              {isLoading ? 'Testing...' : 'Test Debug'}
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test Debug Endpoint</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={testDebugEndpoint} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                {isLoading ? 'Testing...' : 'Test Debug'}
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Server-Side User Creation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testServerUserCreation} disabled={isLoading} className="w-full">
-              {isLoading ? 'Testing...' : 'Test Server User Creation'}
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test Server-Side User Creation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={testServerUserCreation} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                {isLoading ? 'Testing...' : 'Test Server User Creation'}
+              </Button>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Subscription Sync</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testSubscriptionSync} disabled={isLoading} className="w-full">
-              {isLoading ? 'Testing...' : 'Test Subscription Sync'}
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test Subscription Sync</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={testSubscriptionSync} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+                {isLoading ? 'Testing...' : 'Test Subscription Sync'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {testResult && (
+          <Card className="mt-6 bg-gray-800 border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-white">Test Result</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="bg-gray-700 p-4 rounded-lg overflow-auto text-sm text-white border border-gray-600">
+                {testResult}
+              </pre>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {testResult && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Test Result</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="bg-gray-100 p-4 rounded-lg overflow-auto">
-              {testResult}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

@@ -112,7 +112,7 @@ export function ProjectsGrid() {
   }
 
   // Default to not subscribed if there's an error or no user data
-  const isSubscribed = userData?.subscriptionStatus === 'pro' || userData?.subscriptionStatus === 'enterprise'
+  const isSubscribed = userData?.subscriptionStatus === 'pro' || userData?.subscriptionStatus === 'elite'
 
   if (isLoading) {
     return (

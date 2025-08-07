@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { CreditCard, ExternalLink, Loader2, AlertCircle, Sparkles, Check, ArrowRight, Crown, Zap, X, ChevronDown, ChevronUp } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
-import { getUserData, UserData, syncSubscriptionFromStripe } from "@/lib/users"
+import { getUserData, UserData, syncSubscriptionFromStripe, createUserData } from "@/lib/users"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
@@ -224,7 +224,20 @@ export default function BillingPage() {
       if (firebaseUser) {
         try {
           // Get user data from Firestore
-          const userDataResult = await getUserData(firebaseUser.uid)
+          let userDataResult = await getUserData(firebaseUser.uid)
+          
+          // If user data doesn't exist, create it
+          if (!userDataResult) {
+            try {
+              userDataResult = await createUserData(firebaseUser)
+            } catch (createError) {
+              console.error("Error creating user data:", createError)
+              setError("Failed to create user data")
+              setIsLoadingData(false)
+              return
+            }
+          }
+          
           setUserData(userDataResult)
           
           // If user has a Stripe customer ID, sync subscription status and fetch Stripe data

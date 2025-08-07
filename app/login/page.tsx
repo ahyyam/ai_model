@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { auth } from "@/lib/firebase"
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "firebase/auth"
+import { createUserData, getUserData } from "@/lib/users"
 import { Eye, EyeOff, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
@@ -25,7 +26,21 @@ export default function LoginPage() {
     setError("")
     try {
       const provider = new GoogleAuthProvider()
-      await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(auth, provider)
+      
+      // Ensure user document exists in Firestore
+      if (result.user) {
+        try {
+          const existingUserData = await getUserData(result.user.uid)
+          if (!existingUserData) {
+            await createUserData(result.user)
+          }
+        } catch (createError) {
+          console.error("Error creating user data:", createError)
+          // Continue anyway
+        }
+      }
+      
       // Check for onboarding state
       const onboardingState = localStorage.getItem("onboardingState")
       if (onboardingState) {
@@ -50,7 +65,21 @@ export default function LoginPage() {
     }
     setIsLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      
+      // Ensure user document exists in Firestore
+      if (result.user) {
+        try {
+          const existingUserData = await getUserData(result.user.uid)
+          if (!existingUserData) {
+            await createUserData(result.user)
+          }
+        } catch (createError) {
+          console.error("Error creating user data:", createError)
+          // Continue anyway
+        }
+      }
+      
       // Check for onboarding state
       const onboardingState = localStorage.getItem("onboardingState")
       if (onboardingState) {

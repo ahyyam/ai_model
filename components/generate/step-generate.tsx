@@ -12,7 +12,7 @@ import type { FormData } from "./onboarding-flow"
 import { Textarea } from "@/components/ui/textarea"
 import { addProject } from "@/lib/projects"
 import { auth } from "@/lib/firebase"
-import { getUserData, deductUserCredit, syncSubscriptionFromStripe } from "@/lib/users"
+import { getUserData, deductUserCredit, syncSubscriptionFromStripe, createUserData } from "@/lib/users"
 import { uploadImageToStorage } from "@/lib/storage"
 import { apiClient } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
@@ -271,10 +271,16 @@ export default function StepGenerate({
       }
 
       // User is logged in - check their credit balance
-      const userData = await getUserData(auth.currentUser.uid)
+      let userData = await getUserData(auth.currentUser.uid)
       if (!userData) {
-        setError("Unable to load user data. Please try again.")
-        return
+        // Create user data if it doesn't exist
+        try {
+          userData = await createUserData(auth.currentUser)
+        } catch (createError) {
+          console.error("Error creating user data:", createError)
+          setError("Unable to create user data. Please try again.")
+          return
+        }
       }
 
       // Sync subscription status from Stripe if user has a Stripe customer ID

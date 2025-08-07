@@ -30,9 +30,11 @@ export default function SignupPage() {
       // Create user document in Firestore
       if (result.user) {
         try {
+          console.log("Attempting to create user data for:", result.user.uid)
           await createUserData(result.user)
+          console.log("User data created successfully during signup")
         } catch (createError) {
-          console.error("Error creating user data:", createError)
+          console.error("Error creating user data during signup:", createError)
           // Continue anyway, user data will be created when they visit other pages
         }
       }
@@ -79,9 +81,11 @@ export default function SignupPage() {
       // Create user document in Firestore
       if (result.user) {
         try {
+          console.log("Attempting to create user data for:", result.user.uid)
           await createUserData(result.user)
+          console.log("User data created successfully during signup")
         } catch (createError) {
-          console.error("Error creating user data:", createError)
+          console.error("Error creating user data during signup:", createError)
           // Continue anyway, user data will be created when they visit other pages
         }
       }

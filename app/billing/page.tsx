@@ -229,9 +229,11 @@ export default function BillingPage() {
           // If user data doesn't exist, create it
           if (!userDataResult) {
             try {
+              console.log("Creating user data in billing page for:", firebaseUser.uid)
               userDataResult = await createUserData(firebaseUser)
+              console.log("User data created successfully in billing page")
             } catch (createError) {
-              console.error("Error creating user data:", createError)
+              console.error("Error creating user data in billing page:", createError)
               setError("Failed to create user data")
               setIsLoadingData(false)
               return

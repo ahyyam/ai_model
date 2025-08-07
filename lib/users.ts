@@ -40,6 +40,8 @@ export async function getUserData(uid: string): Promise<UserData | null> {
 
 export async function createUserData(user: FirebaseUser): Promise<UserData> {
   try {
+    console.log("Creating user data for:", user.uid, user.email)
+    
     const userData: UserData = {
       uid: user.uid,
       email: user.email!,
@@ -49,7 +51,11 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       updatedAt: new Date().toISOString(),
     }
 
+    console.log("User data to create:", userData)
+    
     await setDoc(doc(db, "users", user.uid), userData)
+    console.log("User data created successfully for:", user.uid)
+    
     return userData
   } catch (error) {
     console.error("Error creating user data:", error)

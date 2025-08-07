@@ -12,7 +12,7 @@ import type { FormData } from "./onboarding-flow"
 import { Textarea } from "@/components/ui/textarea"
 import { addProject } from "@/lib/projects"
 import { auth } from "@/lib/firebase"
-import { getUserData, deductUserCredit } from "@/lib/users"
+import { getUserData, deductUserCredit, syncSubscriptionFromStripe } from "@/lib/users"
 import { uploadImageToStorage } from "@/lib/storage"
 import { apiClient } from "@/lib/api"
 import { motion, AnimatePresence } from "framer-motion"
@@ -277,8 +277,17 @@ export default function StepGenerate({
         return
       }
 
+      // Sync subscription status from Stripe if user has a Stripe customer ID
+      let updatedUserData = userData
+      if (userData.stripeCustomerId) {
+        const syncedData = await syncSubscriptionFromStripe(auth.currentUser.uid)
+        if (syncedData) {
+          updatedUserData = syncedData
+        }
+      }
+
       // Check if user has available credits
-      const availableCredits = userData.credits || 0
+      const availableCredits = updatedUserData.credits || 0
       if (availableCredits <= 0) {
         // No credits - redirect to subscribe page for plan selection
         router.push("/subscribe")

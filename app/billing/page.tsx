@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { CreditCard, ExternalLink, Loader2, AlertCircle, Sparkles, Check, ArrowRight, Crown, Zap } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
-import { getUserData, UserData } from "@/lib/users"
+import { getUserData, UserData, syncSubscriptionFromStripe } from "@/lib/users"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
@@ -225,8 +225,14 @@ export default function BillingPage() {
           const userDataResult = await getUserData(firebaseUser.uid)
           setUserData(userDataResult)
           
-          // If user has a Stripe customer ID, fetch Stripe data via API
+          // If user has a Stripe customer ID, sync subscription status and fetch Stripe data
           if (userDataResult?.stripeCustomerId) {
+            // Sync subscription status from Stripe
+            const syncedData = await syncSubscriptionFromStripe(firebaseUser.uid)
+            if (syncedData) {
+              setUserData(syncedData)
+            }
+            
             // Fetch customer data
             const customerResponse = await fetch(`/api/stripe/customer?customerId=${userDataResult.stripeCustomerId}`)
             const customerData = await customerResponse.json()

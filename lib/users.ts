@@ -8,10 +8,20 @@ export interface UserData {
   displayName?: string
   photoURL?: string
   stripeCustomerId?: string
-  subscriptionStatus?: 'free' | 'pro' | 'enterprise'
+  subscriptionStatus?: 'free' | 'basic' | 'pro' | 'elite'
   credits?: number
   createdAt: string
   updatedAt: string
+}
+
+// Credit allocation based on subscription plans
+const PLAN_CREDITS = {
+  BASIC: 10,
+  PRO: 20,
+  ELITE: 50,
+  MINI: 5,
+  STANDARD: 15,
+  PLUS: 25
 }
 
 export async function getUserData(uid: string): Promise<UserData | null> {
@@ -70,7 +80,7 @@ export async function setStripeCustomerId(uid: string, stripeCustomerId: string)
   }
 }
 
-export async function updateSubscriptionStatus(uid: string, status: 'free' | 'pro' | 'enterprise'): Promise<void> {
+export async function updateSubscriptionStatus(uid: string, status: 'free' | 'basic' | 'pro' | 'elite'): Promise<void> {
   try {
     await updateUserData(uid, { subscriptionStatus: status })
   } catch (error) {
@@ -105,5 +115,61 @@ export async function deductUserCredit(uid: string): Promise<boolean> {
   } catch (error) {
     console.error("Error deducting user credit:", error)
     throw error
+  }
+}
+
+// New function to sync subscription status from Stripe
+export async function syncSubscriptionFromStripe(uid: string): Promise<UserData | null> {
+  try {
+    const userData = await getUserData(uid)
+    if (!userData || !userData.stripeCustomerId) {
+      return userData
+    }
+
+    // Call the backend API to get Stripe customer data
+    const response = await fetch(`/api/stripe/customer?customerId=${userData.stripeCustomerId}`)
+    if (!response.ok) {
+      console.error("Failed to fetch Stripe customer data")
+      return userData
+    }
+
+    const stripeData = await response.json()
+    if (!stripeData.customer || !stripeData.customer.subscription) {
+      // No active subscription, update status to free
+      await updateUserData(uid, { subscriptionStatus: 'free' })
+      return { ...userData, subscriptionStatus: 'free' }
+    }
+
+    const subscription = stripeData.customer.subscription
+    const priceId = subscription.plan?.id || subscription.plan?.price_id
+
+    // Determine plan and credits based on price ID
+    let planName: 'basic' | 'pro' | 'elite' = 'basic'
+    let credits = PLAN_CREDITS.BASIC
+
+    // Use the same price IDs as defined in lib/stripe.ts
+    if (priceId === process.env.STRIPE_BASIC_PRICE_ID) {
+      planName = 'basic'
+      credits = PLAN_CREDITS.BASIC
+    } else if (priceId === process.env.STRIPE_PRO_PRICE_ID) {
+      planName = 'pro'
+      credits = PLAN_CREDITS.PRO
+    } else if (priceId === process.env.STRIPE_ELITE_PRICE_ID) {
+      planName = 'elite'
+      credits = PLAN_CREDITS.ELITE
+    }
+
+    // Update user data with current subscription status and credits
+    const updatedData = {
+      subscriptionStatus: planName,
+      credits: Math.max(userData.credits || 0, credits), // Don't reduce credits if user already has more
+      updatedAt: new Date().toISOString()
+    }
+
+    await updateUserData(uid, updatedData)
+    return { ...userData, ...updatedData }
+  } catch (error) {
+    console.error("Error syncing subscription from Stripe:", error)
+    return null
   }
 } 

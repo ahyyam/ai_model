@@ -35,6 +35,8 @@ export default function SignupPage() {
           console.log("User data created successfully during signup")
         } catch (createError) {
           console.error("Error creating user data during signup:", createError)
+          // Show the error to the user but continue with the flow
+          setError(`Warning: ${createError instanceof Error ? createError.message : 'Failed to create user profile. You may need to complete your profile later.'}`)
           // Continue anyway, user data will be created when they visit other pages
         }
       }
@@ -86,6 +88,8 @@ export default function SignupPage() {
           console.log("User data created successfully during signup")
         } catch (createError) {
           console.error("Error creating user data during signup:", createError)
+          // Show the error to the user but continue with the flow
+          setError(`Warning: ${createError instanceof Error ? createError.message : 'Failed to create user profile. You may need to complete your profile later.'}`)
           // Continue anyway, user data will be created when they visit other pages
         }
       }

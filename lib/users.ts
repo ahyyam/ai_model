@@ -38,20 +38,47 @@ export async function getUserData(uid: string): Promise<UserData | null> {
   }
 }
 
+// Test function to check if Firestore is accessible
+export async function testFirestoreAccess(): Promise<boolean> {
+  try {
+    console.log("Testing Firestore access...")
+    const testDoc = doc(db, "test", "test")
+    await setDoc(testDoc, { test: true, timestamp: new Date().toISOString() })
+    console.log("Firestore access test successful")
+    return true
+  } catch (error) {
+    console.error("Firestore access test failed:", error)
+    return false
+  }
+}
+
 export async function createUserData(user: FirebaseUser): Promise<UserData> {
   try {
     console.log("Creating user data for:", user.uid, user.email)
     
+    if (!user.uid || !user.email) {
+      throw new Error("Invalid user data: missing uid or email")
+    }
+    
     const userData: UserData = {
       uid: user.uid,
-      email: user.email!,
+      email: user.email,
       displayName: user.displayName || undefined,
       photoURL: user.photoURL || undefined,
+      subscriptionStatus: 'free',
+      credits: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
 
     console.log("User data to create:", userData)
+    
+    // Check if user already exists
+    const existingUser = await getUserData(user.uid)
+    if (existingUser) {
+      console.log("User already exists, returning existing data")
+      return existingUser
+    }
     
     await setDoc(doc(db, "users", user.uid), userData)
     console.log("User data created successfully for:", user.uid)
@@ -59,7 +86,19 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
     return userData
   } catch (error) {
     console.error("Error creating user data:", error)
-    throw error
+    
+    // Provide more specific error information
+    if (error instanceof Error) {
+      if (error.message.includes('permission-denied')) {
+        throw new Error("Firebase permission denied. Please check Firestore security rules.")
+      } else if (error.message.includes('unavailable')) {
+        throw new Error("Firebase service unavailable. Please try again later.")
+      } else {
+        throw new Error(`Failed to create user data: ${error.message}`)
+      }
+    } else {
+      throw new Error("Failed to create user data: Unknown error")
+    }
   }
 }
 

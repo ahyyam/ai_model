@@ -4,6 +4,23 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+// Helper function to fetch image and convert to base64
+async function fetchImageAsBase64(imageURL: string): Promise<string> {
+  try {
+    const response = await fetch(imageURL)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status}`)
+    }
+    
+    const arrayBuffer = await response.arrayBuffer()
+    const base64 = Buffer.from(arrayBuffer).toString('base64')
+    return base64
+  } catch (error) {
+    console.error('Error converting image to base64:', error)
+    throw error
+  }
+}
+
 export interface FashionPromptResponse {
   prompt: string
   aspect_ratio: string
@@ -23,8 +40,14 @@ export async function generateFashionPrompt(
   }
 
   try {
+    // Convert image URLs to base64 for vision analysis
+    const [refImageBase64, garmentImageBase64] = await Promise.all([
+      fetchImageAsBase64(refURL),
+      fetchImageAsBase64(garmentURL)
+    ])
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using gpt-4o-mini as gpt-4.1-mini doesn't exist
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -45,7 +68,26 @@ Output format must be valid JSON:
         },
         {
           role: "user",
-          content: `Reference image: ${refURL}\nGarment image: ${garmentURL}`
+          content: [
+            {
+              type: "text",
+              text: "Please analyze these two images and create a detailed fashion prompt:"
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${refImageBase64}`,
+                detail: "high"
+              }
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${garmentImageBase64}`,
+                detail: "high"
+              }
+            }
+          ]
         }
       ],
       response_format: { type: "json_object" },

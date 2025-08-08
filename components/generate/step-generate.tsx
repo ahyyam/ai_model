@@ -142,16 +142,21 @@ export default function StepGenerate({
         console.log("Starting prompt generation for user:", auth.currentUser.uid);
         
         // Upload images to storage
+        console.log("Uploading garment image to Firebase Storage...");
         const garmentImageURL = await uploadImageToStorage(
           formData.garmentImage!,
           `temp/${auth.currentUser.uid}/garment-prompt-${Date.now()}.jpg`
         );
+        console.log("Garment image uploaded successfully:", garmentImageURL);
+        
+        console.log("Uploading reference image to Firebase Storage...");
         const referenceImageURL = await uploadImageToStorage(
           formData.referenceImage!,
           `temp/${auth.currentUser.uid}/reference-prompt-${Date.now()}.jpg`
         );
+        console.log("Reference image uploaded successfully:", referenceImageURL);
         
-        console.log("Images uploaded:", { garmentImageURL, referenceImageURL });
+        console.log("Both images uploaded successfully:", { garmentImageURL, referenceImageURL });
         
         // Get auth token with force refresh to ensure it's valid
         const token = await auth.currentUser.getIdToken(true);
@@ -202,8 +207,10 @@ export default function StepGenerate({
           setError('Insufficient credits for auto-prompt generation. You can write your own prompt.');
         } else if (errorMessage.includes('auth') || errorMessage.includes('token') || errorMessage.includes('Authentication error')) {
           setError('Authentication error. Please refresh the page and try again.');
-        } else if (errorMessage.includes('upload') || errorMessage.includes('storage')) {
+        } else if (errorMessage.includes('upload') || errorMessage.includes('storage') || errorMessage.includes('Failed to fetch image')) {
           setError('Image upload failed. Please try again.');
+        } else if (errorMessage.includes('Failed to generate prompt')) {
+          setError('AI prompt generation failed. You can write your own prompt.');
         } else {
           setError(`Could not auto-generate prompt: ${errorMessage}. You can write your own prompt.`);
         }

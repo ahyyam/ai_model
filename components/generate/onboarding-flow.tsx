@@ -179,7 +179,7 @@ export default function OnboardingFlow() {
       <TopNav />
 
       {/* Progress Indicator */}
-      <div className="px-4 md:px-6 py-2">
+      <div className="px-4 md:px-6 py-2 flex-shrink-0">
         <ProgressIndicator
           currentStep={currentProgressIndex}
           totalSteps={progressSteps.length}
@@ -194,7 +194,7 @@ export default function OnboardingFlow() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="mx-4 md:mx-6 mb-2 bg-red-500/10 border border-red-500/30 rounded-lg p-2 flex items-center gap-2"
+            className="mx-4 md:mx-6 mb-2 bg-red-500/10 border border-red-500/30 rounded-lg p-2 flex items-center gap-2 flex-shrink-0"
           >
             <AlertCircle className="h-3 w-3 text-red-400 flex-shrink-0" />
             <p className="text-red-400 text-xs font-medium">{validationError}</p>
@@ -203,7 +203,7 @@ export default function OnboardingFlow() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -211,7 +211,7 @@ export default function OnboardingFlow() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="h-full"
+            className="min-h-full"
           >
             {step === 0 && (
               <StepUploadGarment
@@ -252,7 +252,7 @@ export default function OnboardingFlow() {
       </div>
 
       {/* Fixed Bottom Navigation */}
-      <div className="px-4 md:px-6 py-3 border-t border-gray-800 bg-gradient-to-t from-[#0a0a0a] to-transparent">
+      <div className="px-4 md:px-6 py-3 border-t border-gray-800 bg-gradient-to-t from-[#0a0a0a] to-transparent flex-shrink-0">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           {/* Back Button */}
           {step > 0 && (

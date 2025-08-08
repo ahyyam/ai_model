@@ -134,7 +134,13 @@ export default function StepGenerate({
       try {
         // Check user credits
         const userData = await getUserData(auth.currentUser.uid);
-        if (!userData || (userData.credits || 0) <= 0) return;
+        if (!userData || (userData.credits || 0) <= 0) {
+          console.log("No credits available for prompt generation");
+          return;
+        }
+        
+        console.log("Starting prompt generation for user:", auth.currentUser.uid);
+        
         // Upload images to storage
         const garmentImageURL = await uploadImageToStorage(
           formData.garmentImage!,
@@ -144,10 +150,14 @@ export default function StepGenerate({
           formData.referenceImage!,
           `temp/${auth.currentUser.uid}/reference-prompt-${Date.now()}.jpg`
         );
+        
+        console.log("Images uploaded:", { garmentImageURL, referenceImageURL });
+        
         // Get auth token
         const token = await auth.currentUser.getIdToken();
+        
         // Call backend to generate prompt
-        const response = await fetch('/api/generate', {
+        const response = await fetch('/api/generate-prompt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -159,15 +169,37 @@ export default function StepGenerate({
             userPrompt: ""
           })
         });
+        
+        console.log("Prompt generation response status:", response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to generate prompt');
+          const errorText = await response.text();
+          console.error("Prompt generation failed:", errorText);
+          throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
+        
         const result = await response.json();
+        console.log("Prompt generation result:", result);
+        
         if (result.prompt) {
           setPrompt(result.prompt);
+          console.log("Prompt set successfully:", result.prompt);
+        } else {
+          throw new Error("No prompt returned from server");
         }
       } catch (err) {
-        setError('Could not auto-generate prompt. You can write your own.');
+        console.error("Prompt generation error:", err);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        
+        if (errorMessage.includes('credits') || errorMessage.includes('credit')) {
+          setError('Insufficient credits for auto-prompt generation. You can write your own prompt.');
+        } else if (errorMessage.includes('auth') || errorMessage.includes('token')) {
+          setError('Authentication error. Please refresh the page and try again.');
+        } else if (errorMessage.includes('upload') || errorMessage.includes('storage')) {
+          setError('Image upload failed. Please try again.');
+        } else {
+          setError(`Could not auto-generate prompt: ${errorMessage}. You can write your own prompt.`);
+        }
       } finally {
         setPromptLoading(false);
       }

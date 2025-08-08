@@ -153,8 +153,9 @@ export default function StepGenerate({
         
         console.log("Images uploaded:", { garmentImageURL, referenceImageURL });
         
-        // Get auth token
-        const token = await auth.currentUser.getIdToken();
+        // Get auth token with force refresh to ensure it's valid
+        const token = await auth.currentUser.getIdToken(true);
+        console.log("Got auth token for prompt generation");
         
         // Call backend to generate prompt
         const response = await fetch('/api/generate-prompt', {
@@ -175,6 +176,12 @@ export default function StepGenerate({
         if (!response.ok) {
           const errorText = await response.text();
           console.error("Prompt generation failed:", errorText);
+          
+          // Check if it's an authentication error
+          if (response.status === 401) {
+            throw new Error('Authentication error - token may be expired');
+          }
+          
           throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
         
@@ -193,7 +200,7 @@ export default function StepGenerate({
         
         if (errorMessage.includes('credits') || errorMessage.includes('credit')) {
           setError('Insufficient credits for auto-prompt generation. You can write your own prompt.');
-        } else if (errorMessage.includes('auth') || errorMessage.includes('token')) {
+        } else if (errorMessage.includes('auth') || errorMessage.includes('token') || errorMessage.includes('Authentication error')) {
           setError('Authentication error. Please refresh the page and try again.');
         } else if (errorMessage.includes('upload') || errorMessage.includes('storage')) {
           setError('Image upload failed. Please try again.');
@@ -204,13 +211,20 @@ export default function StepGenerate({
         setPromptLoading(false);
       }
     }
+    
+    // Only fetch prompt if we have both images, no existing prompt, and user is authenticated
     if (
       formData.garmentImage &&
       formData.referenceImage &&
       !prompt &&
       auth.currentUser
     ) {
-      fetchPrompt();
+      // Add a small delay to ensure the component is fully mounted
+      const timer = setTimeout(() => {
+        fetchPrompt();
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.garmentImage, formData.referenceImage]);

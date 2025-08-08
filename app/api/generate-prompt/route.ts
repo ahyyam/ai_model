@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth, adminDb } from '@/lib/firebase-admin'
 import { generateFashionPrompt } from '@/lib/openai'
-import { doc, getDoc } from 'firebase-admin/firestore'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,19 +15,24 @@ export async function POST(request: NextRequest) {
     try {
       decodedToken = await adminAuth.verifyIdToken(token)
     } catch (error) {
+      console.error('Token verification failed:', error)
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
     const userId = decodedToken.uid
+    console.log('Authenticated user:', userId)
 
     // 2. Check User Credits
-    const userDoc = await getDoc(doc(adminDb, 'users', userId))
-    if (!userDoc.exists()) {
+    const userDoc = await adminDb.collection('users').doc(userId).get()
+    if (!userDoc.exists) {
+      console.log('User document not found for:', userId)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     const userData = userDoc.data()
-    const availableCredits = userData.credits || 0
+    const availableCredits = userData?.credits || 0
+    console.log('User credits:', availableCredits)
+    
     if (availableCredits <= 0) {
       return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 })
     }

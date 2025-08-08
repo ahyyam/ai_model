@@ -211,7 +211,7 @@ export default function OnboardingFlow() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="min-h-full"
+            className="w-full"
           >
             {step === 0 && (
               <StepUploadGarment

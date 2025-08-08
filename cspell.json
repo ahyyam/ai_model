@@ -1,0 +1,16 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "photoshoot",
+    "Photoshoot",
+    "photoshoots",
+    "Zarta"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    ".next",
+    "build",
+    "dist"
+  ]
+}

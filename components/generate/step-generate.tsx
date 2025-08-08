@@ -64,6 +64,7 @@ export default function StepGenerate({
   const isMobile = useIsMobile()
   const [userHasCredit, setUserHasCredit] = useState<boolean | null>(null);
   const [checkingCredit, setCheckingCredit] = useState(true);
+  const isLoggedIn = !!auth?.currentUser;
 
   // Helper function to clean and validate prompt
   const getValidPrompt = (userPrompt: string): string => {
@@ -128,38 +129,39 @@ export default function StepGenerate({
   // Pre-fill prompt for registered users with credits
   useEffect(() => {
     async function fetchPrompt() {
-      if (!auth.currentUser || prompt) return;
+      const user = auth?.currentUser;
+      if (!user || prompt) return;
       setPromptLoading(true);
       setError("");
       try {
         // Check user credits
-        const userData = await getUserData(auth.currentUser.uid);
+        const userData = await getUserData(user.uid);
         if (!userData || (userData.credits || 0) <= 0) {
           console.log("No credits available for prompt generation");
           return;
         }
         
-        console.log("Starting prompt generation for user:", auth.currentUser.uid);
+        console.log("Starting prompt generation for user:", user.uid);
         
         // Upload images to storage
         console.log("Uploading garment image to Firebase Storage...");
         const garmentImageURL = await uploadImageToStorage(
           formData.garmentImage!,
-          `temp/${auth.currentUser.uid}/garment-prompt-${Date.now()}.jpg`
+          `temp/${user.uid}/garment-prompt-${Date.now()}.jpg`
         );
         console.log("Garment image uploaded successfully:", garmentImageURL);
         
         console.log("Uploading reference image to Firebase Storage...");
         const referenceImageURL = await uploadImageToStorage(
           formData.referenceImage!,
-          `temp/${auth.currentUser.uid}/reference-prompt-${Date.now()}.jpg`
+          `temp/${user.uid}/reference-prompt-${Date.now()}.jpg`
         );
         console.log("Reference image uploaded successfully:", referenceImageURL);
         
         console.log("Both images uploaded successfully:", { garmentImageURL, referenceImageURL });
         
         // Get auth token with force refresh to ensure it's valid
-        const token = await auth.currentUser.getIdToken(true);
+        const token = await user.getIdToken(true);
         console.log("Got auth token for prompt generation");
         
         // Call backend to generate prompt
@@ -224,7 +226,7 @@ export default function StepGenerate({
       formData.garmentImage &&
       formData.referenceImage &&
       !prompt &&
-      auth.currentUser
+      isLoggedIn
     ) {
       // Add a small delay to ensure the component is fully mounted
       const timer = setTimeout(() => {
@@ -240,13 +242,14 @@ export default function StepGenerate({
   useEffect(() => {
     async function checkCredit() {
       setCheckingCredit(true);
-      if (!auth.currentUser) {
+      const user = auth?.currentUser;
+      if (!user) {
         setUserHasCredit(false);
         setCheckingCredit(false);
         return;
       }
       try {
-        const userData = await getUserData(auth.currentUser.uid);
+        const userData = await getUserData(user.uid);
         if (userData && (userData.credits || 0) > 0) {
           setUserHasCredit(true);
         } else {
@@ -262,11 +265,12 @@ export default function StepGenerate({
   }, []);
 
   const deductCreditAndSaveProject = async (generatedImageUrl: string) => {
-    if (!auth.currentUser) return
+    const user = auth?.currentUser;
+    if (!user) return
 
     try {
       // Deduct one credit from user
-      const creditDeducted = await deductUserCredit(auth.currentUser.uid)
+      const creditDeducted = await deductUserCredit(user.uid)
       if (!creditDeducted) {
         setError("Failed to deduct credit. Please try again.")
         return
@@ -309,7 +313,8 @@ export default function StepGenerate({
     
     try {
       // Check if user is logged in
-      if (!auth.currentUser) {
+      const user = auth?.currentUser;
+      if (!user) {
         // Store onboarding data for non-signed users
         const onboardingData = {
           formData,
@@ -324,11 +329,11 @@ export default function StepGenerate({
       }
 
       // User is logged in - check their credit balance
-      let userData = await getUserData(auth.currentUser.uid)
+      let userData = await getUserData(user.uid)
       if (!userData) {
         // Create user data if it doesn't exist
         try {
-          userData = await createUserData(auth.currentUser)
+          userData = await createUserData(user)
         } catch (createError) {
           console.error("Error creating user data:", createError)
           setError("Unable to create user data. Please try again.")
@@ -339,7 +344,7 @@ export default function StepGenerate({
       // Sync subscription status from Stripe if user has a Stripe customer ID
       let updatedUserData = userData
       if (userData.stripeCustomerId) {
-        const syncedData = await syncSubscriptionFromStripe(auth.currentUser.uid)
+        const syncedData = await syncSubscriptionFromStripe(user.uid)
         if (syncedData) {
           updatedUserData = syncedData
         }
@@ -360,17 +365,17 @@ export default function StepGenerate({
       setGenerationProgress(10)
       const garmentImageURL = await uploadImageToStorage(
         formData.garmentImage!,
-        `temp/${auth.currentUser.uid}/garment-${Date.now()}.jpg`
+        `temp/${user.uid}/garment-${Date.now()}.jpg`
       )
       
       setGenerationProgress(20)
       const referenceImageURL = await uploadImageToStorage(
         formData.referenceImage!,
-        `temp/${auth.currentUser.uid}/reference-${Date.now()}.jpg`
+        `temp/${user.uid}/reference-${Date.now()}.jpg`
       )
 
       // Get auth token for API call
-      const token = await auth.currentUser.getIdToken()
+      const token = await user.getIdToken()
       
       setGenerationProgress(30)
       
@@ -438,7 +443,8 @@ export default function StepGenerate({
       const referenceImage = formData.referenceImage ? await fileToDataUrl(formData.referenceImage) : undefined
 
       // Check if user is logged in
-      if (!auth.currentUser) {
+      const user = auth?.currentUser;
+      if (!user) {
         // Store onboarding state in localStorage
         localStorage.setItem("onboardingState", JSON.stringify({
           formData,
@@ -453,7 +459,7 @@ export default function StepGenerate({
       }
 
       // Check if user has available credits
-      const userData = await getUserData(auth.currentUser.uid)
+      const userData = await getUserData(user.uid)
       if (!userData) {
         setError("Unable to load user data. Please try again.")
         setSaving(false)
@@ -591,7 +597,7 @@ export default function StepGenerate({
                 </label>
                 {checkingCredit ? (
                   <div className="text-gray-400 text-sm py-2">Checking account status...</div>
-                ) : !auth.currentUser ? (
+                ) : !isLoggedIn ? (
                   <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-200 rounded-lg p-4 flex flex-col items-start gap-2">
                     <span>You must be logged in to generate AI photoshoots.</span>
                     <Button onClick={() => router.push('/login')} variant="secondary">Log In</Button>

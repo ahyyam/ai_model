@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase-admin'
+import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
 import { generateImageWithRunway, waitForRunwayGeneration } from '@/lib/runway'
-import { uploadImageFromURL, generateImagePath } from '@/lib/storage'
+import { uploadImageFromURL, generateImagePath } from '@/lib/storage-admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
 export async function POST(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const token = authHeader.split('Bearer ')[1]
     let decodedToken
     try {
-      decodedToken = await adminAuth.verifyIdToken(token)
+      decodedToken = await getAdminAuth().verifyIdToken(token)
     } catch (error) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const userId = decodedToken.uid
 
     // 2. Check User Credits
-    const userDoc = await adminDb.collection('users').doc(userId).get()
+    const userDoc = await getAdminDb().collection('users').doc(userId).get()
     if (!userDoc.exists) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Fetch original project data
-    const projectDoc = await adminDb.collection('projects').doc(projectId).get()
+    const projectDoc = await getAdminDb().collection('projects').doc(projectId).get()
     if (!projectDoc.exists) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Update project status to processing
-    await adminDb.collection('projects').doc(projectId).update({
+    await getAdminDb().collection('projects').doc(projectId).update({
       status: 'processing',
       updatedAt: new Date()
     })
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 9. Update project with new version
-      await adminDb.collection('projects').doc(projectId).update({
+      await getAdminDb().collection('projects').doc(projectId).update({
         status: 'complete',
         updatedAt: new Date(),
         version: newVersion,
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       })
 
       // 10. Deduct credit from user
-      await adminDb.collection('users').doc(userId).update({
+      await getAdminDb().collection('users').doc(userId).update({
         credits: availableCredits - 1,
         updatedAt: new Date()
       })

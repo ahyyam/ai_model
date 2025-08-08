@@ -1,21 +1,20 @@
 import Stripe from 'stripe'
 
-// Only initialize Stripe on the server side
-let stripe: Stripe | null = null
+let cachedStripe: Stripe | null = null
 
-if (typeof window === 'undefined') {
-  // Server-side only
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is not set in environment variables')
-  }
-  
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+export function getStripe(): Stripe | null {
+  if (typeof window !== 'undefined') return null
+  if (cachedStripe) return cachedStripe
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) return null
+  cachedStripe = new Stripe(key, {
     apiVersion: '2025-06-30.basil',
     typescript: true,
   })
+  return cachedStripe
 }
 
-export { stripe }
+export { cachedStripe as stripe }
 
 // Stripe product and price IDs - you'll need to create these in your Stripe dashboard
 export const STRIPE_PRODUCTS = {
@@ -73,6 +72,7 @@ export const createCheckoutSession = async ({
   cancelUrl: string
   mode?: 'subscription' | 'payment'
 }) => {
+  const stripe = getStripe()
   if (!stripe) {
     throw new Error('Stripe is not initialized')
   }
@@ -107,6 +107,7 @@ export const createPortalSession = async ({
   customerId: string
   returnUrl: string
 }) => {
+  const stripe = getStripe()
   if (!stripe) {
     throw new Error('Stripe is not initialized')
   }

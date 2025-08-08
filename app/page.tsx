@@ -57,14 +57,14 @@ export default function LandingPage() {
           <FeatureSection
             title="Unlimited Looks. No Photoshoot Needed."
             description="Create endless, professional model shots in minutes No camera, no crew. From simple garment upload to professional visuals, Zarta AI handles it all at a fraction of the time and cost."
-            imageUrl="/images/pic 1.png"
+            imageUrl="/images/feature-1.png"
             Icon={Infinity}
             benefit="Save Time & Money"
           />
           <FeatureSection
             title="Sell More With Better Visuals"
             description="Eye-catching images directly impact your sales. Zarta AI-generated content is designed to drive clicks, interactions, and conversions."
-            imageUrl="/images/pic 2.png"
+            imageUrl="/images/feature-2.png"
             Icon={Zap}
             benefit="Increase Sales"
             reverse

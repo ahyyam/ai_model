@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
 import { headers } from "next/headers"
-import { adminDb } from "@/lib/firebase-admin"
+import { getAdminDb } from "@/lib/firebase-admin"
 
 // Credit allocation based on subscription plans
 const PLAN_CREDITS = {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         const customer = await stripe.customers.retrieve(subscriptionCreated.customer as string) as any
         if (customer.email) {
           // Find user by email
-          const usersRef = adminDb.collection('users')
+          const usersRef = getAdminDb().collection('users')
           const q = usersRef.where('email', '==', customer.email)
           const querySnapshot = await q.get()
           
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         // Handle subscription updates (plan changes, etc.)
         const customerUpdated = await stripe.customers.retrieve(subscriptionUpdated.customer as string) as any
         if (customerUpdated.email) {
-          const usersRef = adminDb.collection('users')
+          const usersRef = getAdminDb().collection('users')
           const q = usersRef.where('email', '==', customerUpdated.email)
           const querySnapshot = await q.get()
           
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         // Handle subscription cancellation
         const customerDeleted = await stripe.customers.retrieve(subscriptionDeleted.customer as string) as any
         if (customerDeleted.email) {
-          const usersRef = adminDb.collection('users')
+          const usersRef = getAdminDb().collection('users')
           const q = usersRef.where('email', '==', customerDeleted.email)
           const querySnapshot = await q.get()
           
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         if (paymentSucceeded.subscription) {
           const customer = await stripe.customers.retrieve(paymentSucceeded.customer as string) as any
           if (customer.email) {
-            const usersRef = adminDb.collection('users')
+            const usersRef = getAdminDb().collection('users')
             const q = usersRef.where('email', '==', customer.email)
             const querySnapshot = await q.get()
             

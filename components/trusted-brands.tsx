@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from "react"
 
 const brands = [
-  { name: "Brand 1", logo: "/Brand Logos/1.png" },
-  { name: "Brand 2", logo: "/Brand Logos/2.png" },
-  { name: "Brand 3", logo: "/Brand Logos/3.png" },
-  { name: "Brand 4", logo: "/Brand Logos/4.png" },
-  { name: "Brand 5", logo: "/Brand Logos/5.png" },
-  { name: "Brand 6", logo: "/Brand Logos/6.png" },
-  { name: "Brand 7", logo: "/Brand Logos/7.png" },
-  { name: "Brand 8", logo: "/Brand Logos/8.png" },
-  { name: "Brand 9", logo: "/Brand Logos/9.png" },
+  { name: "Brand 1", logo: "/brand-logos/1.png" },
+  { name: "Brand 2", logo: "/brand-logos/2.png" },
+  { name: "Brand 3", logo: "/brand-logos/3.png" },
+  { name: "Brand 4", logo: "/brand-logos/4.png" },
+  { name: "Brand 5", logo: "/brand-logos/5.png" },
+  { name: "Brand 6", logo: "/brand-logos/6.png" },
+  { name: "Brand 7", logo: "/brand-logos/7.png" },
+  { name: "Brand 8", logo: "/brand-logos/8.png" },
+  { name: "Brand 9", logo: "/brand-logos/9.png" },
 ]
 
 export default function TrustedBrands() {

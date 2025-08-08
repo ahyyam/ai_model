@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase-admin'
+import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
 import { generateFashionPrompt } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const token = authHeader.split('Bearer ')[1]
     let decodedToken
     try {
-      decodedToken = await adminAuth.verifyIdToken(token)
+      decodedToken = await getAdminAuth().verifyIdToken(token)
     } catch (error) {
       console.error('Token verification failed:', error)
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     console.log('Authenticated user:', userId)
 
     // 2. Check User Credits
-    const userDoc = await adminDb.collection('users').doc(userId).get()
+    const userDoc = await getAdminDb().collection('users').doc(userId).get()
     if (!userDoc.exists) {
       console.log('User document not found for:', userId)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })

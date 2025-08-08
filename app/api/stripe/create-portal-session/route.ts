@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createPortalSession } from "@/lib/stripe"
-import { auth } from "@/lib/firebase"
-import { onAuthStateChanged } from "firebase/auth"
 
 export async function POST(request: NextRequest) {
   try {

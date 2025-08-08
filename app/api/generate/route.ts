@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase-admin'
+import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
 import { generateFashionPrompt } from '@/lib/openai'
 import { generateImageWithRunway, waitForRunwayGeneration } from '@/lib/runway'
-import { uploadImageFromURL, generateImagePath } from '@/lib/storage'
+import { uploadImageFromURL, generateImagePath } from '@/lib/storage-admin'
 import { doc, setDoc, updateDoc, getDoc } from 'firebase-admin/firestore'
 
 export async function POST(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const token = authHeader.split('Bearer ')[1]
     let decodedToken
     try {
-      decodedToken = await adminAuth.verifyIdToken(token)
+      decodedToken = await getAdminAuth().verifyIdToken(token)
     } catch (error) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const userId = decodedToken.uid
 
     // 2. Check User Credits
-    const userDoc = await getDoc(doc(adminDb, 'users', userId))
+    const userDoc = await getDoc(doc(getAdminDb(), 'users', userId))
     if (!userDoc.exists()) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Create project document with initial status
-    const projectRef = doc(adminDb, 'projects', userId)
+    const projectRef = doc(getAdminDb(), 'projects', userId)
     const projectId = `${userId}_${Date.now()}`
     
     const projectData = {
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date()
     }
 
-    await setDoc(doc(adminDb, 'projects', projectId), projectData)
+    await setDoc(doc(getAdminDb(), 'projects', projectId), projectData)
 
     // 5. Generate prompt using OpenAI
     let promptResult
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       promptResult = await generateFashionPrompt(referenceImageURL, garmentImageURL, userPrompt)
     } catch (error) {
       console.error('Error generating prompt:', error)
-      await updateDoc(doc(adminDb, 'projects', projectId), {
+      await updateDoc(doc(getAdminDb(), 'projects', projectId), {
         status: 'error',
         error: 'Failed to generate prompt'
       })
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Update project with generated prompt
-    await updateDoc(doc(adminDb, 'projects', projectId), {
+    await updateDoc(doc(getAdminDb(), 'projects', projectId), {
       prompt: promptResult.prompt,
       aspect_ratio: promptResult.aspect_ratio,
       updatedAt: new Date()
@@ -106,14 +106,14 @@ export async function POST(request: NextRequest) {
       const finalImageStorageURL = await uploadImageFromURL(generatedImageURL, storagePath)
 
       // 9. Update project with final image and complete status
-      await updateDoc(doc(adminDb, 'projects', projectId), {
+      await updateDoc(doc(getAdminDb(), 'projects', projectId), {
         status: 'complete',
         finalImageURL: finalImageStorageURL,
         updatedAt: new Date()
       })
 
       // 10. Deduct credit from user
-      await updateDoc(doc(adminDb, 'users', userId), {
+      await updateDoc(doc(getAdminDb(), 'users', userId), {
         credits: availableCredits - 1,
         updatedAt: new Date()
       })
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
       console.error('Error generating image:', error)
-      await updateDoc(doc(adminDb, 'projects', projectId), {
+      await updateDoc(doc(getAdminDb(), 'projects', projectId), {
         status: 'error',
         error: 'Failed to generate image'
       })

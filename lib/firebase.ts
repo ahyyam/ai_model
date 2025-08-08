@@ -1,7 +1,9 @@
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"
-import { getStorage } from "firebase/storage"
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
+import { getAuth, setPersistence, browserSessionPersistence, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
+
+const isBrowser = typeof window !== "undefined";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,8 +14,40 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app)
-export const storage = getStorage(app)
-setPersistence(auth, browserSessionPersistence) 
+let app: FirebaseApp | null = null;
+let _auth: Auth | null = null;
+let _db: Firestore | null = null;
+let _storage: FirebaseStorage | null = null;
+
+function ensureClientInitialized() {
+  if (!isBrowser) return;
+  if (app) return;
+  // Only initialize if we have a minimally valid config
+  if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
+    // Missing public envs; defer initialization until runtime where envs exist
+    return;
+  }
+  app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  _auth = getAuth(app);
+  _db = getFirestore(app);
+  _storage = getStorage(app);
+  try {
+    // Best-effort; ignore errors during SSR
+    setPersistence(_auth, browserSessionPersistence);
+  } catch {}
+}
+
+export const auth: Auth | null = (() => {
+  ensureClientInitialized();
+  return _auth;
+})();
+
+export const db: Firestore | null = (() => {
+  ensureClientInitialized();
+  return _db;
+})();
+
+export const storage: FirebaseStorage | null = (() => {
+  ensureClientInitialized();
+  return _storage;
+})(); 

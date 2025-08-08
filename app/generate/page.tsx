@@ -1,3 +1,7 @@
+"use client"
+
+export const dynamic = "force-dynamic"
+
 import { TopNav } from "@/components/dashboard/top-nav"
 import OnboardingFlow from "@/components/generate/onboarding-flow"
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { adminDb } from '@/lib/firebase-admin'
+import { getAdminDb } from '@/lib/firebase-admin'
 
 // Credit allocation based on subscription plans
 const PLAN_CREDITS = {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user data from Firestore
-    const userDoc = await adminDb.collection('users').doc(uid).get()
+    const userDoc = await getAdminDb().collection('users').doc(uid).get()
     if (!userDoc.exists) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }

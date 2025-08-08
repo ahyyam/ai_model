@@ -217,3 +217,16 @@
 - [ ] Create image validation with AI-powered quality assessment
 - [ ] Add image metadata extraction and display
 - [ ] Implement image backup and sync across devices
+
+- [x] Professional polish and cleanup
+  - [x] Removed debug/test routes: `app/api/{simple-test,test-firestore,debug-firestore,firebase-test,test-generation}` and pages `app/{simple-test,test-firestore}`
+  - [x] Deleted duplicate hooks: `components/ui/use-toast.ts`, `components/ui/use-mobile.tsx` (using `hooks/` versions)
+  - [x] Removed unused stylesheet `styles/globals.css` (using `app/globals.css`)
+  - [x] Renamed assets to professional naming and paths (`/images/feature-*.png`, `/brand-logos/*`), updated references
+  - [x] Removed unused `public/icon/` assets
+  - [x] Deleted unused component `components/generate/step-upload-combined.tsx`
+  - [x] Made Firebase client init browser-only and lazy to prevent build-time failures
+  - [x] Switched server routes to lazy Firebase Admin getters and server storage utility
+  - [x] Made OpenAI and Stripe initialization lazy; prevented build-time env errors
+  - [x] Forced dynamic rendering on auth-dependent pages: `/login`, `/signup`, `/subscribe`, `/generate`, `/generate/results`
+  - [x] Verified production build succeeds

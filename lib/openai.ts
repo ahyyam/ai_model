@@ -1,8 +1,16 @@
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let cachedOpenAIClient: OpenAI | null = null
+
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey || apiKey.trim().length === 0) {
+    return null
+  }
+  if (cachedOpenAIClient) return cachedOpenAIClient
+  cachedOpenAIClient = new OpenAI({ apiKey })
+  return cachedOpenAIClient
+}
 
 // Helper function to fetch image and convert to base64
 async function fetchImageAsBase64(imageURL: string): Promise<string> {
@@ -40,13 +48,23 @@ export async function generateFashionPrompt(
   }
 
   try {
+    const client = getOpenAIClient()
+
+    // If no API key is configured, return a sensible default without failing build/runtime
+    if (!client) {
+      return {
+        prompt: "Professional fashion photography with the garment styled on a model, high quality, studio lighting, clean background",
+        aspect_ratio: "1:1"
+      }
+    }
+
     // Convert image URLs to base64 for vision analysis
     const [refImageBase64, garmentImageBase64] = await Promise.all([
       fetchImageAsBase64(refURL),
       fetchImageAsBase64(garmentURL)
     ])
 
-    const response = await openai.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {

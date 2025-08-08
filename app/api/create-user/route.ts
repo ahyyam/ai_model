@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb } from '@/lib/firebase-admin'
-import { adminAuth } from '@/lib/firebase-admin'
+import { getAdminDb, getAdminAuth } from '@/lib/firebase-admin'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,13 +11,13 @@ export async function POST(request: NextRequest) {
 
     // Verify the user exists in Firebase Auth
     try {
-      await adminAuth.getUser(uid)
+      await getAdminAuth().getUser(uid)
     } catch (authError) {
       return NextResponse.json({ error: 'User not found in Firebase Auth' }, { status: 404 })
     }
 
     // Check if user document already exists
-    const existingDoc = await adminDb.collection('users').doc(uid).get()
+    const existingDoc = await getAdminDb().collection('users').doc(uid).get()
     if (existingDoc.exists) {
       return NextResponse.json({ 
         success: true, 
@@ -39,7 +38,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     }
 
-    await adminDb.collection('users').doc(uid).set(userData)
+    await getAdminDb().collection('users').doc(uid).set(userData)
     
     console.log("User data created successfully via admin SDK for:", uid)
     

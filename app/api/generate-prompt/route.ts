@@ -11,11 +11,20 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log("Token starts with:", token.substring(0, 20) + "...")
+    console.log("Token length:", token.length)
+    
     let decodedToken
     try {
       decodedToken = await getAdminAuth().verifyIdToken(token)
+      console.log("Token verified successfully for user:", decodedToken.uid)
     } catch (error) {
       console.error('Token verification failed:', error)
+      console.error("Error details:", {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      })
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 

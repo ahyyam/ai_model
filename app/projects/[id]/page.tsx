@@ -92,24 +92,104 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container-zarta py-16 space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleBack}
-            className="border-gray-700 text-gray-300 hover:bg-gray-800 bg-transparent h-10 w-10"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="sr-only">Back to Projects</span>
-          </Button>
-          <h1 className="text-2xl font-bold text-white truncate font-sora">{project.name}</h1>
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleBack}
+          className="border-gray-700 text-gray-300 hover:bg-gray-800 bg-transparent h-10 w-10"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Back to Projects</span>
+        </Button>
+        <h1 className="text-2xl font-bold text-white truncate font-sora">{project.name}</h1>
+      </div>
+
+      {/* Generated Image */}
+      <div className="flex flex-col items-center">
+        <Card className="card-zarta overflow-hidden w-full max-w-2xl">
+          <div className="relative aspect-square w-full">
+            <Image
+              src={project.finalImageURL || project.thumbnail || "/placeholder.svg"}
+              alt="Generated image"
+              fill
+              className="object-cover"
+            />
+          </div>
+        </Card>
+      </div>
+
+      {/* Project Details */}
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Basic Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex justify-between items-center p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+            <span className="text-gray-400 flex items-center gap-2">
+              <Tag className="h-4 w-4" /> Aesthetic
+            </span>
+            <span className="font-medium text-white">{project.aesthetic}</span>
+          </div>
+          <div className="flex justify-between items-center p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+            <span className="text-gray-400 flex items-center gap-2">
+              <Calendar className="h-4 w-4" /> Created
+            </span>
+            <span className="font-medium text-white">{new Date(project.createdAt).toLocaleDateString()}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* Prompt Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-white">AI Generated Prompt</h3>
+            <Button variant="ghost" size="icon" onClick={handleCopyPrompt} className="h-8 w-8">
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+            <p className="text-sm text-gray-300 leading-relaxed">
+              {project.prompt || "No prompt provided."}
+            </p>
+          </div>
+        </div>
+
+        {/* Input Images */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-white">Input Images</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-400 text-center">Your Garment</h4>
+              <div className="relative aspect-square rounded-xl overflow-hidden border border-gray-800">
+                <Image
+                  src={project.garmentImage || "/placeholder.svg"}
+                  alt="Garment"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-400 text-center">Your Reference</h4>
+              <div className="relative aspect-square rounded-xl overflow-hidden border border-gray-800">
+                <Image
+                  src={project.referenceImage || "/placeholder.svg"}
+                  alt="Reference"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons - Now under project details */}
+      <div className="flex flex-col items-center pt-8">
+        <h3 className="text-xl font-semibold text-white mb-6">What would you like to do?</h3>
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <Button 
-            className="bg-blue-600 hover:bg-blue-700"
+            className="btn-primary flex-1"
             onClick={handleDownloadImage}
             disabled={!project?.finalImageURL}
           >
@@ -119,7 +199,7 @@ export default function ProjectDetailPage() {
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+              <Button variant="destructive" className="btn-destructive flex-1">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Project
               </Button>
@@ -142,94 +222,6 @@ export default function ProjectDetailPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Single Image */}
-        <div className="lg:col-span-2">
-          <Card className="bg-[#1c1c1c] border-gray-800 overflow-hidden">
-            <div className="relative aspect-square w-full">
-              <Image
-                src={project.finalImageURL || project.thumbnail || "/placeholder.svg"}
-                alt="Generated image"
-                fill
-                className="object-cover"
-              />
-            </div>
-          </Card>
-        </div>
-
-        {/* Right Column: Project Details */}
-        <div className="lg:sticky lg:top-24">
-          <Card className="bg-[#1c1c1c] border-gray-800 text-white">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Info className="h-5 w-5 text-blue-400" />
-                Project Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Basic Info */}
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 flex items-center gap-2">
-                    <Tag className="h-4 w-4" /> Aesthetic
-                  </span>
-                  <span className="font-medium">{project.aesthetic}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 flex items-center gap-2">
-                    <Calendar className="h-4 w-4" /> Created
-                  </span>
-                  <span className="font-medium">{new Date(project.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
-
-              {/* Prompt Section */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-gray-400 text-sm">Prompt</h4>
-                  <Button variant="ghost" size="icon" onClick={handleCopyPrompt} className="h-7 w-7">
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-sm text-gray-300 bg-gray-800/50 p-3 rounded-md">
-                  {project.prompt || "No prompt provided."}
-                </p>
-              </div>
-
-              {/* Input Images */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-gray-400 text-sm">Input Images</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <h5 className="text-xs font-medium text-gray-500 text-center">Garment</h5>
-                    <div className="relative aspect-square">
-                      <Image
-                        src={project.garmentImage || "/placeholder.svg"}
-                        alt="Garment"
-                        fill
-                        className="rounded-lg object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <h5 className="text-xs font-medium text-gray-500 text-center">Reference</h5>
-                    <div className="relative aspect-square">
-                      <Image
-                        src={project.referenceImage || "/placeholder.svg"}
-                        alt="Reference"
-                        fill
-                        className="rounded-lg object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

@@ -4,9 +4,9 @@ import Link from "next/link"
 
 export default function ProjectsPage() {
   return (
-    <div className="space-y-6">
+    <div className="container-zarta py-16 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">My Projects</h1>
+        <h1 className="heading-2 text-foreground">My Projects</h1>
       </div>
       <ProjectsGrid />
       

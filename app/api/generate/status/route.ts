@@ -48,10 +48,19 @@ export async function POST(request: NextRequest) {
     let result: any
     try {
       result = await waitForRunwayGeneration(generationId, 1000 * 60 * 1) // 1 minute max per poll
+      console.log("Runway result:", JSON.stringify(result, null, 2))
     } catch (e: any) {
+      console.error("Runway generation error:", e)
       return NextResponse.json({ status: 'error', error: e?.message || 'Generation failed at provider.' }, { status: 500 })
     }
+    
+    console.log("Result status:", result.status)
+    console.log("Result output:", result.output)
+    console.log("Result images:", result.output?.images)
+    console.log("First image URL:", result.output?.images?.[0]?.url)
+    
     if (result.status !== 'succeeded' || !result.output?.images?.[0]?.url) {
+      console.log("Returning processing status - no valid image URL found")
       return NextResponse.json({ status: 'processing' })
     }
 

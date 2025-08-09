@@ -105,10 +105,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.variable, sora.variable)} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="scrollbar-thin">
+      <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          {children}
+          <div className="min-h-screen flex flex-col">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

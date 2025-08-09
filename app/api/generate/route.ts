@@ -6,16 +6,41 @@ import { generateImageWithRunway } from '@/lib/runway'
 export async function POST(request: NextRequest) {
   try {
     // 1. Check Authentication
+    console.log("Checking authentication...")
     const authHeader = request.headers.get('authorization')
+    console.log("Auth header exists:", !!authHeader)
+    console.log("Auth header starts with Bearer:", authHeader?.startsWith('Bearer '))
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log("No valid auth header found")
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log("Token length:", token?.length || 0)
+    
     let decodedToken
     try {
+      console.log("Attempting to verify token...")
+      console.log("Token starts with:", token.substring(0, 20) + "...")
+      console.log("Token length:", token.length)
+      
       decodedToken = await getAdminAuth().verifyIdToken(token)
+      console.log("Token verified successfully for user:", decodedToken.uid)
+      console.log("Token claims:", {
+        iss: decodedToken.iss,
+        aud: decodedToken.aud,
+        auth_time: decodedToken.auth_time,
+        exp: decodedToken.exp,
+        iat: decodedToken.iat
+      })
     } catch (error) {
+      console.error("Token verification failed:", error)
+      console.error("Error details:", {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      })
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 

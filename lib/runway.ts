@@ -131,21 +131,44 @@ export async function waitForRunwayGeneration(
       console.log('Task status:', taskDetails.status)
       
       if (taskDetails.status === 'SUCCEEDED') {
-        const imageUrls: string[] = []
-        const assets = taskDetails.output?.assets || taskDetails.output?.images || []
+        console.log("Task succeeded! Full task details:", JSON.stringify(taskDetails, null, 2))
         
-        if (Array.isArray(assets)) {
-          for (const a of assets) {
-            const url = a?.uri || a?.url
-            if (typeof url === 'string') imageUrls.push(url)
+        const imageUrls: string[] = []
+        
+        // Handle the actual Runway response structure
+        if (Array.isArray(taskDetails.output)) {
+          // Direct array of URLs
+          console.log("Direct output array found:", taskDetails.output)
+          for (const url of taskDetails.output) {
+            if (typeof url === 'string') {
+              console.log("Direct URL:", url)
+              imageUrls.push(url)
+            }
+          }
+        } else {
+          // Fallback to assets/images structure
+          const assets = taskDetails.output?.assets || taskDetails.output?.images || []
+          console.log("Assets found:", assets)
+          
+          if (Array.isArray(assets)) {
+            for (const a of assets) {
+              const url = a?.uri || a?.url
+              console.log("Asset URL:", url)
+              if (typeof url === 'string') imageUrls.push(url)
+            }
           }
         }
         
-        return {
+        console.log("Extracted image URLs:", imageUrls)
+        
+        const result = {
           id: generationId,
           status: 'succeeded',
           output: imageUrls.length ? { images: imageUrls.map(u => ({ url: u })) } : undefined
         }
+        
+        console.log("Returning result:", JSON.stringify(result, null, 2))
+        return result
       } else if (taskDetails.status === 'FAILED' || taskDetails.status === 'CANCELLED') {
         throw new Error(`Task ${taskDetails.status.toLowerCase()}`)
       }

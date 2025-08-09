@@ -117,8 +117,12 @@ export function ProjectsGrid() {
 
   if (isLoading) {
     return (
-      <div className="w-full text-center text-gray-400 py-16 text-lg">
-        Loading projects...
+      <div className="grid-zarta">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="card-zarta aspect-square animate-pulse">
+            <div className="w-full h-full bg-gray-700 rounded-lg"></div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -126,26 +130,31 @@ export function ProjectsGrid() {
   return (
     <>
       {projects.length === 0 ? (
-        <div className="w-full text-center text-gray-400 py-16 text-lg">
-          <p className="mb-4">No projects yet.</p>
-          {!isSubscribed && (
-            <Link 
-              href="/subscribe" 
-              className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-            >
-              Subscribe
-            </Link>
-          )}
+        <div className="w-full text-center py-16">
+          <div className="max-w-md mx-auto">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gray-800 rounded-full flex items-center justify-center">
+              <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="heading-3 mb-2 text-foreground">No projects yet</h3>
+            <p className="text-muted mb-6">Start creating amazing AI-generated fashion photography</p>
+            {!isSubscribed && (
+              <Link href="/subscribe" className="btn-primary">
+                Get Started
+              </Link>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid-zarta">
           {projects.map((project) => (
             <Card
               key={project.id}
-              className={`bg-[#1c1c1c] border-gray-800 text-white overflow-hidden group transition-all duration-300 flex flex-col ${
+              className={`card-zarta-hover overflow-hidden group flex flex-col ${
                 !isSubscribed 
-                  ? 'hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer' 
-                  : 'hover:border-gray-600'
+                  ? 'hover:border-blue-500/50 hover:shadow-zarta cursor-pointer' 
+                  : ''
               }`}
             >
               <Link href={`/projects/${project.id}`} className="block relative">
@@ -218,17 +227,16 @@ export function ProjectsGrid() {
       
       {/* Subscription reminder for non-subscribed users */}
       {!isSubscribed && projects.length > 0 && (
-        <div className="mt-8 p-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-lg">
-          <div className="flex items-center gap-3">
-            <Crown className="h-6 w-6 text-blue-400" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-white">Subscribe</h3>
-              <p className="text-sm text-gray-300">Get unlimited generations, priority processing, and advanced features</p>
+        <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-lg">
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0">
+              <Crown className="h-8 w-8 text-blue-400" />
             </div>
-            <Link 
-              href="/subscribe" 
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-            >
+            <div className="flex-1">
+              <h3 className="heading-3 text-foreground mb-1">Unlock Premium Features</h3>
+              <p className="text-muted">Get unlimited generations, priority processing, and advanced features</p>
+            </div>
+            <Link href="/subscribe" className="btn-primary flex-shrink-0">
               Subscribe Now
             </Link>
           </div>

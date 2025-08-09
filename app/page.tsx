@@ -35,7 +35,7 @@ export default function LandingPage() {
       <StructuredData type="product" data={ProductData} />
       
       <Header />
-      <main className="container-padding" role="main">
+      <main className="container-zarta" role="main">
         <article itemScope itemType="https://schema.org/Article">
           <meta itemProp="headline" content="AI-Powered Fashion Photography | Transform Product Photos" />
           <meta itemProp="description" content="Transform plain clothing product photos into styled, high-quality, scroll-stopping visuals using AI. Save 95% on photoshoot costs with instant professional fashion photography for e-commerce brands." />
@@ -48,11 +48,11 @@ export default function LandingPage() {
         <Suspense fallback={<div className="h-24 sm:h-32 bg-gray-800 animate-pulse rounded-lg" />}>
           <TrustedBrands />
         </Suspense>
-        <section id="features" className="section-padding space-y-8 sm:space-y-12 -mt-4 sm:-mt-8" itemScope itemType="https://schema.org/ItemList">
+        <section id="features" className="section-zarta space-y-8 -mt-8" itemScope itemType="https://schema.org/ItemList">
           <meta itemProp="name" content="AI Fashion Photography Features" />
           <meta itemProp="description" content="Key features of Zarta's AI-powered fashion photography platform" />
-          <header className="text-center mb-8 sm:mb-12">
-            <h2 className="heading-2 mb-4 sm:mb-6" itemProp="name">AI Fashion Photography Features</h2>
+          <header className="text-center mb-12">
+            <h2 className="heading-2 mb-6" itemProp="name">AI Fashion Photography Features</h2>
           </header>
           <FeatureSection
             title="Unlimited Looks. No Photoshoot Needed."

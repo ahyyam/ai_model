@@ -56,7 +56,7 @@ export async function getProjectsForUser(): Promise<Project[]> {
   try {
     const q = query(collection(db, "projects"), where("userId", "==", user.uid))
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map(doc => {
+    const projects = querySnapshot.docs.map(doc => {
       const data = doc.data() as any
       const finalImageURL: string | undefined = data.finalImageURL
       const garmentImage: string | undefined = data.garmentImage || data.garmentImageURL
@@ -87,6 +87,13 @@ export async function getProjectsForUser(): Promise<Project[]> {
         versions: data.versions,
         error: data.error,
       }
+    })
+    
+    // Sort projects by createdAt in descending order (newest first)
+    return projects.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA // Descending order (newest first)
     })
   } catch (error) {
     console.error("Error fetching projects:", error)

@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getProjectById, type Project } from "@/lib/projects"
+import { getProjectById, deleteProject, type Project } from "@/lib/projects"
 import { Button } from "@/components/ui/button"
-import { Download, ArrowLeft, Copy, Calendar, Tag, Info } from "lucide-react"
+import { Download, ArrowLeft, Copy, Calendar, Tag, Info, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { toast } from "@/hooks/use-toast"
 
 export default function ProjectDetailPage() {
   const params = useParams()
@@ -15,9 +17,11 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     if (params.id) {
-      const projectId = Number.parseInt(params.id as string, 10)
-      const foundProject = getProjectById(projectId)
-      setProject(foundProject || null)
+      const projectId = params.id as string
+      getProjectById(projectId).then(setProject).catch(error => {
+        console.error("Error fetching project:", error)
+        setProject(null)
+      })
     }
   }, [params.id])
 
@@ -28,7 +32,54 @@ export default function ProjectDetailPage() {
   const handleCopyPrompt = () => {
     if (project?.prompt) {
       navigator.clipboard.writeText(project.prompt)
-      // Add a toast notification here in a real app
+      toast({ title: "Prompt copied to clipboard" })
+    }
+  }
+
+  const handleDeleteProject = async () => {
+    if (!project) return
+    
+    try {
+      await deleteProject(project.id)
+      toast({ title: "Project deleted successfully" })
+      router.push("/projects")
+    } catch (error: any) {
+      console.error("Error deleting project:", error)
+      toast({ 
+        title: "Failed to delete project", 
+        description: error?.message || "Try again later." 
+      })
+    }
+  }
+
+  const handleDownloadImage = async () => {
+    if (!project?.finalImageURL) {
+      toast({ title: "No image available to download" })
+      return
+    }
+
+    try {
+      const response = await fetch(project.finalImageURL)
+      if (!response.ok) throw new Error('Failed to fetch image')
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `zarta-project-${project.id}.jpg`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      toast({ title: "Image downloaded successfully" })
+    } catch (error) {
+      console.error("Error downloading image:", error)
+      toast({ 
+        title: "Failed to download image", 
+        description: "Try again later." 
+      })
     }
   }
 
@@ -56,10 +107,42 @@ export default function ProjectDetailPage() {
           </Button>
           <h1 className="text-2xl font-bold text-white truncate font-sora">{project.name}</h1>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Download className="mr-2 h-4 w-4" />
-          Download Image
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={handleDownloadImage}
+            disabled={!project?.finalImageURL}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Image
+          </Button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Project
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-[#121212] border-gray-800 text-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete project?</AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-400">
+                  This will permanently delete this project and all its images. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={handleDeleteProject}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       {/* Main Content Grid */}
@@ -69,7 +152,7 @@ export default function ProjectDetailPage() {
           <Card className="bg-[#1c1c1c] border-gray-800 overflow-hidden">
             <div className="relative aspect-square w-full">
               <Image
-                src={project.generatedImages?.[0] || "/placeholder.svg"}
+                src={project.finalImageURL || project.thumbnail || "/placeholder.svg"}
                 alt="Generated image"
                 fill
                 className="object-cover"

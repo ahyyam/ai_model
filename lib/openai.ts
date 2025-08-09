@@ -4,7 +4,10 @@ let cachedOpenAIClient: OpenAI | null = null
 
 function getOpenAIClient(): OpenAI | null {
   const apiKey = process.env.OPENAI_API_KEY
+  console.log("OpenAI API Key exists:", !!apiKey)
+  console.log("OpenAI API Key length:", apiKey?.length || 0)
   if (!apiKey || apiKey.trim().length === 0) {
+    console.log("OpenAI API Key is missing or empty")
     return null
   }
   if (cachedOpenAIClient) return cachedOpenAIClient

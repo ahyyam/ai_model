@@ -280,6 +280,16 @@ export default function StepGenerate({
         return
       }
 
+      // Ensure user is properly authenticated
+      try {
+        await user.getIdToken(true) // Force refresh the token
+      } catch (error) {
+        console.error("Token refresh failed:", error)
+        setError("Authentication failed. Please sign in again.")
+        router.push("/login")
+        return
+      }
+
       // User is logged in - check their credit balance
       let userData = await getUserData(user.uid)
       if (!userData) {
@@ -332,6 +342,13 @@ export default function StepGenerate({
 
       // Get auth token for API call
       const token = await user.getIdToken()
+      console.log("User authenticated:", !!user)
+      console.log("Token obtained:", !!token)
+      
+      // Verify token is valid
+      if (!token) {
+        throw new Error("Authentication failed. Please sign in again.")
+      }
       
       setGenerationProgress(30)
       console.log("Starting image generation...")
@@ -351,6 +368,8 @@ export default function StepGenerate({
       })
 
       if (!response.ok) {
+        console.error('API Response status:', response.status)
+        console.error('API Response headers:', Object.fromEntries(response.headers.entries()))
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         console.error('Generation API error:', errorData)
         

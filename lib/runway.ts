@@ -17,6 +17,7 @@ export interface RunwayImageResponse {
   error?: string
   usedRatio?: string
   model?: string
+  taskResponse?: any
 }
 
 export async function generateImageWithRunway(
@@ -25,7 +26,10 @@ export async function generateImageWithRunway(
   try {
     // Ensure Runway API key exists (SDK reads RUNWAYML_API_SECRET)
     const runwaySecret = process.env.RUNWAYML_API_SECRET || process.env.RUNWAY_API_KEY
+    console.log("Runway API Secret exists:", !!runwaySecret)
+    console.log("Runway API Secret length:", runwaySecret?.length || 0)
     if (!runwaySecret) {
+      console.log("Runway API Secret is missing")
       throw new Error('Runway API key is not set. Provide RUNWAYML_API_SECRET or RUNWAY_API_KEY')
     }
 
@@ -98,7 +102,7 @@ export async function generateImageWithRunway(
     })
 
     // Return the created task id; caller will wait for completion
-    return { id: (task as any).id, status: 'processing', usedRatio, model }
+    return { id: task.id, status: 'processing', usedRatio, model, taskResponse: task }
   } catch (error) {
     console.error('Error generating image with Runway SDK:', error)
     if (error instanceof TaskFailedError) {
@@ -114,33 +118,45 @@ export async function waitForRunwayGeneration(
   maxWaitTime: number = 300000 // 5 minutes
 ): Promise<RunwayImageResponse> {
   const startTime = Date.now()
-  const client = new RunwayML({ apiKey: process.env.RUNWAYML_API_SECRET || process.env.RUNWAY_API_KEY || '' })
+  const runwaySecret = process.env.RUNWAYML_API_SECRET || process.env.RUNWAY_API_KEY || ''
+  console.log("Runway API Secret for status check exists:", !!runwaySecret)
+  console.log("Runway API Secret for status check length:", runwaySecret?.length || 0)
+  const client = new RunwayML({ apiKey: runwaySecret })
   console.log(`Waiting for Runway generation ${generationId} to complete...`)
 
   while (Date.now() - startTime < maxWaitTime) {
     try {
-      if (typeof (client.textToImage as any).waitForTaskOutput === 'function') {
-        const completed: any = await (client.textToImage as any).waitForTaskOutput({ id: generationId })
+      // Check task status using the tasks.retrieve method
+      const taskDetails = await client.tasks.retrieve(generationId)
+      console.log('Task status:', taskDetails.status)
+      
+      if (taskDetails.status === 'SUCCEEDED') {
         const imageUrls: string[] = []
-        const assets = completed?.assets || completed?.output || completed?.outputs
+        const assets = taskDetails.output?.assets || taskDetails.output?.images || []
+        
         if (Array.isArray(assets)) {
           for (const a of assets) {
             const url = a?.uri || a?.url
             if (typeof url === 'string') imageUrls.push(url)
           }
         }
+        
         return {
           id: generationId,
           status: 'succeeded',
           output: imageUrls.length ? { images: imageUrls.map(u => ({ url: u })) } : undefined
         }
+      } else if (taskDetails.status === 'FAILED' || taskDetails.status === 'CANCELLED') {
+        throw new Error(`Task ${taskDetails.status.toLowerCase()}`)
       }
+      
+      // Wait before next poll
       await new Promise(resolve => setTimeout(resolve, 2000))
     } catch (error) {
       if (error instanceof TaskFailedError) {
         throw new Error('Image generation failed')
       }
-      console.error('Error waiting for Runway generation:', error)
+      console.error('Error checking Runway task status:', error)
       throw error
     }
   }

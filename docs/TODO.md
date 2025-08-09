@@ -98,6 +98,37 @@
   - [x] Mobile-specific quick tips and guidance
   - [x] Improved loading states and generation progress
   - [x] Better visual hierarchy and spacing
+- [x] **FIXED API ISSUES**: Resolved problems with OpenAI and Runway APIs:
+  - [x] Confirmed OpenAI API is working correctly with gpt-4.1-mini model
+  - [x] Fixed Runway API integration by using correct tasks.retrieve method
+  - [x] Updated waitForRunwayGeneration function to properly poll task status
+  - [x] Both APIs now return proper responses and handle task completion correctly
+- [x] **SIMPLIFIED PROJECTS GRID**: Updated projects page layout:
+  - [x] Outside card now shows only the final result image
+  - [x] Removed prompt preview, input images, and project name from card
+  - [x] Kept only status badge, date, and processing indicator
+  - [x] All detailed information (garment, reference, prompt) moved to project details page
+  - [x] Fixed project details page to fetch from Firebase and show final result image
+- [x] **MOVED REVIEW ICONS TO HERO SECTION**: Repositioned review icons for better impact:
+  - [x] Added review icons from `/public/icons/` to hero section next to "Trusted by 10,000+ brands"
+  - [x] Removed review icons from testimonials section for cleaner design
+  - [x] Updated Next.js config to use modern `remotePatterns` instead of deprecated `domains`
+- [x] **REPOSITIONED DELETE FUNCTIONALITY**: Moved delete button from projects grid to project details page:
+  - [x] Removed delete button from projects grid cards for cleaner design
+  - [x] Added comprehensive delete functionality to project details page
+  - [x] Delete function removes project document and all associated images from Firebase
+  - [x] Added confirmation dialog with clear warning about permanent deletion
+  - [x] Added toast notifications for success/error feedback
+  - [x] Automatic redirect to projects page after successful deletion
+- [x] **FIXED API AUTHENTICATION ISSUE**: Resolved 401 errors in API calls:
+  - [x] Added missing `FIREBASE_STORAGE_BUCKET` environment variable for Firebase Admin
+  - [x] Enhanced authentication checks in generate component with token refresh
+  - [x] Added better error handling and debugging for API authentication
+  - [x] Improved user experience with proper authentication flow
+- [x] **FIXED API KEY FORMATTING**: Resolved environment variable issues:
+  - [x] Fixed malformed `OPENAI_API_KEY` that had `\n` suffix causing invalid API key
+  - [x] Added debugging logs to track API key loading in OpenAI and Runway clients
+  - [x] Restarted development server to pick up corrected environment variables
   - [x] Enhanced accessibility and touch interactions
 - [x] **SEPARATED LOGIN AND SIGNUP FLOWS**: Created distinct user flows with:
   - [x] Dedicated signup page at `/signup` with email and Google authentication

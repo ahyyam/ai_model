@@ -4,11 +4,9 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Download, Calendar, Crown, Lock, Trash2 } from "lucide-react"
+import { Download, Calendar, Crown, Lock } from "lucide-react"
 import Image from "next/image"
-import { getProjectsForUser, type Project, deleteProject } from "@/lib/projects"
-import { Button } from "@/components/ui/button"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { getProjectsForUser, type Project } from "@/lib/projects"
 import { toast } from "@/hooks/use-toast"
 import { getUserData, type UserData } from "@/lib/users"
 import { auth } from "@/lib/firebase"
@@ -152,50 +150,8 @@ export function ProjectsGrid() {
             >
               <Link href={`/projects/${project.id}`} className="block relative">
                 <div className="relative aspect-square">
-                  <Image src={(project.thumbnail || project.finalImageURL || "/placeholder.svg")} alt={project.name} fill className="object-cover" />
-                  {/* Delete button top-right */}
-                  <div className="absolute top-2 right-2 z-10">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => e.preventDefault()}
-                          aria-label="Delete project"
-                          title="Delete project"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-[#121212] border-gray-800 text-white">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete project?</AlertDialogTitle>
-                          <AlertDialogDescription className="text-gray-400">
-                            This will permanently delete this project and its images. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-red-600 hover:bg-red-700"
-                            onClick={async () => {
-                              try {
-                                await deleteProject(project.id)
-                                setProjects((prev) => prev.filter((p) => p.id !== project.id))
-                                toast({ title: "Project deleted" })
-                              } catch (err: any) {
-                                console.error(err)
-                                toast({ title: "Failed to delete project", description: err?.message || "Try again later." })
-                              }
-                            }}
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                  <Image src={(project.finalImageURL || project.thumbnail || "/placeholder.svg")} alt={project.name} fill className="object-cover" />
+
                   {project.status === "processing" && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                       <div className="text-center">
@@ -223,9 +179,9 @@ export function ProjectsGrid() {
                   )}
                 </div>
               </Link>
-              <CardContent className="p-4 flex-grow flex flex-col">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-sm truncate flex-1 pr-2">{project.name}</h3>
+              <CardContent className="p-3 flex-grow flex flex-col">
+                {/* Status badge only */}
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {isSubscribed && (
                       <Crown className="h-3 w-3 text-yellow-400" />
@@ -233,32 +189,15 @@ export function ProjectsGrid() {
                     <Badge className={`text-xs ${getStatusColor(project.status)}`}>{project.status}</Badge>
                   </div>
                 </div>
-                {/* Prompt preview */}
-                {project.prompt && (
-                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">{project.prompt}</p>
-                )}
-                {!project.prompt && project.aesthetic && (
-                  <p className="text-xs text-gray-400 mb-2">{project.aesthetic}</p>
-                )}
-                {/* Input images preview when present */}
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  {project.garmentImage && (
-                    <div className="relative aspect-square border border-gray-800 rounded overflow-hidden">
-                      <Image src={project.garmentImage} alt="Garment" fill className="object-cover" />
-                    </div>
-                  )}
-                  {project.referenceImage && (
-                    <div className="relative aspect-square border border-gray-800 rounded overflow-hidden">
-                      <Image src={project.referenceImage} alt="Reference" fill className="object-cover" />
-                    </div>
-                  )}
-                </div>
-                {/* Generate CTA when processing */}
-                {project.status !== 'complete' && (
+                
+                {/* Processing indicator */}
+                {project.status === "processing" && (
                   <div className="mt-auto">
                     <Link href={`/generate`} className="text-xs text-blue-400 hover:underline">Resume generation</Link>
                   </div>
                 )}
+                
+                {/* Date only */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />

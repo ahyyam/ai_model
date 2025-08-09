@@ -156,9 +156,9 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 md:gap-6 lg:gap-8 text-xs md:text-sm text-gray-400">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2 md:-space-x-3">
-                  <img src="/brand-logos/1.png" alt="Trusted Brand 1" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
-                  <img src="/brand-logos/2.png" alt="Trusted Brand 2" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
-                  <img src="/brand-logos/3.png" alt="Trusted Brand 3" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
+                  <img src="/icons/rev_icon_1.jpg" alt="Customer Review 1" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
+                  <img src="/icons/rev_icon_2.jpg" alt="Customer Review 2" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
+                  <img src="/icons/rev_icon_3.jpg" alt="Customer Review 3" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
                 </div>
                 <span className="font-medium">Trusted by 10,000+ brands</span>
               </div>

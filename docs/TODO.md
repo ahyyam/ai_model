@@ -179,6 +179,7 @@
   - [x] **ENHANCED PROMPT SPECIFICITY**: Updated OpenAI prompts to generate extremely detailed, specific descriptions using standardized terminology for consistent, high-quality results
   - [x] **IMMEDIATE RESULTS NAVIGATION**: Generate button now navigates to results page immediately and shows loading state with "Generating..." indicator
   - [x] **FACE MODIFICATION ENHANCEMENT**: Added face modification instructions to prompts for slightly enhanced facial features and natural appearance
+- [x] **FIXED FIREBASE PERMISSIONS**: Created proper Firestore rules and indexes to resolve "Missing or insufficient permissions" errors
   - [x] Enhanced accessibility and touch interactions
 - [x] **SEPARATED LOGIN AND SIGNUP FLOWS**: Created distinct user flows with:
   - [x] Dedicated signup page at `/signup` with email and Google authentication

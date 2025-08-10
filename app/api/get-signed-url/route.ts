@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { initAdminApp } from '@/lib/firebase-admin'
+import { getAdminApp } from '@/lib/firebase-admin'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Firebase Admin
-    const admin = initAdminApp()
+    const admin = getAdminApp()
     const bucket = admin.storage().bucket()
     
     // Extract the file path from the Firebase Storage URL

@@ -337,3 +337,6 @@
   - [x] Made OpenAI and Stripe initialization lazy; prevented build-time env errors
   - [x] Forced dynamic rendering on auth-dependent pages: `/login`, `/signup`, `/subscribe`, `/generate`, `/generate/results`
   - [x] Verified production build succeeds
+- [x] Fixed results page showing old projects instead of current generation
+- [x] Added loading indicator in results area while generation is in progress
+- [x] Implemented proper polling for generation status updates

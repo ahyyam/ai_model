@@ -86,6 +86,18 @@
     @apply bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200;
   }
   
+  .badge-primary {
+    @apply inline-flex items-center gap-2 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full text-sm font-medium;
+  }
+  
+  .badge-primary svg {
+    @apply text-blue-400;
+  }
+  
+  .icon-base {
+    @apply h-4 w-4;
+  }
+  
   .input-zarta {
     @apply bg-gray-800/50 border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200;
   }

@@ -55,11 +55,31 @@ export default function StepGenerate({
   const [generationProgress, setGenerationProgress] = useState(0)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [promptLoading, setPromptLoading] = useState(false)
+  const [detectedAspectRatios, setDetectedAspectRatios] = useState<{garment: string, reference: string} | null>(null)
+  const [aiRecommendedAspectRatio, setAiRecommendedAspectRatio] = useState<string>("1:1")
+  const [selectedOutputAspectRatio, setSelectedOutputAspectRatio] = useState<string>("1:1")
   const router = useRouter()
   const isMobile = useIsMobile()
   const [userHasCredit, setUserHasCredit] = useState<boolean | null>(null);
   const [checkingCredit, setCheckingCredit] = useState(true);
   const isLoggedIn = !!auth?.currentUser;
+
+  // Helper function to detect aspect ratio from an image file
+  const detectAspectRatio = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const width = img.naturalWidth
+        const height = img.naturalHeight
+        const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b)
+        const divisor = gcd(width, height)
+        const aspectRatio = `${width / divisor}:${height / divisor}`
+        resolve(aspectRatio)
+      }
+      img.onerror = () => resolve("1:1")
+      img.src = URL.createObjectURL(file)
+    })
+  }
 
   // Helper function to clean and validate prompt
   const getValidPrompt = (userPrompt: string): string => {
@@ -128,6 +148,17 @@ export default function StepGenerate({
         
         console.log("Starting prompt generation for user:", user.uid);
         
+        // Detect aspect ratios from uploaded images
+        const [garmentAspectRatio, referenceAspectRatio] = await Promise.all([
+          detectAspectRatio(formData.garmentImage!),
+          detectAspectRatio(formData.referenceImage!)
+        ]);
+        
+        setDetectedAspectRatios({
+          garment: garmentAspectRatio,
+          reference: referenceAspectRatio
+        });
+        
         // Upload images to storage
         console.log("Uploading garment image to Firebase Storage...");
         const garmentImageURL = await uploadImageToStorage(
@@ -183,6 +214,13 @@ export default function StepGenerate({
         if (result.prompt) {
           setPrompt(result.prompt);
           setAiPromptReady(true);
+          
+          // Set AI recommended aspect ratio
+          if (result.aspect_ratio) {
+            setAiRecommendedAspectRatio(result.aspect_ratio);
+            setSelectedOutputAspectRatio(result.aspect_ratio);
+          }
+          
           console.log("Prompt set successfully:", result.prompt);
         } else {
           throw new Error("No prompt returned from server");
@@ -249,6 +287,25 @@ export default function StepGenerate({
     }
     checkCredit();
   }, []);
+
+  // Detect aspect ratios when images are uploaded
+  useEffect(() => {
+    async function detectAspectRatios() {
+      if (formData.garmentImage && formData.referenceImage) {
+        const [garmentAspectRatio, referenceAspectRatio] = await Promise.all([
+          detectAspectRatio(formData.garmentImage),
+          detectAspectRatio(formData.referenceImage)
+        ]);
+        
+        setDetectedAspectRatios({
+          garment: garmentAspectRatio,
+          reference: referenceAspectRatio
+        });
+      }
+    }
+    
+    detectAspectRatios();
+  }, [formData.garmentImage, formData.referenceImage]);
 
   // removed unused deductCreditAndSaveProject
 
@@ -363,7 +420,8 @@ export default function StepGenerate({
         body: JSON.stringify({
           referenceImageURL,
           garmentImageURL,
-          userPrompt: getValidPrompt(prompt)
+          userPrompt: getValidPrompt(prompt),
+          outputAspectRatio: selectedOutputAspectRatio
         })
       })
 
@@ -592,6 +650,54 @@ export default function StepGenerate({
                 </div>
               </div>
 
+              {/* Aspect Ratio Analysis */}
+              {detectedAspectRatios && (
+                <div className="space-y-3 sm:space-y-4">
+                  <label className="text-lg sm:text-xl font-bold text-white">
+                    Image Analysis
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
+                      <div className="text-sm text-gray-400 mb-1">Garment Image</div>
+                      <div className="text-white font-medium">{detectedAspectRatios.garment}</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
+                      <div className="text-sm text-gray-400 mb-1">Reference Image</div>
+                      <div className="text-white font-medium">{detectedAspectRatios.reference}</div>
+                    </div>
+                  </div>
+                  
+                  {/* AI Recommendation */}
+                  {aiRecommendedAspectRatio && aiRecommendedAspectRatio !== "1:1" && (
+                    <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-3">
+                      <div className="text-sm text-blue-400 mb-1">AI Recommendation</div>
+                      <div className="text-blue-300 font-medium">Output: {aiRecommendedAspectRatio}</div>
+                    </div>
+                  )}
+                  
+                  {/* Output Aspect Ratio Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-300">
+                      Select Output Aspect Ratio
+                    </label>
+                    <select
+                      value={selectedOutputAspectRatio}
+                      onChange={(e) => setSelectedOutputAspectRatio(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="1:1">1:1 (Square)</option>
+                      <option value="4:5">4:5 (Portrait)</option>
+                      <option value="3:4">3:4 (Portrait)</option>
+                      <option value="2:3">2:3 (Portrait)</option>
+                      <option value="9:16">9:16 (Mobile Portrait)</option>
+                      <option value="16:9">16:9 (Landscape)</option>
+                      <option value="3:2">3:2 (Landscape)</option>
+                      <option value="4:3">4:3 (Landscape)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
               {/* Validation Errors */}
               <AnimatePresence>
                 {validationErrors.length > 0 && (
@@ -647,17 +753,24 @@ export default function StepGenerate({
                   </div>
                 ) : (
                   <>
-                    {promptLoading ? (
-                      <div className="text-gray-400 text-sm py-2">Generating prompt...</div>
-                    ) : null}
-                    <textarea
-                      value={prompt}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value.slice(0, 1000))}
-                      placeholder="AI-generated prompt will appear here. You can edit after it loads."
-                      className="w-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 text-base sm:text-lg md:text-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent leading-relaxed"
-                      disabled={!aiPromptReady || promptLoading}
-                      maxLength={1000}
-                    />
+                    <div className="relative">
+                      <textarea
+                        value={prompt}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value.slice(0, 1000))}
+                        placeholder="AI will generate a highly detailed, specific prompt for consistent results. You can edit after it loads."
+                        className="w-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 text-base sm:text-lg md:text-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent leading-relaxed"
+                        disabled={!aiPromptReady || promptLoading}
+                        maxLength={1000}
+                      />
+                      {promptLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-800/90 rounded-lg">
+                          <div className="flex items-center gap-3 text-blue-400">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+                            <span className="text-lg font-medium">Generating AI prompt...</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div className="text-xs text-gray-400 text-right">{prompt.length}/1000</div>
                   </>
                 )}

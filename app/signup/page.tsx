@@ -115,14 +115,14 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#111111] text-white">
       <div className="w-full max-w-md p-8 bg-[#1c1c1c] rounded-2xl border border-gray-800 shadow-lg">
-        {/* Back to Login Link */}
+        {/* Back to Home Link */}
         <div className="mb-6">
           <Link 
-            href="/login" 
+            href="/" 
             className="inline-flex items-center text-blue-400 hover:text-blue-300 text-sm transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to login
+            Back to home
           </Link>
         </div>
 

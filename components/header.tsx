@@ -224,7 +224,7 @@ export default function Header() {
                   <Link href="/login">Log In</Link>
                 </Button>
                 <Button asChild className="btn-primary text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3">
-                  <Link href="/generate">Get Started</Link>
+                  <Link href="/get-started">Get Started</Link>
                 </Button>
               </>
             )}

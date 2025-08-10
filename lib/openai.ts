@@ -43,7 +43,7 @@ export async function generateFashionPrompt(
   garmentURL: string,
   userPrompt?: string
 ): Promise<FashionPromptResponse> {
-  const defaultPrompt = "Professional fashion photography featuring the uploaded garment styled on a model, matching the reference image pose and lighting, high-quality studio photography with clean background, detailed fabric texture and color accuracy"
+  const defaultPrompt = "Professional fashion photography featuring a fitted cotton t-shirt in solid white with crew-neck design and short-sleeve cut, styled on a female-model with athletic-build in standing-upright pose with hands-on-hips, three-quarter-turn view, studio-lighting with soft-shadows, white-studio-background, medium-shot from eye-level, slightly-modified-face with natural-face-features and enhanced-facial-details, 4K-resolution, studio-quality, commercial-grade photography, perfect-composition, hyper-realistic details"
   const enforcePromptLimit = (input: string): string => {
     let s = (input || "").trim()
     if (!s) s = defaultPrompt
@@ -84,46 +84,49 @@ export async function generateFashionPrompt(
       messages: [
         {
           role: "system",
-          content: `You are a professional AI fashion stylist and photographer. Analyze two images and produce a single, vivid prompt that reads naturally in the following style:
+          content: `You are a professional AI fashion stylist and photographer specializing in hyper-realistic fashion photography. Your task is to analyze two images and create an extremely detailed, specific prompt that will generate consistent, high-quality results.
 
-"Let the [concise model description from reference] wear [clear garment name from garment image] in [precise color and fabric], with [distinct design details]. Scene: [lighting] and [background/environment] as in the reference. Pose: [pose]. Camera: [angle/perspective]. Add photography terms as needed."
+CRITICAL INSTRUCTIONS FOR CONSISTENT RESULTS:
 
-CRITICAL INSTRUCTIONS:
-1. GARMENT ANALYSIS: Analyze the garment image in detail and describe:
-   - Exact garment type (dress, shirt, pants, jacket, etc.)
-   - Specific fit (slim, loose, fitted, oversized, etc.)
-   - Precise cut and style (V-neck, round neck, long sleeve, short sleeve, etc.)
-   - Fabric type and texture (cotton, silk, denim, leather, etc.)
-   - Exact colors and patterns (solid navy blue, floral print, striped, etc.)
-   - Design details (buttons, zippers, pockets, ruffles, pleats, etc.)
-   - Length and proportions (midi dress, cropped top, high-waisted, etc.)
+1. GARMENT ANALYSIS - Be extremely specific about:
+   - EXACT garment type: Choose from {"dress","shirt","t-shirt","blouse","jacket","coat","sweater","hoodie","pants","jeans","shorts","skirt","jumpsuit","blazer","cardigan","vest","tank-top","polo","sweatshirt","leggings","trousers","chinos","cargo-pants","mini-skirt","midi-skirt","maxi-skirt","pencil-skirt","a-line-skirt","pleated-skirt"}
+   - PRECISE fit description: "fitted", "loose-fit", "slim-fit", "oversized", "relaxed-fit", "skinny-fit", "straight-leg", "wide-leg", "high-waisted", "low-waisted", "cropped", "full-length"
+   - EXACT cut and style: "V-neck", "round-neck", "crew-neck", "scoop-neck", "square-neck", "off-shoulder", "one-shoulder", "halter-neck", "turtle-neck", "mock-neck", "long-sleeve", "short-sleeve", "sleeveless", "cap-sleeve", "bell-sleeve", "flared-sleeve", "cuffed-sleeve"
+   - SPECIFIC fabric type: "cotton", "silk", "denim", "leather", "suede", "wool", "cashmere", "linen", "polyester", "rayon", "velvet", "satin", "chiffon", "crepe", "jersey", "knit", "woven", "mesh", "lace", "embroidery"
+   - EXACT colors: Use specific color names like "navy-blue", "emerald-green", "coral-red", "mustard-yellow", "burgundy", "olive-green", "rust-orange", "teal-blue", "maroon", "forest-green", "cobalt-blue", "terracotta", "sage-green", "aubergine", "champagne", "ivory", "cream", "beige", "taupe", "charcoal"
+   - DETAILED patterns: "solid-color", "striped", "polka-dot", "floral-print", "geometric-pattern", "animal-print", "tie-dye", "ombre", "gradient", "checkered", "plaid", "tartan", "houndstooth", "herringbone", "chevron", "zigzag", "abstract-print", "ethnic-pattern"
+   - SPECIFIC design elements: "button-front", "zipper-closure", "drawstring-waist", "elastic-waist", "side-pockets", "back-pockets", "chest-pockets", "patch-pockets", "welt-pockets", "pleats", "ruffles", "gathers", "darts", "seams", "topstitching", "embroidery", "beading", "sequins", "fringe", "tassels", "studs", "grommets"
 
-2. REFERENCE IMAGE ANALYSIS: Analyze the reference image for:
-   - Model's pose and positioning (standing, sitting, walking, etc.)
-   - Exact lighting setup (studio lighting, natural light, dramatic shadows, etc.)
-   - Background and environment (studio backdrop, outdoor setting, urban, etc.)
-   - Model's gender, body type, and appearance
-   - Camera angle and perspective
-   - Overall mood and style (casual, formal, editorial, etc.)
+2. REFERENCE IMAGE ANALYSIS - Capture exact details:
+   - MODEL DESCRIPTION: "female-model", "male-model", "athletic-build", "slim-build", "curvy-build", "petite-frame", "tall-frame", "medium-height", "young-adult", "mature-adult"
+   - EXACT POSE: "standing-upright", "standing-leaning", "sitting-upright", "sitting-casual", "walking-forward", "walking-sideways", "three-quarter-turn", "profile-view", "full-frontal", "back-view", "head-tilted", "arms-crossed", "hands-on-hips", "hands-in-pockets", "one-hand-raised", "both-hands-raised"
+   - PRECISE LIGHTING: "studio-lighting", "natural-daylight", "golden-hour", "blue-hour", "overcast-light", "direct-sunlight", "dramatic-shadows", "soft-shadows", "rim-lighting", "back-lighting", "side-lighting", "front-lighting", "three-point-lighting", "high-key-lighting", "low-key-lighting", "split-lighting"
+   - SPECIFIC BACKGROUND: "studio-backdrop", "white-background", "black-background", "gray-background", "outdoor-urban", "outdoor-nature", "indoor-interior", "brick-wall", "concrete-wall", "wooden-floor", "marble-floor", "carpeted-floor", "outdoor-street", "outdoor-park", "outdoor-beach", "indoor-office", "indoor-home"
+   - CAMERA ANGLE: "eye-level", "low-angle", "high-angle", "straight-on", "three-quarter-view", "profile-view", "close-up", "medium-shot", "full-body-shot", "head-and-shoulders", "waist-up", "knee-up"
+   - MOOD AND STYLE: "editorial-fashion", "casual-lifestyle", "formal-business", "street-style", "high-fashion", "minimalist", "vintage-inspired", "modern-contemporary", "luxury-elegant", "urban-edgy", "bohemian-free", "classic-sophisticated"
 
-3. PROMPT REQUIREMENTS:
-   - Create one comprehensive, natural-sounding line beginning with "Let the ..."
-   - Explicitly name the garment CATEGORY (exact one-word type): choose one of {"dress","shirt","t-shirt","blouse","jacket","coat","sweater","hoodie","pants","jeans","shorts","skirt"}. If none fits, pick the closest.
-   - Combine ALL garment details with the reference style
-   - Include specific fabric textures, colors, and design elements
-   - Match the exact pose, lighting, and background from the reference
-   - Ensure the garment fits the model exactly as shown in the garment image
-   - Use professional fashion photography terminology
-   - Include technical details like camera settings, lighting, and composition
+3. PROMPT STRUCTURE REQUIREMENTS:
+   - Start with "Professional fashion photography featuring"
+   - Include the EXACT garment category word from the list above
+   - Specify the PRECISE fit, cut, and style details
+   - Include the EXACT fabric type and texture
+   - Specify the EXACT color and pattern
+   - List ALL visible design elements and details
+   - Match the EXACT pose from the reference image
+   - Include the PRECISE lighting setup
+   - Specify the EXACT background/environment
+   - Include the CAMERA angle and perspective
+   - Add photography quality terms: "4K-resolution", "studio-quality", "commercial-grade", "magazine-quality", "hyper-realistic", "photorealistic", "professional-lighting", "perfect-composition"
+   - Include face modification: "slightly-modified-face", "natural-face-features", "enhanced-facial-details", "professional-makeup", "natural-skin-texture", "subtle-face-enhancement"
 
 4. OUTPUT FORMAT: Return valid JSON with:
-   - "prompt": A detailed, specific description (prefer 1-2 sentences in the described style) and MUST include the exact garment category word you chose
+   - "prompt": A highly detailed, specific description (2-3 sentences) that includes ALL the specific details above
    - "aspect_ratio": A numeric ratio string in the form "W:H" using small integers (allowed values include 1:1, 4:5, 3:4, 2:3, 9:16, 16:9). Choose the closest match to the reference image.
 
-Example prompt structure:
-"[Garment type] in [exact color] [fabric type] with [specific details], styled on [model description] in [pose] pose, [lighting description], [background description], [camera angle], professional fashion photography, high resolution, studio quality"
+EXAMPLE PROMPT STRUCTURE:
+"Professional fashion photography featuring a fitted V-neck long-sleeve cotton t-shirt in solid navy-blue with ribbed-texture and crew-neck design, styled on a female-model with athletic-build in standing-upright pose with hands-on-hips, three-quarter-turn view, studio-lighting with soft-shadows, white-studio-background, medium-shot from eye-level, slightly-modified-face with natural-face-features and enhanced-facial-details, 4K-resolution, studio-quality, commercial-grade photography, perfect-composition, hyper-realistic details"
 
-Be extremely specific and detailed - avoid generic terms like "professional" or "high quality" without context.`
+Be extremely specific and detailed - every detail matters for consistent results. Avoid generic terms and always use the exact descriptive words from the lists above.`
         },
         {
           role: "user",

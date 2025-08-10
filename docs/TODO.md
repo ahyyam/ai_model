@@ -166,6 +166,19 @@
   - [x] **RESPONSIVE DESIGN**: Ensured all components work perfectly on all devices
   - [x] **PERFORMANCE**: Optimized bundle size and removed unused dependencies
   - [x] **REVERTED LANDING BACKGROUND**: Changed landing page back to black background
+  - [x] **ENHANCED FEATURES SECTION**: Added icons before subheadings with different colors
+  - [x] **FIXED FEATURES SECTION**: Added missing CSS classes (badge-primary, icon-base) for proper styling
+  - [x] **UPDATED HERO SLIDING PHOTOS**: Changed from 2 equal photos to 1.5 photos (1 full + 1 half)
+  - [x] **MADE HERO IMAGES TALLER**: Changed aspect ratios to use more vertical space (2/3 and 1/2)
+  - [x] **ADDED CODENIES CREDIT**: Added footer credit linking to Codenies Solutions website
+  - [x] **ADDED ZARTA.IO LINK**: Added clickable Zarta.io URL in footer for SEO
+  - [x] **CREATED GET-STARTED FLOW**: Added multi-step onboarding where step 2 navigates directly to signup
+  - [x] **FIXED AUTH NAVIGATION LOOPS**: Updated back buttons in signup/login to go to home instead of creating loops
+  - [x] **ENHANCED PROMPT GENERATION UX**: Added "Generating AI prompt..." indicator inside prompt box with spinner and dynamic placeholder
+  - [x] **ADDED ASPECT RATIO ANALYSIS**: GPT now analyzes reference and garment image dimensions, shows detected ratios, AI recommendation, and dropdown for output selection
+  - [x] **ENHANCED PROMPT SPECIFICITY**: Updated OpenAI prompts to generate extremely detailed, specific descriptions using standardized terminology for consistent, high-quality results
+  - [x] **IMMEDIATE RESULTS NAVIGATION**: Generate button now navigates to results page immediately and shows loading state with "Generating..." indicator
+  - [x] **FACE MODIFICATION ENHANCEMENT**: Added face modification instructions to prompts for slightly enhanced facial features and natural appearance
   - [x] Enhanced accessibility and touch interactions
 - [x] **SEPARATED LOGIN AND SIGNUP FLOWS**: Created distinct user flows with:
   - [x] Dedicated signup page at `/signup` with email and Google authentication

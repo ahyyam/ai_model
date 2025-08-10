@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { auth } from "@/lib/firebase"
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "firebase/auth"
 import { createUserData, getUserData } from "@/lib/users"
-import { Eye, EyeOff, ArrowRight } from "lucide-react"
+import { Eye, EyeOff, ArrowRight, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 export default function LoginPage() {
@@ -154,6 +154,17 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#111111] text-white">
       <div className="w-full max-w-md p-8 bg-[#1c1c1c] rounded-2xl border border-gray-800 shadow-lg">
+        {/* Back to Home Link */}
+        <div className="mb-6">
+          <Link 
+            href="/" 
+            className="inline-flex items-center text-blue-400 hover:text-blue-300 text-sm transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to home
+          </Link>
+        </div>
+        
         <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden mb-4">
             <img 

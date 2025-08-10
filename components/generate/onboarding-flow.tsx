@@ -13,6 +13,16 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import VisualGuide from "./visual-guide"
 import { TopNav } from "@/components/dashboard/top-nav"
 
+// Helper function to convert File to data URL
+const fileToDataUrl = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 export type FormData = {
   garmentImage?: File | null // Model reference image (base image for editing)
   referenceImage?: File | null // Outfit reference image
@@ -128,8 +138,27 @@ export default function OnboardingFlow() {
   const handleGenerate = async () => {
     if (step === steps.length - 1 && !generatedImage && !isGenerating) {
       setIsGenerating(true)
-      // The actual generation logic will be handled in the StepGenerate component
-      // This just triggers the generation state
+      
+      // Store the form data and navigate to results page immediately
+      try {
+        const garmentImageDataUrl = await fileToDataUrl(formData.garmentImage!)
+        const referenceImageDataUrl = await fileToDataUrl(formData.referenceImage!)
+        
+        // Store data for results page
+        localStorage.setItem("onboardingState", JSON.stringify({
+          garmentImage: garmentImageDataUrl,
+          referenceImage: referenceImageDataUrl,
+          prompt: "AI-generated prompt will appear here...",
+          generatedImage: null,
+          isGenerating: true
+        }))
+        
+        // Navigate to results page immediately
+        router.push('/generate/results')
+      } catch (error) {
+        console.error('Error preparing for generation:', error)
+        setIsGenerating(false)
+      }
     } else {
       handleNext()
     }

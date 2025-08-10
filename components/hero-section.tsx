@@ -174,19 +174,19 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column - Two Side-by-Side Sliding Images */}
+          {/* Right Column - 1.5 Sliding Images */}
           <div className="flex flex-col items-center lg:items-end order-1 lg:order-2 mb-8 lg:mb-0">
             <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
-              <div className="grid grid-cols-2 gap-2 md:gap-3">
-                {/* Left Image - Slides Down */}
-                <div className="relative aspect-[3/4] sm:aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-800/30 shadow-2xl sm:shadow-3xl">
+              <div className="flex gap-2 md:gap-3">
+                {/* Full Image - Slides Down */}
+                <div className="relative aspect-[2/3] sm:aspect-[1/2] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-800/30 shadow-2xl sm:shadow-3xl flex-1">
                   <div 
                     ref={leftImageRef}
                     className="h-full overflow-hidden"
                   >
                     {/* Duplicate images for seamless loop */}
                     {[...leftImages, ...leftImages].map((image, index) => (
-                      <div key={index} className="w-full aspect-[3/4] sm:aspect-[2/3]">
+                      <div key={index} className="w-full aspect-[2/3] sm:aspect-[1/2]">
                         <img
                           src={image}
                           alt={`AI Fashion Model ${index + 1}`}
@@ -202,15 +202,15 @@ export default function HeroSection() {
                   <div className="absolute top-0 right-0 w-12 sm:w-16 lg:w-20 h-full bg-gradient-to-l from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
                 </div>
 
-                {/* Right Image - Slides Up */}
-                <div className="relative aspect-[3/4] sm:aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-800/30 shadow-2xl sm:shadow-3xl">
+                {/* Half Image - Slides Up */}
+                <div className="relative aspect-[2/3] sm:aspect-[1/2] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-800/30 shadow-2xl sm:shadow-3xl w-1/2">
                   <div 
                     ref={rightImageRef}
                     className="h-full overflow-hidden"
                   >
                     {/* Duplicate images for seamless loop */}
                     {[...rightImages, ...rightImages].map((image, index) => (
-                      <div key={index} className="w-full aspect-[3/4] sm:aspect-[2/3]">
+                      <div key={index} className="w-full aspect-[2/3] sm:aspect-[1/2]">
                         <img
                           src={image}
                           alt={`AI Fashion Model ${index + 1}`}

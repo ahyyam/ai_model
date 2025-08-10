@@ -20,6 +20,7 @@ export default function ResultsPage() {
   const [prompt, setPrompt] = useState("")
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -40,6 +41,7 @@ export default function ResultsPage() {
       setReferenceImage(data.referenceImage || null)
       setPrompt(data.prompt || "")
       setGeneratedImage(data.generatedImages?.[0] || null)
+      setIsGenerating(false)
     } else {
       // Fallback to onboarding state for non-logged-in users
       const onboardingState = localStorage.getItem("onboardingState")
@@ -49,6 +51,7 @@ export default function ResultsPage() {
         setReferenceImage(data.referenceImage || null)
         setPrompt(data.prompt || "")
         setGeneratedImage(data.generatedImage || null)
+        setIsGenerating(data.isGenerating || false)
       }
     }
   }, [])
@@ -175,12 +178,22 @@ export default function ResultsPage() {
           <div className="flex flex-col items-center mb-12">
             <Label className="text-lg font-semibold text-white mb-6">Generated Result</Label>
             <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shadow-blue-900/10">
-              <Image
-                src={generatedImage || "/placeholder.svg?height=800&width=800"}
-                alt="Your AI generated result"
-                fill
-                className="object-cover"
-              />
+              {isGenerating ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900/50">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400 mb-4"></div>
+                  <div className="text-center">
+                    <div className="text-blue-400 text-lg font-semibold mb-2">Generating...</div>
+                    <div className="text-gray-400 text-sm">Creating your AI fashion photography</div>
+                  </div>
+                </div>
+              ) : (
+                <Image
+                  src={generatedImage || "/placeholder.svg?height=800&width=800"}
+                  alt="Your AI generated result"
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
           </div>
           

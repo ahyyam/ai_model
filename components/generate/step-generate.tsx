@@ -452,6 +452,23 @@ export default function StepGenerate({
         throw new Error('Failed to start generation')
       }
 
+      // Store the generation ID immediately for the results page
+      try {
+        const onboardingState = localStorage.getItem("onboardingState")
+        if (onboardingState) {
+          const data = JSON.parse(onboardingState)
+          const updatedState = {
+            ...data,
+            projectId: started.projectId,
+            generationId: started.generationId,
+            prompt: started.prompt || getValidPrompt(prompt)
+          }
+          localStorage.setItem("onboardingState", JSON.stringify(updatedState))
+        }
+      } catch (e) {
+        console.warn('Failed to update onboarding state with generation ID:', e)
+      }
+
       setGenerationProgress(60)
 
       // Poll status endpoint until complete

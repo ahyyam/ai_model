@@ -21,6 +21,130 @@ export default function ResultsPage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [generationId, setGenerationId] = useState<string | null>(null)
+
+  // Function to check for active generations in user's projects
+  const checkForActiveGenerations = async () => {
+    if (!user) return null
+    
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/projects', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const projects = await response.json()
+        const activeProject = projects.find((p: any) => p.status === 'processing')
+        return activeProject
+      }
+    } catch (error) {
+      console.error('Error checking for active projects:', error)
+    }
+    return null
+  }
+
+  // Function to poll for generation results
+  const startPollingForResults = async () => {
+    if (!user) return
+    
+    try {
+      // Get the current generation ID from localStorage
+      const onboardingState = localStorage.getItem("onboardingState")
+      if (!onboardingState) return
+      
+      const data = JSON.parse(onboardingState)
+      if (!data.generationId) {
+        // If no generation ID, try to find active generation from user's projects
+        console.log("No generation ID found, checking for active projects...")
+        const activeProject = await checkForActiveGenerations()
+        if (activeProject) {
+          // Update localStorage with the active project info
+          const updatedState = {
+            ...data,
+            projectId: activeProject.id,
+            generationId: activeProject.runwayGenerationId,
+            prompt: activeProject.prompt || data.prompt
+          }
+          localStorage.setItem("onboardingState", JSON.stringify(updatedState))
+          
+          // Start polling with the found generation ID
+          if (activeProject.runwayGenerationId) {
+            setGenerationId(activeProject.runwayGenerationId)
+            startPollingWithId(activeProject.runwayGenerationId)
+          }
+        }
+        return
+      }
+      
+      setGenerationId(data.generationId)
+      startPollingWithId(data.generationId)
+    } catch (error) {
+      console.error("Error starting polling:", error)
+    }
+  }
+
+  // Separate function to start polling with a specific generation ID
+  const startPollingWithId = (genId: string) => {
+    if (!user) return
+    
+    // Start polling
+    const pollInterval = setInterval(async () => {
+        try {
+          const token = await user.getIdToken()
+          const response = await fetch('/api/generate/status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ generationId: genId })
+          })
+          
+          if (response.ok) {
+            const result = await response.json()
+            
+            if (result.status === 'succeeded' && result.output?.images?.[0]?.url) {
+              // Generation completed successfully
+              const imageUrl = result.output.images[0].url
+              setGeneratedImage(imageUrl)
+              setIsGenerating(false)
+              
+              // Update localStorage with the result
+              const updatedState = {
+                ...data,
+                generatedImage: imageUrl,
+                isGenerating: false
+              }
+              localStorage.setItem("onboardingState", JSON.stringify(updatedState))
+              
+              // Clear the polling interval
+              clearInterval(pollInterval)
+              
+              console.log("Generation completed successfully:", imageUrl)
+            } else if (result.status === 'failed') {
+              // Generation failed
+              setIsGenerating(false)
+              clearInterval(pollInterval)
+              console.error("Generation failed:", result)
+            }
+            // If still processing, continue polling
+          } else {
+            console.error("Failed to check generation status:", response.status)
+          }
+        } catch (error) {
+          console.error("Error checking generation status:", error)
+        }
+      }, 2000) // Poll every 2 seconds
+      
+      // Cleanup function
+      return () => clearInterval(pollInterval)
+    } catch (error) {
+      console.error("Error starting polling:", error)
+    }
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -33,25 +157,30 @@ export default function ResultsPage() {
   }, [router])
 
   useEffect(() => {
-    // Try to get last generated project from localStorage
-    const lastGeneratedProject = localStorage.getItem("lastGeneratedProject")
-    if (lastGeneratedProject) {
-      const data = JSON.parse(lastGeneratedProject)
+    // Check for current generation state first
+    const onboardingState = localStorage.getItem("onboardingState")
+    if (onboardingState) {
+      const data = JSON.parse(onboardingState)
       setGarmentImage(data.garmentImage || null)
       setReferenceImage(data.referenceImage || null)
       setPrompt(data.prompt || "")
-      setGeneratedImage(data.generatedImages?.[0] || null)
-      setIsGenerating(false)
+      setGeneratedImage(data.generatedImage || null)
+      setIsGenerating(data.isGenerating || false)
+      
+      // If we're generating, start polling for results
+      if (data.isGenerating) {
+        startPollingForResults()
+      }
     } else {
-      // Fallback to onboarding state for non-logged-in users
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (onboardingState) {
-        const data = JSON.parse(onboardingState)
+      // Fallback to last generated project if no current generation
+      const lastGeneratedProject = localStorage.getItem("lastGeneratedProject")
+      if (lastGeneratedProject) {
+        const data = JSON.parse(lastGeneratedProject)
         setGarmentImage(data.garmentImage || null)
         setReferenceImage(data.referenceImage || null)
         setPrompt(data.prompt || "")
-        setGeneratedImage(data.generatedImage || null)
-        setIsGenerating(data.isGenerating || false)
+        setGeneratedImage(data.generatedImages?.[0] || null)
+        setIsGenerating(false)
       }
     }
   }, [])

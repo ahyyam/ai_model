@@ -150,7 +150,9 @@ export default function OnboardingFlow() {
           referenceImage: referenceImageDataUrl,
           prompt: "AI-generated prompt will appear here...",
           generatedImage: null,
-          isGenerating: true
+          isGenerating: true,
+          projectId: null,
+          generationId: null
         }))
         
         // Navigate to results page immediately

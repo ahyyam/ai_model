@@ -45,7 +45,7 @@ const plans = [
     price: "$74",
     period: "",
     description: "Best for high-volume brands and agencies requiring maximum output.",
-    features: ["50 AI image generations", "All Pro features", "Custom brand training", "API access", "Dedicated support", "Unlimited revisions"],
+    features: ["50 AI image generations", "All Pro features", "Custom brand training", "Dedicated support", "Unlimited revisions"],
     popular: false,
     color: "border-blue-600",
     badge: "Best Value"

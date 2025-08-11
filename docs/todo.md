@@ -51,4 +51,7 @@
 - Resolved transient Next.js runtime chunk errors (`MODULE_NOT_FOUND ./5843.js`) observed during HMR
 - Verified key routes respond 200 locally: `/`, `/projects`, `/generate`, `/support`
 
+### Analytics ✅
+- Integrated Meta Pixel via `app/layout.tsx` using `NEXT_PUBLIC_FB_PIXEL_ID`, with noscript fallback
+
 

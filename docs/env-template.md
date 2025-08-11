@@ -88,3 +88,6 @@ VERCEL_URL=your-app.vercel.app
 - Regularly rotate API keys
 - Set up proper CORS and security headers
 - Use environment-specific Firebase projects 
+
+# Facebook Pixel
+NEXT_PUBLIC_FB_PIXEL_ID= 

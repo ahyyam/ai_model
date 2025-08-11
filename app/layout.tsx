@@ -108,8 +108,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="scrollbar-thin">
-      <head>
-        {/* Meta Pixel Code */}
+      <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
+        {/* Meta Pixel Code (injected to head after interactive) */}
         <Script id="fb-pixel" strategy="afterInteractive">
           {`
 !function(f,b,e,v,n,t,s)
@@ -124,12 +124,12 @@ fbq('init', '747891917948872');
 fbq('track', 'PageView');
           `}
         </Script>
-      </head>
-      <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
+
         {/* Route-change tracking */}
         <Suspense fallback={null}>
           <PixelTracker />
         </Suspense>
+
         {/* Noscript fallback */}
         <noscript>
           {/* eslint-disable-next-line @next/next/no-img-element */}

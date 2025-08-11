@@ -109,7 +109,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scrollbar-thin">
       <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
-        {/* Google Analytics */}
+        {/* Google Analytics - Legacy Tag */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-810HSMQQJB"
           strategy="afterInteractive"
@@ -119,7 +119,10 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-810HSMQQJB');
+            gtag('config', 'G-810HSMQQJB', {
+              page_title: document.title,
+              page_location: window.location.href
+            });
           `}
         </Script>
 

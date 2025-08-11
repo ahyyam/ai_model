@@ -1,4 +1,4 @@
-import type React from "react"
+import React, { Suspense } from "react"
 import type { Metadata } from "next"
 import { Inter, Sora } from "next/font/google"
 import "./globals.css"
@@ -127,7 +127,9 @@ fbq('track', 'PageView');
       </head>
       <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
         {/* Route-change tracking */}
-        <PixelTracker />
+        <Suspense fallback={null}>
+          <PixelTracker />
+        </Suspense>
         {/* Noscript fallback */}
         <noscript>
           {/* eslint-disable-next-line @next/next/no-img-element */}

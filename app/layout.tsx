@@ -1,11 +1,10 @@
-import React, { Suspense } from "react"
+import React from "react"
 import type { Metadata } from "next"
 import { Inter, Sora } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
-import Script from "next/script"
-import PixelTracker from "./pixel-tracker"
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -109,34 +108,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scrollbar-thin">
       <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
-        {/* Meta Pixel Code (injected to head after interactive) */}
-        <Script id="fb-pixel" strategy="afterInteractive">
-          {`
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '747891917948872');
-fbq('track', 'PageView');
-          `}
-        </Script>
-
-        {/* Route-change tracking */}
-        <Suspense fallback={null}>
-          <PixelTracker />
-        </Suspense>
-
-        {/* Noscript fallback */}
-        <noscript>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img height="1" width="1" style={{ display: 'none' }} alt="fb-pixel"
-            src={`https://www.facebook.com/tr?id=747891917948872&ev=PageView&noscript=1`} />
-        </noscript>
-
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <div className="min-h-screen flex flex-col">
             {children}

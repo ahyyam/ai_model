@@ -110,9 +110,7 @@ export default function SubscribePage() {
     }
   }
 
-  const handleSkip = () => {
-    router.push("/projects")
-  }
+
 
   if (!user) {
     return (
@@ -204,16 +202,7 @@ export default function SubscribePage() {
           ))}
         </div>
  
-        {/* Skip Button */}
-        <div className="text-center mb-6">
-          <Button
-            onClick={handleSkip}
-            variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
-          >
-            Skip for now
-          </Button>
-        </div>
+
 
         {/* Additional Info */}
         <div className="text-center mt-6 text-gray-400">

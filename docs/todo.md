@@ -52,13 +52,13 @@
 - Verified key routes respond 200 locally: `/`, `/projects`, `/generate`, `/support`
 
 ### Analytics ✅
-- Integrated Meta Pixel via `app/layout.tsx` using `NEXT_PUBLIC_FB_PIXEL_ID`, with noscript fallback
+
 
 ### Content Cleanup ✅
 - Removed tagline under features header on landing page
 
 ### Release ✅
-- Deploying Meta Pixel head integration and testimonials/pricing render fixes to production
+
 - Deployed to Vercel production on 2025-08-11
 
 

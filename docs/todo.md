@@ -52,6 +52,7 @@
 - Verified key routes respond 200 locally: `/`, `/projects`, `/generate`, `/support`
 
 ### Analytics ✅
+- Integrated Google Analytics (gtag.js) via `app/layout.tsx` using tracking ID G-810HSMQQJB
 
 
 ### Content Cleanup ✅

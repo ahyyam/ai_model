@@ -4,6 +4,7 @@ import { Inter, Sora } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
+import Script from "next/script"
 
 
 const inter = Inter({
@@ -108,6 +109,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scrollbar-thin">
       <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-810HSMQQJB"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-810HSMQQJB');
+          `}
+        </Script>
+
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <div className="min-h-screen flex flex-col">
             {children}

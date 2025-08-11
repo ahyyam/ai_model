@@ -57,6 +57,13 @@ STRIPE_ELITE_PRICE_ID=price_elite_monthly
 VERCEL_URL=your-app.vercel.app
 ```
 
+# Google Analytics
+
+```env
+# Google Analytics Tracking ID
+NEXT_PUBLIC_GA_ID=G-810HSMQQJB
+```
+
 ## Setup Instructions
 
 1. **Firebase Setup:**

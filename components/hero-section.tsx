@@ -143,11 +143,11 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="btn-primary w-full sm:w-auto px-6 py-3"
+                className="btn-primary w-full sm:w-auto px-8 py-4 text-base md:px-10 md:py-5 md:text-lg"
                 aria-label="Start instant AI photoshoot"
               >
                 <Link href="/generate" title="Start Creating Now - Generate AI Fashion Photography">
-                  Start Creating Now <ArrowRight className="ml-2 icon-lg" />
+                  Start Creating Now <ArrowRight className="ml-2.5 h-5 w-5 md:h-6 md:w-6" />
                 </Link>
               </Button>
             </div>

@@ -38,8 +38,17 @@
 - Standardized header "Get Started" button sizing to match site-wide CTA
 - Unified hero section benefit tags to consistent size and spacing
 
+### UX Polish ✅
+- Enlarged hero CTA (“Start Creating Now”) using `btn-lg` and larger icon for better prominence on landing
+- Fine-tuned hero CTA sizing slightly smaller for better visual balance across breakpoints
+
 ### Build Health ✅
 - Fixed all TypeScript errors (e.g., removed missing `Crown` icon usage)
 - Verified clean `pnpm type-check` and successful production build
+
+### Stability & Runtime Fixes ✅
+- Clean dev environment: killed port 3000 processes, cleared `.next`, `node_modules`, and cache; reinstalled and restarted dev server
+- Resolved transient Next.js runtime chunk errors (`MODULE_NOT_FOUND ./5843.js`) observed during HMR
+- Verified key routes respond 200 locally: `/`, `/projects`, `/generate`, `/support`
 
 

@@ -84,7 +84,7 @@ export default function StepGenerate({
   // Helper function to clean and validate prompt
   const getValidPrompt = (userPrompt: string): string => {
     const trimmed = (userPrompt || "").trim()
-    let value = trimmed.length >= 3 ? trimmed : "Detailed fashion photography featuring the uploaded garment styled on a model, matching the reference image pose and lighting, high-quality studio photography with clean background, detailed fabric texture and color accuracy"
+    let value = trimmed.length >= 3 ? trimmed : "Professional fashion photography featuring the reference outfit, styled on a different model with natural features, realistic skin texture, and subtle makeup. Match the reference pose and lighting with soft studio lighting, realistic skin texture, subtle makeup, gentle shadows, professional composition, photorealistic, 4K"
     if (value.length > 1000) value = value.slice(0, 1000) // Enforce <= 1000 UTF-16 code units
     return value
   }

@@ -22,8 +22,8 @@ const plans = [
     name: "Basic",
     price: "$30",
     period: "",
-    description: "Perfect for getting started with image generation.",
-    features: ["10 image generations", "Basic styling options", "Email support"],
+    description: "Perfect for small brands and creators getting started with AI fashion photography.",
+    features: ["10 AI image generations", "Basic styling options", "Standard model types", "Email support", "HD downloads"],
     popular: false,
     color: "border-blue-400",
     badge: "Starter"
@@ -33,19 +33,19 @@ const plans = [
     name: "Pro",
     price: "$40",
     period: "",
-    description: "Great value for growing businesses and creators.",
-    features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support"],
+    description: "Ideal for growing businesses and active e-commerce brands.",
+    features: ["20 AI image generations", "Advanced styling options", "Premium model types", "Priority processing", "Priority support", "4K downloads"],
     popular: true,
     color: "border-blue-500",
-    badge: "Better Value"
+    badge: "Most Popular"
   },
   {
     id: "elite",
     name: "Elite",
     price: "$75",
     period: "",
-    description: "Best value for high-volume image generation needs.",
-    features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support"],
+    description: "Best for high-volume brands and agencies requiring maximum output.",
+    features: ["50 AI image generations", "All Pro features", "Custom brand training", "API access", "Dedicated support", "Unlimited revisions"],
     popular: false,
     color: "border-blue-600",
     badge: "Best Value"
@@ -119,50 +119,50 @@ export default function PricingSection() {
         <div className="h-96 bg-gray-800 animate-pulse rounded-lg" />
       ) : (
         <>
-          <div className="container-base mx-auto text-center mb-12 mt-8">
-            <h2 className="heading-2 mb-4">Choose Your Plan</h2>
-            <p className="body-large">Simple, transparent pricing that scales with your needs.</p>
+          <div className="container-zarta mx-auto text-center mb-16 space-md">
+            <h2 className="heading-2">Choose Your Plan</h2>
+            <p className="text-lead text-gray-400">Simple, transparent pricing that scales with your business. Start small and grow with us.</p>
           </div>
           
-          <div className="container-lg mx-auto">
+          <div className="container-zarta mx-auto">
             {/* Desktop: Grid layout */}
-            <div className="hidden md:grid md:grid-cols-3 gap-6">
+            <div className="hidden md:grid md:grid-cols-3 gap-8 lg:gap-12">
               {plans.map((plan) => (
                 <div key={plan.id} className="relative h-full">
                   <Card
-                    className={`card-zarta flex flex-col h-full min-h-[400px] transition-all duration-200 hover:scale-105 ${
+                    className={`card-zarta-hover flex flex-col h-full min-h-[450px] transition-all duration-300 hover:scale-105 ${
                       plan.popular 
                         ? `${plan.color} border-2` 
                         : "border-gray-700 hover:border-gray-600"
                     }`}
                   >
-                    <CardHeader className="flex-shrink-0 pb-3">
-                      <CardTitle className="heading-3 flex items-center gap-2">
+                    <CardHeader className="flex-shrink-0 pb-6 space-md">
+                      <CardTitle className="heading-3 flex items-center gap-3">
                         {plan.name}
                       </CardTitle>
                       <div className="flex items-baseline">
-                        <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
-                        <span className="text-gray-400">{plan.period}</span>
+                        <span className="heading-2">{plan.price}</span>
+                        <span className="text-muted ml-2">{plan.period}</span>
                       </div>
-                      <p className="pt-1 text-gray-400 text-xs sm:text-sm">{plan.description}</p>
-                      <div className="flex items-center gap-1 pt-1">
-                        <span className="text-xs text-gray-300">{plan.badge}</span>
+                      <p className="text-body text-gray-400">{plan.description}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="badge-secondary">{plan.badge}</span>
                       </div>
                     </CardHeader>
                     
-                    <CardContent className="flex flex-col flex-1 pt-0">
-                      <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 flex-1">
+                    <CardContent className="flex flex-col flex-1 pt-0 space-lg">
+                      <ul className="space-y-3 mb-8 flex-1">
                         {plan.features.map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2">
-                            <Check className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
-                            <span className="text-xs sm:text-sm text-gray-300">{feature}</span>
+                          <li key={index} className="flex items-center gap-3">
+                            <Check className="icon-base text-blue-500 flex-shrink-0" />
+                            <span className="text-body-sm text-gray-300">{feature}</span>
                           </li>
                         ))}
                       </ul>
                       
                       <Button
                         onClick={() => handleGetStarted(plan.name)}
-                        className="w-full py-2 text-white text-xs sm:text-sm bg-blue-600 hover:bg-blue-700"
+                        className="btn-primary w-full"
                       >
                         {user ? "Get Started" : "Create Account"}
                       </Button>
@@ -190,39 +190,39 @@ export default function PricingSection() {
                       <CarouselItem key={plan.id} className="pl-4 basis-full">
                         <div className="relative h-full">
                           <Card
-                            className={`card-zarta flex flex-col h-full min-h-[400px] transition-all duration-300 ${
+                            className={`card-zarta-hover flex flex-col h-full min-h-[450px] transition-all duration-300 ${
                               plan.popular 
                                 ? `${plan.color} border-2` 
                                 : "border-gray-700"
                             }`}
                           >
-                            <CardHeader className="flex-shrink-0 pb-3">
-                              <CardTitle className="heading-3 flex items-center gap-2">
+                            <CardHeader className="flex-shrink-0 pb-6 space-md">
+                              <CardTitle className="heading-3 flex items-center gap-3">
                                 {plan.name}
                               </CardTitle>
                               <div className="flex items-baseline">
-                                <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
-                                <span className="text-gray-400">{plan.period}</span>
+                                <span className="heading-2">{plan.price}</span>
+                                <span className="text-muted ml-2">{plan.period}</span>
                               </div>
-                              <p className="pt-1 text-gray-400 text-xs sm:text-sm">{plan.description}</p>
-                              <div className="flex items-center gap-1 pt-1">
-                                <span className="text-xs text-gray-300">{plan.badge}</span>
+                              <p className="text-body text-gray-400">{plan.description}</p>
+                              <div className="flex items-center gap-2">
+                                <span className="badge-secondary">{plan.badge}</span>
                               </div>
                             </CardHeader>
                             
-                            <CardContent className="flex flex-col flex-1 pt-0">
-                              <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 flex-1">
+                            <CardContent className="flex flex-col flex-1 pt-0 space-lg">
+                              <ul className="space-y-3 mb-8 flex-1">
                                 {plan.features.map((feature, index) => (
-                                  <li key={index} className="flex items-center gap-2">
-                                    <Check className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
-                                    <span className="text-xs sm:text-sm text-gray-300">{feature}</span>
+                                  <li key={index} className="flex items-center gap-3">
+                                    <Check className="icon-base text-blue-500 flex-shrink-0" />
+                                    <span className="text-body-sm text-gray-300">{feature}</span>
                                   </li>
                                 ))}
                               </ul>
                               
                               <Button
                                 onClick={() => handleGetStarted(plan.name)}
-                                className="w-full py-2 text-white text-xs sm:text-sm bg-blue-600 hover:bg-blue-700"
+                                className="btn-primary w-full"
                               >
                                 {user ? "Get Started" : "Create Account"}
                               </Button>

@@ -4,11 +4,15 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
+    "dev:fast": "NODE_OPTIONS='--max-old-space-size=4096' next dev --turbo",
+    "dev:analyze": "ANALYZE=true next dev",
     "lint": "next lint",
     "start": "next start",
     "deploy": "node deploy-vercel.js",
-    "deploy:vercel": "vercel --prod"
+    "deploy:vercel": "vercel --prod",
+    "clean": "rm -rf .next .tsbuildinfo node_modules/.cache",
+    "type-check": "tsc --noEmit --incremental false"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

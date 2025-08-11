@@ -40,11 +40,21 @@ function initAdminApp(): App {
       })
     }
     console.log("Firebase Admin SDK initialized successfully")
+    
+    // Test Firestore connection
+    try {
+      const testDb = getFirestore(adminApp)
+      console.log("Firestore connection test successful")
+    } catch (dbError) {
+      console.error("Firestore connection test failed:", dbError)
+    }
+    
     return adminApp
   } catch (error) {
     console.error("Firebase Admin SDK initialization error:", error)
     // If there's a duplicate app error, try to get the existing app
-    if (error.code === 'app/duplicate-app') {
+    const err = error as { code?: unknown }
+    if (err && err.code === 'app/duplicate-app') {
       console.log("Duplicate app detected, using existing app")
       const existingApps = getApps()
       if (existingApps.length > 0) {

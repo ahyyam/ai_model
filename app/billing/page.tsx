@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { CreditCard, ExternalLink, Loader2, AlertCircle, Sparkles, Check, ArrowRight, Crown, Zap, X, ChevronDown, ChevronUp } from "lucide-react"
+import { CreditCard, ExternalLink, Loader2, AlertCircle, AlertTriangle, Sparkles, Check, ArrowRight, Crown, Zap, X, ChevronDown, ChevronUp } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
 import { getUserData, UserData, syncSubscriptionFromStripe, createUserData } from "@/lib/users"
@@ -111,6 +111,7 @@ export default function BillingPage() {
   const [hasOnboardingState, setHasOnboardingState] = useState(false)
   const [showUnsubscribeDialog, setShowUnsubscribeDialog] = useState(false)
   const [showChangePlanOptions, setShowChangePlanOptions] = useState(false)
+  const [portalConfigIssue, setPortalConfigIssue] = useState(false)
   const router = useRouter()
   
   // Extract subscription from stripeCustomer
@@ -139,6 +140,18 @@ export default function BillingPage() {
       const data = await response.json()
       
       if (data.error) {
+        // Handle specific portal configuration error
+        if (data.details && data.details.includes('customer portal needs to be configured')) {
+          throw new Error("Billing management is currently being set up. Please contact support for immediate assistance with your subscription.")
+        }
+        // Handle other specific errors
+        if (data.error.includes('customer portal not configured')) {
+          throw new Error("Billing management is currently being set up. Please contact support for immediate assistance with your subscription.")
+        }
+        // Handle generic portal session errors
+        if (data.error.includes('Failed to create portal session')) {
+          throw new Error("Billing management is currently being set up. Please contact support for immediate assistance with your subscription.")
+        }
         throw new Error(data.error)
       }
 
@@ -149,7 +162,19 @@ export default function BillingPage() {
       }
     } catch (error) {
       console.error("Error creating portal session:", error)
-      setError(error instanceof Error ? error.message : "Failed to open billing portal. Please try again.")
+      const errorMessage = error instanceof Error ? error.message : "Failed to open billing portal. Please try again."
+      setError(errorMessage)
+      
+      // Show additional help for portal configuration issues
+      if (errorMessage.includes('customer portal needs to be configured') || 
+          errorMessage.includes('billing management is currently being set up')) {
+        console.log("Portal configuration issue detected. User needs to contact support.")
+      }
+      
+      // Provide additional guidance for portal issues
+      if (errorMessage.includes('billing management is currently being set up')) {
+        console.log("User should contact support for billing assistance.")
+      }
     } finally {
       setIsLoading(false)
     }
@@ -296,11 +321,21 @@ export default function BillingPage() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    // Check if timestamp is valid (not 0, null, or undefined)
+    if (!timestamp || timestamp <= 0) {
+      return "Not available"
+    }
+    
+    try {
+      return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    } catch (error) {
+      console.error("Error formatting date:", error, "timestamp:", timestamp)
+      return "Invalid date"
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -470,6 +505,9 @@ export default function BillingPage() {
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ExternalLink className="mr-2 h-4 w-4" />}
                 Manage
               </Button>
+              <div className="text-xs text-gray-500 mt-2">
+                Note: Billing management portal is being configured. Contact support for immediate assistance.
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -483,7 +521,12 @@ export default function BillingPage() {
                   {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
                 </Badge>
               </div>
-              <p className="text-sm text-gray-400">Next billing date: {formatDate(subscription.current_period_end)}</p>
+              <p className="text-sm text-gray-400">
+                {subscription.current_period_end && subscription.current_period_end > 0 
+                  ? `Next billing date: ${formatDate(subscription.current_period_end)}`
+                  : "Billing cycle information not available. Please contact support if you need billing details."
+                }
+              </p>
             </div>
 
             {/* Change Plan Options */}
@@ -697,6 +740,39 @@ export default function BillingPage() {
           <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
+
+      {/* Portal Configuration Notice */}
+      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-yellow-400 font-medium">Billing Portal Setup</p>
+            <p className="text-yellow-300 text-sm mt-1">
+              Our billing management portal is currently being configured. For immediate assistance with your subscription, 
+              please contact our support team at <span className="font-medium">support@zarta.com</span>. 
+              You can still view your current plan details and billing information below.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20"
+                onClick={() => window.open('mailto:support@zarta.com?subject=Billing%20Portal%20Access', '_blank')}
+              >
+                Contact Support
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20"
+                onClick={() => window.open('https://help.zarta.com/billing', '_blank')}
+              >
+                View Help Docs
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Payment Method */}
       {stripeCustomer ? (

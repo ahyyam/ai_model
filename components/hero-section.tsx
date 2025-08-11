@@ -96,7 +96,7 @@ export default function HeroSection() {
   }, [isVisible])
 
   return (
-    <section className="min-h-screen flex items-center justify-center pt-16 pb-8 md:pt-20 md:pb-12 relative" role="banner" aria-label="Main hero section" itemScope itemType="https://schema.org/Service">
+    <section className="min-h-[75svh] md:min-h-[80svh] lg:min-h-[90svh] flex items-center justify-center pt-16 pb-8 relative" role="banner" aria-label="Main hero section" itemScope itemType="https://schema.org/Service">
       
       {/* SEO Meta Tags */}
       <meta itemProp="name" content="Instant AI Photoshoot Service - Professional Fashion Photography in Seconds" />
@@ -104,89 +104,88 @@ export default function HeroSection() {
       <meta itemProp="provider" content="Zarta" />
       <meta itemProp="serviceType" content="Instant AI Fashion Photography" />
       
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <div className="container-wide">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           
           {/* Left Column - Hero Content */}
-          <div className="text-center lg:text-left order-2 lg:order-1">
+          <div className="text-center lg:text-left order-2 lg:order-1 space-lg">
             {/* Main Headline */}
-            <header className="mb-6 md:mb-8">
-              <h1 className="heading-1 mb-4 md:mb-6 leading-tight" itemProp="headline">
-                <span className="text-zarta-gradient text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold block text-center lg:text-left">
-                  From Plain Photo To Professional Fashion Campaign in Seconds
+            <header className="space-lg">
+              <h1 className="space-md" itemProp="headline">
+                <span className="heading-2 block mx-auto lg:mx-0 max-w-[22ch] text-center lg:text-left">
+                  Transform Plain Photos Into Professional Fashion Campaigns in Seconds
                 </span>
               </h1>
               
               {/* Subtitle */}
-              <p className="max-w-2xl mx-auto lg:mx-0 body-large mb-6 md:mb-8 text-sm sm:text-base md:text-lg lg:text-xl" itemProp="description">
-                Upload your garment and model and style reference. Get Hyper Realistic Ai fashion imagery with a single click
+              <p className="max-w-3xl mx-auto lg:mx-0 text-body text-gray-300 text-balance" itemProp="description">
+                Upload your garment and style reference. Get hyper-realistic AI fashion imagery that converts customers and drives sales with a single click.
               </p>
               
               {/* Key Benefits */}
-              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 text-xs sm:text-sm md:text-base">
-                <div className="flex items-center gap-2 md:gap-2.5 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
-                  <Clock className="h-3 w-3 md:h-4 md:w-4 text-blue-400" />
-                  <span className="font-medium">Instant Results</span>
+            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="flex items-center gap-2 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
+                  <Clock className="icon-base text-blue-400" />
+                  <span className="text-body-sm font-medium">Instant Results</span>
                 </div>
-                <div className="flex items-center gap-2 md:gap-2.5 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
-                  <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-blue-400" />
-                  <span className="font-medium">Professional Quality</span>
+                <div className="flex items-center gap-2 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
+                  <Sparkles className="icon-base text-blue-400" />
+                  <span className="text-body-sm font-medium">Studio Quality</span>
                 </div>
-                <div className="flex items-center gap-2 md:gap-2.5 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
-                  <Zap className="h-3 w-3 md:h-4 md:w-4 text-blue-400" />
-                  <span className="font-medium">98% Less Cost</span>
+                <div className="flex items-center gap-2 text-gray-300 bg-gray-800/30 px-3 py-2 rounded-full">
+                  <Zap className="icon-base text-blue-400" />
+                  <span className="text-body-sm font-medium">95% Cost Savings</span>
                 </div>
               </div>
             </header>
             
             {/* CTA Section */}
-            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 md:gap-6 mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-3 sm:gap-4">
               <Button
                 asChild
-                className="btn-primary text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 py-3 md:py-4 w-full sm:w-auto"
+                className="btn-primary w-full sm:w-auto px-6 py-3"
                 aria-label="Start instant AI photoshoot"
               >
-                <Link href="/generate" title="Start Instant AI Photoshoot - Professional Fashion Photography in Seconds">
-                  Start Creating Now <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
+                <Link href="/get-started" title="Start Creating Now - Get Started with AI Fashion Photography">
+                  Start Creating Now <ArrowRight className="ml-2 icon-lg" />
                 </Link>
               </Button>
             </div>
             
             {/* Social Proof */}
-            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 md:gap-6 lg:gap-8 text-xs md:text-sm text-gray-400">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-3 text-caption">
               <div className="flex items-center gap-3">
-                <div className="flex -space-x-2 md:-space-x-3">
-                  <img src="/icons/rev_icon_1.jpg" alt="Customer Review 1" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
-                  <img src="/icons/rev_icon_2.jpg" alt="Customer Review 2" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
-                  <img src="/icons/rev_icon_3.jpg" alt="Customer Review 3" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-900" />
+                <div className="flex -space-x-2">
+                  <img src="/icons/rev_icon_1.jpg" alt="Customer Review 1" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border-2 border-gray-900" />
+                  <img src="/icons/rev_icon_2.jpg" alt="Customer Review 2" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border-2 border-gray-900" />
+                  <img src="/icons/rev_icon_3.jpg" alt="Customer Review 3" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border-2 border-gray-900" />
                 </div>
-                <span className="font-medium">Trusted by 10,000+ brands</span>
+                <span className="font-medium">Trusted by 10,000+ fashion brands</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex text-yellow-400">
-                  {[...Array(4)].map((_, i) => (
+                  {[...Array(5)].map((_, i) => (
                     <span key={i}>★</span>
                   ))}
-                  <span className="text-yellow-400/60">★</span>
                 </div>
-                <span className="font-medium">4.5/5 rating</span>
+                <span className="font-medium">4.9/5 rating</span>
               </div>
             </div>
           </div>
 
           {/* Right Column - 1.5 Sliding Images */}
           <div className="flex flex-col items-center lg:items-end order-1 lg:order-2 mb-8 lg:mb-0">
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
-              <div className="flex gap-2 md:gap-3">
+            <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-3xl">
+              <div className="flex gap-3 lg:gap-4">
                 {/* Full Image - Slides Down */}
-                <div className="relative aspect-[2/3] sm:aspect-[1/2] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-800/30 shadow-2xl sm:shadow-3xl flex-1">
+                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-gray-800/30 shadow-2xl flex-1">
                   <div 
                     ref={leftImageRef}
                     className="h-full overflow-hidden"
                   >
                     {/* Duplicate images for seamless loop */}
                     {[...leftImages, ...leftImages].map((image, index) => (
-                      <div key={index} className="w-full aspect-[2/3] sm:aspect-[1/2]">
+                      <div key={index} className="w-full aspect-[2/3]">
                         <img
                           src={image}
                           alt={`AI Fashion Model ${index + 1}`}
@@ -196,21 +195,21 @@ export default function HeroSection() {
                     ))}
                   </div>
                   {/* Surrounding gradient overlays */}
-                  <div className="absolute top-0 left-0 w-full h-12 sm:h-16 lg:h-20 bg-gradient-to-b from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute bottom-0 left-0 w-full h-12 sm:h-16 lg:h-20 bg-gradient-to-t from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute top-0 left-0 w-12 sm:w-16 lg:w-20 h-full bg-gradient-to-r from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute top-0 right-0 w-12 sm:w-16 lg:w-20 h-full bg-gradient-to-l from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
                 </div>
 
                 {/* Half Image - Slides Up */}
-                <div className="relative aspect-[2/3] sm:aspect-[1/2] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-800/30 shadow-2xl sm:shadow-3xl w-1/2">
+                <div className="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-gray-800/30 shadow-xl sm:shadow-2xl w-1/2">
                   <div 
                     ref={rightImageRef}
                     className="h-full overflow-hidden"
                   >
                     {/* Duplicate images for seamless loop */}
                     {[...rightImages, ...rightImages].map((image, index) => (
-                      <div key={index} className="w-full aspect-[2/3] sm:aspect-[1/2]">
+                      <div key={index} className="w-full aspect-[2/3]">
                         <img
                           src={image}
                           alt={`AI Fashion Model ${index + 1}`}
@@ -220,10 +219,10 @@ export default function HeroSection() {
                     ))}
                   </div>
                   {/* Surrounding gradient overlays */}
-                  <div className="absolute top-0 left-0 w-full h-12 sm:h-16 lg:h-20 bg-gradient-to-b from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute bottom-0 left-0 w-full h-12 sm:h-16 lg:h-20 bg-gradient-to-t from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute top-0 left-0 w-12 sm:w-16 lg:w-20 h-full bg-gradient-to-r from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
-                  <div className="absolute top-0 right-0 w-12 sm:w-16 lg:w-20 h-full bg-gradient-to-l from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute top-0 left-0 w-full h-8 sm:h-12 bg-gradient-to-b from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-8 sm:h-12 bg-gradient-to-t from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute top-0 left-0 w-8 sm:w-12 h-full bg-gradient-to-r from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
+                  <div className="absolute top-0 right-0 w-8 sm:w-12 h-full bg-gradient-to-l from-[#111111]/80 to-transparent pointer-events-none z-10"></div>
                 </div>
               </div>
             </div>

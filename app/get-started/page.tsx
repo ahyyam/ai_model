@@ -54,20 +54,20 @@ export default function GetStartedPage() {
       
       <main className="container-zarta py-12 md:py-16">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="heading-2 mb-4">Get Started with Zarta</h1>
-          <p className="body-medium text-gray-400 max-w-xl mx-auto">
+        <div className="text-center mb-10 space-md">
+          <h1 className="heading-3">Get Started with Zarta</h1>
+          <p className="text-body text-gray-400 max-w-2xl mx-auto">
             Transform your fashion photography in three simple steps. No camera, no crew, just AI-powered magic.
           </p>
         </div>
 
         {/* Progress Indicator */}
-        <div className="max-w-2xl mx-auto mb-10">
+        <div className="max-w-2xl mx-auto mb-8">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-400">Step {currentStep + 1} of {steps.length}</span>
-            <span className="text-sm font-medium text-blue-400">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+            <span className="text-body-sm font-medium text-gray-400">Step {currentStep + 1} of {steps.length}</span>
+            <span className="text-body-sm font-medium text-blue-400">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
           </div>
-          <div className="w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-gray-800/50 rounded-full h-2 overflow-hidden">
             <div 
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-500 ease-out"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -77,22 +77,22 @@ export default function GetStartedPage() {
 
         {/* Current Step Content */}
         <div className="max-w-4xl mx-auto mb-12">
-          <div className={`bg-gradient-to-br ${steps[currentStep].color} rounded-xl border border-gray-700/50 p-8 md:p-10`}>
-            <div className="text-center mb-8">
+          <div className={`bg-gradient-to-br ${steps[currentStep].color} rounded-xl border border-gray-700/50 p-6 md:p-8`}>
+            <div className="text-center mb-8 space-md">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-800/50 rounded-xl mb-6">
                 {steps[currentStep].icon}
               </div>
-              <h2 className="heading-3 mb-4">
+              <h2 className="heading-4">
                 {steps[currentStep].title}
               </h2>
-              <p className="body-medium text-gray-300 max-w-lg mx-auto">
+              <p className="text-body-sm text-gray-300 max-w-2xl mx-auto">
                 {steps[currentStep].description}
               </p>
             </div>
 
             {/* Step Preview */}
-            <div className="bg-gray-800/30 rounded-lg border border-gray-700/50 p-8 mb-8 text-center">
-              <div className="text-gray-500 text-sm font-medium">
+            <div className="bg-gray-800/30 rounded-lg border border-gray-700/50 p-6 mb-8 text-center">
+              <div className="text-muted font-medium">
                 Step {currentStep + 1} Preview
               </div>
             </div>
@@ -150,8 +150,8 @@ export default function GetStartedPage() {
                 }`}>
                   {step.icon}
                 </div>
-                <h3 className="heading-4 mb-3">{step.title}</h3>
-                <p className="body-small text-gray-400 leading-relaxed">{step.description}</p>
+                <h3 className="heading-4 mb-2">{step.title}</h3>
+                <p className="text-body-sm text-gray-400 leading-relaxed">{step.description}</p>
                 {index <= currentStep && (
                   <div className="mt-4">
                     <CheckCircle className="h-4 w-4 text-blue-400 mx-auto" />

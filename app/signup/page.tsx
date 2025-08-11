@@ -29,17 +29,30 @@ export default function SignupPage() {
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
       
-      // Create user document in Firestore
+      // Create user document in Firestore with retry mechanism
       if (result.user) {
-        try {
-          console.log("Attempting to create user data for:", result.user.uid)
-          await createUserData(result.user)
-          console.log("User data created successfully during signup")
-        } catch (createError) {
-          console.error("Error creating user data during signup:", createError)
-          // Show the error to the user but continue with the flow
-          setError(`Warning: ${createError instanceof Error ? createError.message : 'Failed to create user profile. You may need to complete your profile later.'}`)
-          // Continue anyway, user data will be created when they visit other pages
+        let retryCount = 0
+        const maxRetries = 3
+        
+        while (retryCount < maxRetries) {
+          try {
+            console.log("Attempting to create user data for:", result.user.uid, "attempt", retryCount + 1)
+            await createUserData(result.user)
+            console.log("User data created successfully during signup")
+            break
+          } catch (createError) {
+            retryCount++
+            console.error(`Error creating user data (attempt ${retryCount}):`, createError)
+            
+            if (retryCount >= maxRetries) {
+              // Show the error to the user but continue with the flow
+              setError(`Warning: ${createError instanceof Error ? createError.message : 'Failed to create user profile. You may need to complete your profile later.'}`)
+              // Continue anyway, user data will be created when they visit other pages
+            } else {
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 2000))
+            }
+          }
         }
       }
       
@@ -82,17 +95,30 @@ export default function SignupPage() {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password)
       
-      // Create user document in Firestore
+      // Create user document in Firestore with retry mechanism
       if (result.user) {
-        try {
-          console.log("Attempting to create user data for:", result.user.uid)
-          await createUserData(result.user)
-          console.log("User data created successfully during signup")
-        } catch (createError) {
-          console.error("Error creating user data during signup:", createError)
-          // Show the error to the user but continue with the flow
-          setError(`Warning: ${createError instanceof Error ? createError.message : 'Failed to create user profile. You may need to complete your profile later.'}`)
-          // Continue anyway, user data will be created when they visit other pages
+        let retryCount = 0
+        const maxRetries = 3
+        
+        while (retryCount < maxRetries) {
+          try {
+            console.log("Attempting to create user data for:", result.user.uid, "attempt", retryCount + 1)
+            await createUserData(result.user)
+            console.log("User data created successfully during signup")
+            break
+          } catch (createError) {
+            retryCount++
+            console.error(`Error creating user data (attempt ${retryCount}):`, createError)
+            
+            if (retryCount >= maxRetries) {
+              // Show the error to the user but continue with the flow
+              setError(`Warning: ${createError instanceof Error ? createError.message : 'Failed to create user profile. You may need to complete your profile later.'}`)
+              // Continue anyway, user data will be created when they visit other pages
+            } else {
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 2000))
+            }
+          }
         }
       }
       

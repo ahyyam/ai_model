@@ -61,13 +61,13 @@ export async function getProjectsForUser(): Promise<Project[]> {
       const finalImageURL: string | undefined = data.finalImageURL
       const garmentImage: string | undefined = data.garmentImage || data.garmentImageURL
       const referenceImage: string | undefined = data.referenceImage || data.referenceImageURL
-      const generatedImages: string[] | undefined = Array.isArray(data.generatedImages) && data.generatedImages.length
+      const generatedImages: string[] = Array.isArray(data.generatedImages) && data.generatedImages.length
         ? data.generatedImages
-        : (finalImageURL ? [finalImageURL] : undefined)
+        : (finalImageURL ? [finalImageURL] : [])
       const thumbnail: string = data.thumbnail || finalImageURL || garmentImage || "/placeholder.svg"
       const name: string = data.name || (data.prompt ? (String(data.prompt).slice(0, 64)) : "AI Photo Shoot")
 
-      return {
+      const project: Project = {
         id: doc.id,
         userId: data.userId,
         name,
@@ -87,6 +87,7 @@ export async function getProjectsForUser(): Promise<Project[]> {
         versions: data.versions,
         error: data.error,
       }
+      return project
     })
     
     // Sort projects by createdAt in descending order (newest first)
@@ -117,13 +118,13 @@ export async function getProjectById(projectId: string): Promise<Project | null>
         const finalImageURL: string | undefined = data.finalImageURL
         const garmentImage: string | undefined = data.garmentImage || data.garmentImageURL
         const referenceImage: string | undefined = data.referenceImage || data.referenceImageURL
-        const generatedImages: string[] | undefined = Array.isArray(data.generatedImages) && data.generatedImages.length
+        const generatedImages: string[] = Array.isArray(data.generatedImages) && data.generatedImages.length
           ? data.generatedImages
-          : (finalImageURL ? [finalImageURL] : undefined)
+          : (finalImageURL ? [finalImageURL] : [])
         const thumbnail: string = data.thumbnail || finalImageURL || garmentImage || "/placeholder.svg"
         const name: string = data.name || (data.prompt ? (String(data.prompt).slice(0, 64)) : "AI Photo Shoot")
 
-        return {
+        const project: Project = {
           id: docSnap.id,
           userId: data.userId,
           name,
@@ -143,6 +144,7 @@ export async function getProjectById(projectId: string): Promise<Project | null>
           versions: data.versions,
           error: data.error,
         }
+        return project
       }
     }
     return null

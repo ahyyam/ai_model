@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { getProjectById, deleteProject, type Project } from "@/lib/projects"
+import { auth } from "@/lib/firebase"
 import { Button } from "@/components/ui/button"
 import { Download, ArrowLeft, Copy, Calendar, Tag, Info, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { toast } = useToast()
   const [project, setProject] = useState<Project | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -58,13 +62,27 @@ export default function ProjectDetailPage() {
       return
     }
 
+    setIsDownloading(true)
     try {
-      const response = await fetch(project.finalImageURL)
-      if (!response.ok) throw new Error('Failed to fetch image')
-      
+      // Use the download API endpoint to handle CORS and authentication
+      const response = await fetch('/api/download-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: project.finalImageURL }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Download failed: ${response.status}`)
+      }
+
+      // Get the blob from the response
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       
+      // Create download link
       const link = document.createElement('a')
       link.href = url
       link.download = `zarta-project-${project.id}.jpg`
@@ -73,13 +91,38 @@ export default function ProjectDetailPage() {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
       
+      // Update the downloads count locally
+      if (project) {
+        setProject({
+          ...project,
+          downloads: (project.downloads || 0) + 1
+        })
+      }
+      
+      // Also update the downloads count in the database
+      try {
+        const token = await auth.currentUser?.getIdToken()
+        if (token) {
+          await fetch(`/api/projects/${project.id}/download`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          })
+        }
+      } catch (error) {
+        console.error('Failed to update download count:', error)
+      }
+      
       toast({ title: "Image downloaded successfully" })
     } catch (error) {
       console.error("Error downloading image:", error)
       toast({ 
         title: "Failed to download image", 
-        description: "Try again later." 
+        description: error instanceof Error ? error.message : "Try again later." 
       })
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -124,18 +167,12 @@ export default function ProjectDetailPage() {
       {/* Project Details */}
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Basic Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex justify-between items-center p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-            <span className="text-gray-400 flex items-center gap-2">
-              <Tag className="h-4 w-4" /> Aesthetic
+        <div className="flex justify-center">
+          <div className="flex justify-between items-center p-6 bg-gray-900/50 border border-gray-700 rounded-xl min-w-[280px]">
+            <span className="text-gray-300 flex items-center gap-3 text-base font-medium">
+              <Calendar className="h-5 w-5" /> Created at
             </span>
-            <span className="font-medium text-white">{project.aesthetic}</span>
-          </div>
-          <div className="flex justify-between items-center p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-            <span className="text-gray-400 flex items-center gap-2">
-              <Calendar className="h-4 w-4" /> Created
-            </span>
-            <span className="font-medium text-white">{new Date(project.createdAt).toLocaleDateString()}</span>
+            <span className="text-white text-base font-semibold">{new Date(project.createdAt).toLocaleDateString()}</span>
           </div>
         </div>
 
@@ -191,10 +228,19 @@ export default function ProjectDetailPage() {
           <Button 
             className="btn-primary flex-1"
             onClick={handleDownloadImage}
-            disabled={!project?.finalImageURL}
+            disabled={!project?.finalImageURL || isDownloading}
           >
-            <Download className="mr-2 h-4 w-4" />
-            Download Image
+            {isDownloading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Download Image
+              </>
+            )}
           </Button>
           
           <AlertDialog>

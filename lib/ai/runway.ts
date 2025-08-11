@@ -52,7 +52,10 @@ export async function generateImageWithRunway(
       toDataUri(request.garmentImageURL)
     ])
 
-    function mapToRunwayRatio(input: string | undefined): string {
+    function mapToRunwayRatio(input: string | undefined):
+      | '1920:1080' | '1080:1920' | '1024:1024' | '1360:768' | '1080:1080'
+      | '1168:880' | '1440:1080' | '1080:1440' | '1808:768' | '2112:912'
+      | '1280:720' | '720:1280' | '720:720' | '960:720' | '720:960' | '1680:720' {
       // Map normalized aspect ratio to the exact accepted list from Runway docs
       // Accepted values:
       // "1920:1080","1080:1920","1024:1024","1360:768","1080:1080","1168:880",
@@ -62,7 +65,7 @@ export async function generateImageWithRunway(
         '1920:1080','1080:1920','1024:1024','1360:768','1080:1080','1168:880',
         '1440:1080','1080:1440','1808:768','2112:912','1280:720','720:1280',
         '720:720','960:720','720:960','1680:720'
-      ]
+      ] as const
       // Normalize input like 1:1, 4:5 etc. into the closest accepted value
       const fallback = '1024:1024'
       if (!input) return fallback
@@ -73,7 +76,7 @@ export async function generateImageWithRunway(
       const h = parseInt(m[2], 10)
       if (!(w > 0 && h > 0)) return fallback
       const target = w / h
-      let best = fallback
+      let best: typeof allowed[number] = fallback as typeof allowed[number]
       let bestDiff = Infinity
       for (const candidate of allowed) {
         const [cw, ch] = candidate.split(':').map(Number)
@@ -87,8 +90,8 @@ export async function generateImageWithRunway(
       return best
     }
 
-    const model = process.env.RUNWAY_MODEL || 'gen4_image'
-    const client = new RunwayML({ apiKey: runwaySecret, version: '2024-11-06' as any })
+    const model = (process.env.RUNWAY_MODEL as 'gen4_image' | 'gen4_image_turbo') || 'gen4_image'
+    const client = new RunwayML({ apiKey: runwaySecret })
 
     const usedRatio = mapToRunwayRatio(request.aspect_ratio)
     const task = await client.textToImage.create({
@@ -147,7 +150,7 @@ export async function waitForRunwayGeneration(
           }
         } else {
           // Fallback to assets/images structure
-          const assets = taskDetails.output?.assets || taskDetails.output?.images || []
+          const assets: Array<any> = (taskDetails as any).output?.assets || (taskDetails as any).output?.images || []
           console.log("Assets found:", assets)
           
           if (Array.isArray(assets)) {

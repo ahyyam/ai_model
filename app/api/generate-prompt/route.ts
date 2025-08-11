@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
-import { generateFashionPrompt } from '@/lib/openai'
+import { generateFashionPrompt } from '@/lib/ai/openai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,10 +20,11 @@ export async function POST(request: NextRequest) {
       console.log("Token verified successfully for user:", decodedToken.uid)
     } catch (error) {
       console.error('Token verification failed:', error)
+      const err = error as { code?: unknown; message?: unknown; stack?: unknown }
       console.error("Error details:", {
-        code: error.code,
-        message: error.message,
-        stack: error.stack
+        code: err?.code,
+        message: err?.message,
+        stack: err?.stack
       })
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
@@ -62,7 +63,8 @@ export async function POST(request: NextRequest) {
       console.log("Prompt generated successfully:", promptResult)
     } catch (error) {
       console.error('Error generating prompt:', error)
-      return NextResponse.json({ error: 'Failed to generate prompt' }, { status: 500 })
+      const message = error instanceof Error ? error.message : 'Failed to generate prompt'
+      return NextResponse.json({ error: message }, { status: 500 })
     }
 
     // 5. Deduct 0.5 credit after successful prompt generation (OpenAI cost) only if OpenAI was used
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in generate-prompt endpoint:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

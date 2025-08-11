@@ -30,16 +30,30 @@ export default function LoginPage() {
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
       
-      // Ensure user document exists in Firestore
+      // Ensure user document exists in Firestore with retry mechanism
       if (result.user) {
-        try {
-          const existingUserData = await getUserData(result.user.uid)
-          if (!existingUserData) {
-            await createUserData(result.user)
+        let retryCount = 0
+        const maxRetries = 3
+        
+        while (retryCount < maxRetries) {
+          try {
+            const existingUserData = await getUserData(result.user.uid)
+            if (!existingUserData) {
+              await createUserData(result.user)
+            }
+            break
+          } catch (createError) {
+            retryCount++
+            console.error(`Error creating user data (attempt ${retryCount}):`, createError)
+            
+            if (retryCount >= maxRetries) {
+              console.error("Failed to create user data after all retries")
+              // Continue anyway
+            } else {
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 2000))
+            }
           }
-        } catch (createError) {
-          console.error("Error creating user data:", createError)
-          // Continue anyway
         }
       }
       
@@ -69,16 +83,30 @@ export default function LoginPage() {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password)
       
-      // Ensure user document exists in Firestore
+      // Ensure user document exists in Firestore with retry mechanism
       if (result.user) {
-        try {
-          const existingUserData = await getUserData(result.user.uid)
-          if (!existingUserData) {
-            await createUserData(result.user)
+        let retryCount = 0
+        const maxRetries = 3
+        
+        while (retryCount < maxRetries) {
+          try {
+            const existingUserData = await getUserData(result.user.uid)
+            if (!existingUserData) {
+              await createUserData(result.user)
+            }
+            break
+          } catch (createError) {
+            retryCount++
+            console.error(`Error creating user data (attempt ${retryCount}):`, createError)
+            
+            if (retryCount >= maxRetries) {
+              console.error("Failed to create user data after all retries")
+              // Continue anyway
+            } else {
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 2000))
+            }
           }
-        } catch (createError) {
-          console.error("Error creating user data:", createError)
-          // Continue anyway
         }
       }
       

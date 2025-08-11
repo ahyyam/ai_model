@@ -1,5 +1,6 @@
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, orderBy, limit } from "firebase/firestore"
+import { db } from "./firebase"
+import { testFirebaseConnection } from "./firebase"
 import { User as FirebaseUser } from "firebase/auth"
 
 export interface UserData {
@@ -49,6 +50,14 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       throw new Error("Invalid user data: missing uid or email")
     }
     
+    // Test Firebase connection first
+    try {
+      await testFirebaseConnection()
+    } catch (connectionError) {
+      console.error("Firebase connection test failed:", connectionError)
+      // Continue anyway, the server-side fallback should work
+    }
+    
     const userData: UserData = {
       uid: user.uid,
       email: user.email,
@@ -69,8 +78,17 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       return existingUser
     }
     
-    // Try to create the user document client-side first
+    // Ensure user is properly authenticated before attempting client-side write
     try {
+      const token = await user.getIdToken(true) // Force token refresh
+      if (!token) {
+        throw new Error("User not properly authenticated")
+      }
+      
+      // Add a small delay to ensure Firebase Auth state is propagated
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Try to create the user document client-side
       await setDoc(doc(db, "users", user.uid), userData)
       console.log("User data created successfully for:", user.uid)
       return userData
@@ -106,7 +124,7 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
         // Provide detailed error information
         if (writeError instanceof Error) {
           if (writeError.message.includes('permission-denied') || writeError.message.includes('Missing or insufficient permissions')) {
-            throw new Error("Firebase permission denied. Please check Firestore security rules. Users need permission to write to their own documents.")
+            throw new Error("Firebase permission denied. This usually happens when the user is not fully authenticated yet. Please try again in a few seconds.")
           } else if (writeError.message.includes('unavailable') || writeError.message.includes('network')) {
             throw new Error("Firebase service unavailable. Please check your internet connection and try again.")
           } else if (writeError.message.includes('quota-exceeded')) {
@@ -138,7 +156,24 @@ export async function updateUserData(uid: string, updates: Partial<UserData>): P
       updatedAt: new Date().toISOString(),
     }
     
-    await updateDoc(doc(db, "users", uid), updateData)
+    try {
+      await updateDoc(doc(db, "users", uid), updateData)
+    } catch (err) {
+      // Permission fallback: call server route with Admin SDK
+      const token = await (await import('firebase/auth')).getAuth().currentUser?.getIdToken()
+      const res = await fetch('/api/users/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ uid, updates: updateData }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as any))
+        throw new Error(data.error || 'Failed to update user via server')
+      }
+    }
   } catch (error) {
     console.error("Error updating user data:", error)
     throw error

@@ -1,5 +1,20 @@
 import { stripe } from './stripe'
 
+// Helper function to get plan name from price ID
+function getPlanNameFromPriceId(priceId?: string): string | undefined {
+  if (!priceId) return undefined
+  
+  // Map price IDs to plan names based on environment variables
+  if (priceId === process.env.STRIPE_BASIC_PRICE_ID) return 'Basic Plan'
+  if (priceId === process.env.STRIPE_PRO_PRICE_ID) return 'Pro Plan'
+  if (priceId === process.env.STRIPE_ELITE_PRICE_ID) return 'Elite Plan'
+  if (priceId === process.env.STRIPE_MINI_PRICE_ID) return 'Mini Token Pack'
+  if (priceId === process.env.STRIPE_STANDARD_PRICE_ID) return 'Standard Token Pack'
+  if (priceId === process.env.STRIPE_PLUS_PRICE_ID) return 'Plus Token Pack'
+  
+  return undefined
+}
+
 export interface StripeCustomer {
   id: string
   email: string
@@ -62,7 +77,7 @@ export async function getStripeCustomer(customerId: string): Promise<StripeCusto
     })
 
     const subscription = subscriptions.data[0]
-
+    
     return {
       id: customer.id,
       email: customer.email!,
@@ -70,9 +85,14 @@ export async function getStripeCustomer(customerId: string): Promise<StripeCusto
       subscription: subscription ? {
         id: subscription.id,
         status: subscription.status,
-        current_period_end: (subscription as any).current_period_end || 0,
+        // Try to get current_period_end from the subscription object
+        current_period_end: (subscription as any).current_period_end || 
+                           (subscription as any).current_period_start || 
+                           (subscription as any).created || 0,
         plan: {
-          nickname: (subscription.items.data[0]?.price as any)?.nickname || 'Unknown Plan',
+          nickname: (subscription.items.data[0]?.price as any)?.nickname || 
+                    getPlanNameFromPriceId(subscription.items.data[0]?.price?.id) || 
+                    'Unknown Plan',
           amount: subscription.items.data[0]?.price.unit_amount || 0,
           currency: subscription.items.data[0]?.price.currency || 'usd',
           interval: (subscription.items.data[0]?.price.recurring as any)?.interval || 'month',

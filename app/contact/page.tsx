@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Mail, MapPin, Phone, Send, ArrowLeft } from "lucide-react"
+import { MessageSquare, Mail, Send, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function ContactPage() {
@@ -162,50 +162,6 @@ export default function ContactPage() {
 
           {/* Contact Information */}
           <div className="space-y-6">
-            <Card className="bg-[#1c1c1c] border-gray-800 text-white">
-              <CardHeader>
-                <CardTitle>Get in Touch</CardTitle>
-                <CardDescription>We're here to help and answer any questions you might have.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center flex-shrink-0">
-                    <Mail className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Email</h3>
-                    <p className="text-gray-400 text-sm">support@zarta.com</p>
-                    <p className="text-gray-500 text-xs">We'll respond within 24 hours</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Phone</h3>
-                    <p className="text-gray-400 text-sm">+1 (555) 123-4567</p>
-                    <p className="text-gray-500 text-xs">Mon-Fri 9AM-6PM EST</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Address</h3>
-                    <p className="text-gray-400 text-sm">
-                      123 AI Street<br />
-                      Tech City, TC 12345<br />
-                      United States
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* FAQ Section */}
             <Card className="bg-[#1c1c1c] border-gray-800 text-white">
               <CardHeader>
@@ -230,6 +186,25 @@ export default function ContactPage() {
                   <p className="text-gray-400 text-xs mt-1">
                     Most images are processed within 2-5 minutes. Complex requests may take up to 15 minutes.
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#1c1c1c] border-gray-800 text-white">
+              <CardHeader>
+                <CardTitle>Get in Touch</CardTitle>
+                <CardDescription>We're here to help and answer any questions you might have.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center flex-shrink-0">
+                    <Mail className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Email</h3>
+                    <p className="text-gray-400 text-sm">support@zarta.com</p>
+                    <p className="text-gray-500 text-xs">We'll respond within 24 hours</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

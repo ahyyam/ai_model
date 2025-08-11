@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const userData = userDoc.data()
+    const userData = userDoc.data() as { email?: string; credits?: number; stripeCustomerId?: string } | undefined
     let stripeCustomerId = userData?.stripeCustomerId
 
     // If no stripeCustomerId, try to find customer by email
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
           limit: 1
         })
         
-        if (customers?.data.length > 0) {
+        if (customers && customers.data && customers.data.length > 0) {
           stripeCustomerId = customers.data[0].id
           console.log("Found Stripe customer by email:", stripeCustomerId)
           
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       limit: 1,
     })
 
-    const subscription = subscriptions?.data[0]
+    const subscription = subscriptions && subscriptions.data ? subscriptions.data[0] : undefined
 
     if (!subscription) {
       // No active subscription, update status to free
@@ -82,12 +82,12 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         subscriptionStatus: 'free',
-        credits: userData.credits || 0
+        credits: (userData?.credits || 0)
       })
     }
 
     // Determine plan and credits based on price ID
-    const priceId = subscription.items.data[0]?.price?.id
+    const priceId = subscription.items?.data?.[0]?.price?.id
     let planName: 'basic' | 'pro' | 'elite' = 'basic'
     let credits = PLAN_CREDITS.BASIC
 
@@ -112,9 +112,10 @@ export async function POST(request: NextRequest) {
     console.log("Determined plan:", planName, "with credits:", credits)
 
     // Update user data with current subscription status and credits
+    const currentCredits = userData?.credits || 0
     const updatedData = {
       subscriptionStatus: planName,
-      credits: Math.max(userData.credits || 0, credits), // Don't reduce credits if user already has more
+      credits: Math.max(currentCredits, credits), // Don't reduce credits if user already has more
       updatedAt: new Date().toISOString()
     }
 
@@ -126,12 +127,12 @@ export async function POST(request: NextRequest) {
       subscription: {
         id: subscription.id,
         status: subscription.status,
-        current_period_end: subscription.current_period_end,
+        current_period_end: (subscription as any).current_period_end,
         plan: {
-          nickname: (subscription.items.data[0]?.price as any)?.nickname || planName,
-          amount: subscription.items.data[0]?.price.unit_amount || 0,
-          currency: subscription.items.data[0]?.price.currency || 'usd',
-          interval: (subscription.items.data[0]?.price.recurring as any)?.interval || 'month',
+          nickname: (subscription.items?.data?.[0]?.price as any)?.nickname || planName,
+          amount: subscription.items?.data?.[0]?.price?.unit_amount || 0,
+          currency: subscription.items?.data?.[0]?.price?.currency || 'usd',
+          interval: (subscription.items?.data?.[0]?.price?.recurring as any)?.interval || 'month',
         }
       }
     })

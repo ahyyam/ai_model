@@ -24,7 +24,7 @@ const guideSteps = [
       "Make sure the item is clearly visible",
       "Avoid blurry or low-resolution images"
     ],
-    example: "A well-lit photo of a white t-shirt on a plain background"
+    example: "Your reference outfit styled with different background, pose, and lighting"
   },
   {
     id: 2,
@@ -52,7 +52,7 @@ const guideSteps = [
       "Download and share your results",
       "Save to your project library"
     ],
-    example: "Your garment styled in the reference aesthetic"
+    example: "Your reference outfit styled with different background, pose, and lighting"
   }
 ]
 

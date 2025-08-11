@@ -14,7 +14,7 @@ import { useEffect, useState, useRef, useCallback } from "react"
 const testimonials = [
   {
     quote:
-              "Zarta transformed our product photography workflow. We went from spending $5K per photoshoot to generating unlimited variations for $49/month. Our conversion rates increased by 35%.",
+      "Zarta transformed our product photography workflow completely. We went from spending $5,000 per photoshoot to generating unlimited variations for $40/month. Our conversion rates increased by 35% within the first quarter.",
     author: "Sarah Chen",
     title: "Marketing Director",
     company: "Urban Thread Co.",
@@ -22,15 +22,15 @@ const testimonials = [
   },
   {
     quote:
-      "The quality is incredible. Our customers can't tell the difference between AI-generated images and traditional photography. It's saved us months of production time.",
+      "The quality is absolutely incredible. Our customers can't tell the difference between AI-generated images and traditional photography. It's saved us months of production time and thousands in costs.",
     author: "Marcus Rodriguez",
-    title: "Founder",
+    title: "Founder & CEO",
     company: "Streetwear Collective",
     rating: 5,
   },
   {
     quote:
-              "As a small brand, we couldn't afford professional photoshoots for every product. Zarta leveled the playing field and made our products look as premium as the big brands.",
+      "As a small fashion brand, we couldn't afford professional photoshoots for every product. Zarta leveled the playing field and made our products look as premium as the big brands. Game changer!",
     author: "Emma Thompson",
     title: "Creative Director",
     company: "Minimalist Studio",
@@ -38,7 +38,7 @@ const testimonials = [
   },
   {
     quote:
-      "The speed and consistency of Zarta's AI-generated images have revolutionized our e-commerce strategy. We can now create product variations in minutes, not weeks.",
+      "The speed and consistency of Zarta's AI-generated images have revolutionized our e-commerce strategy. We can now create product variations in minutes, not weeks. Our sales team loves the flexibility.",
     author: "David Kim",
     title: "E-commerce Manager",
     company: "Fashion Forward",
@@ -46,7 +46,7 @@ const testimonials = [
   },
   {
     quote:
-      "Zarta's AI understands our brand aesthetic perfectly. Every generated image maintains our signature style while showcasing products beautifully.",
+      "Zarta's AI understands our brand aesthetic perfectly. Every generated image maintains our signature minimalist style while showcasing products beautifully. The customization options are impressive.",
     author: "Lisa Park",
     title: "Brand Director",
     company: "Minimalist Co.",
@@ -92,15 +92,15 @@ export default function TestimonialsSection() {
   }
 
   return (
-    <section ref={sectionRef} className="py-20 md:py-32">
+    <section ref={sectionRef} className="section-zarta-lg">
       {!isVisible ? (
         <div className="h-96 bg-gray-800 animate-pulse rounded-lg" />
       ) : (
         <>
-          <div className="text-center max-w-3xl mx-auto mb-16 px-4">
-        <h2 className="font-sora text-3xl md:text-4xl font-bold mb-4">Loved by Fashion Brands</h2>
-        <p className="text-gray-400 text-lg">See what our customers are saying about their results.</p>
-      </div>
+          <div className="text-center max-w-4xl mx-auto mb-20 px-4 space-md">
+            <h2 className="heading-2 text-white">Trusted by Fashion Brands Worldwide</h2>
+            <p className="text-lead text-gray-400">See how leading brands are transforming their product photography and boosting sales with AI</p>
+          </div>
 
       <div className="max-w-6xl mx-auto px-4">
         <div className="relative">

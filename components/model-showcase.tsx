@@ -103,18 +103,18 @@ export default function ModelShowcase() {
   }, [isVisible])
 
   return (
-    <section className="py-16 md:py-20 border-t border-gray-800/50">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">See Our AI Models in Action</h2>
-        <p className="text-gray-400 text-sm md:text-base">Professional fashion photography generated with AI technology</p>
+    <section className="section-zarta-sm border-t border-gray-800/50">
+      <div className="text-center max-w-4xl mx-auto mb-16 space-md">
+        <h2 className="heading-2 text-white">See Our AI Models in Action</h2>
+        <p className="text-lead text-gray-400">Professional fashion photography generated with AI technology</p>
       </div>
       
-      <div className="space-y-8">
+      <div className="space-y-12">
         {/* Top row - slides left */}
         <div className="relative overflow-hidden">
           <div
             ref={topScrollRef}
-            className="flex gap-6 md:gap-8 items-center overflow-hidden"
+            className="flex gap-8 md:gap-10 lg:gap-12 items-center overflow-hidden"
             style={{ scrollBehavior: "auto" }}
           >
             {/* Duplicate the top row images array to create seamless loop */}
@@ -126,7 +126,7 @@ export default function ModelShowcase() {
                 <img
                   src={image}
                   alt={`AI Model ${index + 1}`}
-                  className="h-44 md:h-52 w-auto object-cover rounded-lg shadow-lg"
+                  className="h-44 md:h-52 w-auto object-cover rounded-xl shadow-lg"
                   style={{ minWidth: "180px" }}
                   loading="lazy"
                 />
@@ -143,7 +143,7 @@ export default function ModelShowcase() {
         <div className="relative overflow-hidden">
           <div
             ref={bottomScrollRef}
-            className="flex gap-6 md:gap-8 items-center overflow-hidden"
+            className="flex gap-8 md:gap-10 lg:gap-12 items-center overflow-hidden"
             style={{ scrollBehavior: "auto" }}
           >
             {/* Duplicate the bottom row images array to create seamless loop */}
@@ -155,7 +155,7 @@ export default function ModelShowcase() {
                 <img
                   src={image}
                   alt={`AI Model ${index + 6}`}
-                  className="h-44 md:h-52 w-auto object-cover rounded-lg shadow-lg"
+                  className="h-44 md:h-52 w-auto object-cover rounded-xl shadow-lg"
                   style={{ minWidth: "180px" }}
                   loading="lazy"
                 />

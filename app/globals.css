@@ -65,25 +65,122 @@
 }
 
 @layer components {
-  /* Zarta Design System */
+  /* Zarta Design System - Enhanced */
+  
+  /* ===== SPACING SYSTEM ===== */
+  .space-xs { @apply space-y-2; }
+  .space-sm { @apply space-y-3; }
+  .space-md { @apply space-y-4; }
+  .space-lg { @apply space-y-6; }
+  .space-xl { @apply space-y-8; }
+  .space-2xl { @apply space-y-12; }
+  .space-3xl { @apply space-y-16; }
+  
+  .gap-xs { @apply gap-2; }
+  .gap-sm { @apply gap-3; }
+  .gap-md { @apply gap-4; }
+  .gap-lg { @apply gap-6; }
+  .gap-xl { @apply gap-8; }
+  .gap-2xl { @apply gap-12; }
+  .gap-3xl { @apply gap-16; }
+  
+  /* ===== TYPOGRAPHY SYSTEM ===== */
+  .heading-1 {
+    @apply font-sora text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight;
+  }
+  
+  .heading-2 {
+    @apply font-sora text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight;
+  }
+  
+  .heading-3 {
+    @apply font-sora text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-tight;
+  }
+  
+  .heading-4 {
+    @apply font-sora text-lg sm:text-xl md:text-2xl font-semibold tracking-tight leading-tight;
+  }
+  
+  .text-display {
+    @apply font-sora text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight;
+  }
+  
+  .text-lead {
+    @apply text-lg sm:text-xl md:text-2xl leading-relaxed text-gray-300;
+  }
+  
+  .text-body {
+    @apply text-base sm:text-lg leading-relaxed text-gray-300;
+  }
+  
+  .text-body-sm {
+    @apply text-sm sm:text-base leading-relaxed text-gray-300;
+  }
+  
+  .text-muted {
+    @apply text-sm sm:text-base text-gray-400 leading-relaxed;
+  }
+  
+  .text-caption {
+    @apply text-xs sm:text-sm text-gray-500 leading-relaxed;
+  }
+  
+  /* ===== LAYOUT SYSTEM ===== */
+  .container-zarta {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-wide {
+    @apply max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20;
+  }
+  
+  .section-zarta {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+  
+  .section-zarta-sm {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  .section-zarta-lg {
+    @apply py-20 md:py-24 lg:py-32;
+  }
+  
+  .grid-zarta {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12;
+  }
+  
+  .flex-zarta {
+    @apply flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12;
+  }
+  
+  /* ===== COMPONENT SYSTEM ===== */
   .card-zarta {
-    @apply bg-[#1c1c1c] border border-gray-800 text-white rounded-lg shadow-lg;
+    @apply bg-[#1c1c1c] border border-gray-800 text-white rounded-xl shadow-lg;
   }
   
   .card-zarta-hover {
-    @apply card-zarta hover:border-gray-700 transition-all duration-300;
+    @apply bg-[#1c1c1c] border border-gray-800 text-white rounded-xl shadow-lg hover:border-gray-700 transition-all duration-300 hover:shadow-xl;
   }
   
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg;
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl;
   }
   
   .btn-secondary {
-    @apply border border-gray-600 text-gray-300 hover:bg-gray-800 font-semibold px-6 py-3 rounded-lg transition-all duration-200;
+    @apply border border-gray-600 text-gray-300 hover:bg-gray-800 font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:border-gray-500;
   }
   
   .btn-destructive {
-    @apply bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200;
+    @apply bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:shadow-lg;
+  }
+  
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .btn-lg {
+    @apply px-8 py-4 text-lg;
   }
   
   .badge-primary {
@@ -94,52 +191,34 @@
     @apply text-blue-400;
   }
   
+  .badge-secondary {
+    @apply inline-flex items-center gap-2 text-gray-400 bg-gray-800/20 px-2.5 py-1.5 rounded-full text-xs font-medium;
+  }
+  
   .icon-base {
     @apply h-4 w-4;
+  }
+  
+  .icon-sm {
+    @apply h-3 w-3;
+  }
+  
+  .icon-lg {
+    @apply h-5 w-5;
+  }
+  
+  .icon-xl {
+    @apply h-6 w-6;
   }
   
   .input-zarta {
     @apply bg-gray-800/50 border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200;
   }
   
-  .heading-1 {
-    @apply font-sora text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
-  }
+  /* ===== ANIMATION SYSTEM ===== */
+  /* Using explicit keyframe utilities directly in components to avoid @apply recursion */
   
-  .heading-2 {
-    @apply font-sora text-3xl md:text-4xl font-bold;
-  }
-  
-  .heading-3 {
-    @apply font-sora text-2xl font-semibold;
-  }
-  
-  .text-body {
-    @apply text-gray-300 leading-relaxed;
-  }
-  
-  .text-muted {
-    @apply text-gray-400;
-  }
-  
-  .container-zarta {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  
-  .section-zarta {
-    @apply py-16 md:py-24;
-  }
-  
-  .grid-zarta {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-  }
-  
-  .flex-zarta {
-    @apply flex flex-col md:flex-row gap-6;
-  }
-}
-
-@layer utilities {
+  /* ===== UTILITY CLASSES ===== */
   .text-balance {
     text-wrap: balance;
   }
@@ -152,9 +231,7 @@
     box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.3);
   }
   
-  .gradient-text {
-    @apply bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent;
-  }
+  /* Use utility classes directly in markup for gradient text */
   
   .hover-lift {
     @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;

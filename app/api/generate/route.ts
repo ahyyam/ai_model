@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
-import { generateFashionPrompt } from '@/lib/openai'
-import { generateImageWithRunway } from '@/lib/runway'
+import { generateFashionPrompt } from '@/lib/ai/openai'
+import { generateImageWithRunway } from '@/lib/ai/runway'
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,10 +36,11 @@ export async function POST(request: NextRequest) {
       })
     } catch (error) {
       console.error("Token verification failed:", error)
+      const err = error as { code?: unknown; message?: unknown; stack?: unknown }
       console.error("Error details:", {
-        code: error.code,
-        message: error.message,
-        stack: error.stack
+        code: err?.code,
+        message: err?.message,
+        stack: err?.stack
       })
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
@@ -52,8 +53,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const userData = userDoc.data()
-    const availableCredits = userData.credits || 0
+    const userData = userDoc.data() as { credits?: number } | undefined
+    const availableCredits = userData?.credits || 0
     if (availableCredits < 0.5) {
       return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 })
     }

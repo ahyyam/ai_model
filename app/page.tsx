@@ -35,15 +35,15 @@ export default function LandingPage() {
       <StructuredData type="product" data={ProductData} />
       
       <Header />
+      <HeroSection />
       <main className="container-zarta" role="main">
         <article itemScope itemType="https://schema.org/Article">
-          <meta itemProp="headline" content="AI-Powered Fashion Photography | Transform Product Photos" />
+          <meta itemProp="headline" content="AI-Powered Fashion Photography | Transform Product Photos Instantly" />
           <meta itemProp="description" content="Transform plain clothing product photos into styled, high-quality, scroll-stopping visuals using AI. Save 95% on photoshoot costs with instant professional fashion photography for e-commerce brands." />
           <meta itemProp="author" content="Zarta Team" />
           <meta itemProp="publisher" content="Zarta" />
           <meta itemProp="datePublished" content="2024-01-01" />
           <meta itemProp="dateModified" content={new Date().toISOString().split('T')[0]} />
-        <HeroSection />
         <HowItWorks />
         <Suspense fallback={<div className="h-24 sm:h-32 bg-gray-800 animate-pulse rounded-lg" />}>
           <TrustedBrands />
@@ -53,20 +53,21 @@ export default function LandingPage() {
           <meta itemProp="description" content="Key features of Zarta's AI-powered fashion photography platform" />
           <header className="text-center mb-12">
             <h2 className="heading-2 mb-6" itemProp="name">AI Fashion Photography Features</h2>
+            <p className="text-lead text-gray-400">Everything you need to create stunning product visuals that drive sales</p>
           </header>
           <FeatureSection
-            title="Unlimited Looks. No Photoshoot Needed."
-            description="Create endless, professional model shots in minutes No camera, no crew. From simple garment upload to professional visuals, Zarta AI handles it all at a fraction of the time and cost."
+            title="Unlimited Looks. No Photoshoot Required."
+            description="Create endless, professional model shots in minutes. No camera, no crew, no studio rental. From simple garment upload to stunning visuals, Zarta AI handles everything at a fraction of traditional photoshoot costs."
             imageUrl="/images/feature-1.png"
             Icon={Infinity}
             benefit="Save Time & Money"
           />
           <FeatureSection
-            title="Sell More With Better Visuals"
-            description="Eye-catching images directly impact your sales. Zarta AI-generated content is designed to drive clicks, interactions, and conversions."
+            title="Boost Sales With Compelling Visuals"
+            description="Eye-catching product images directly impact your conversion rates. Zarta AI-generated content is scientifically designed to drive clicks, engagement, and sales for your e-commerce business."
             imageUrl="/images/feature-2.png"
             Icon={Zap}
-            benefit="Increase Sales"
+            benefit="Increase Conversions"
             reverse
           />
         </section>

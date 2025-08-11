@@ -23,7 +23,7 @@ FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 ## AI Services
 
 ```env
-# OpenAI API (for prompt generation; model gpt-4.1-mini)
+# OpenAI API (for prompt generation; model gpt-4)
 OPENAI_API_KEY=
 
 # Runway ML API (for image generation)

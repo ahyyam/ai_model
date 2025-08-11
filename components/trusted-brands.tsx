@@ -68,17 +68,20 @@ export default function TrustedBrands() {
   }, [isVisible])
 
   return (
-    <section className="py-16 md:py-24 border-t border-gray-800/50">
-      <div className="text-center mb-16">
-        <h3 className="font-sora text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-300 mb-4">
-          Trusted by Leading Fashion Brands
+    <section className="section-zarta-sm border-t border-gray-800/50">
+      <div className="text-center mb-16 space-md">
+        <h3 className="heading-3 text-gray-300">
+          Trusted by Leading Fashion Brands Worldwide
         </h3>
+        <p className="text-lead text-gray-400">
+          Join thousands of successful brands already using Zarta AI to transform their product photography
+        </p>
       </div>
 
       <div className="relative overflow-hidden">
         <div
           ref={scrollRef}
-          className="flex gap-8 md:gap-12 lg:gap-16 items-center overflow-hidden"
+          className="flex gap-12 md:gap-16 lg:gap-20 items-center overflow-hidden"
           style={{ scrollBehavior: "auto" }}
         >
           {/* Duplicate the brands array to create seamless loop */}
@@ -87,13 +90,13 @@ export default function TrustedBrands() {
               key={`${brand.name}-${index}`}
               className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
             >
-                              <img
-                  src={brand.logo || "/placeholder.svg"}
-                  alt={`${brand.name} logo`}
-                  className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain"
-                  style={{ minWidth: "140px" }}
-                  loading="lazy"
-                />
+              <img
+                src={brand.logo || "/placeholder.svg"}
+                alt={`${brand.name} logo`}
+                className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain"
+                style={{ minWidth: "140px" }}
+                loading="lazy"
+              />
             </div>
           ))}
         </div>

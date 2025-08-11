@@ -10,18 +10,21 @@ import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged } from "firebase/auth"
-import { addProject } from "@/lib/projects"
+import { useToast } from "@/hooks/use-toast"
+// import { addProject } from "@/lib/projects"
 import { TopNav } from "@/components/dashboard/top-nav"
 
 export default function ResultsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [garmentImage, setGarmentImage] = useState<string | null>(null)
   const [referenceImage, setReferenceImage] = useState<string | null>(null)
   const [prompt, setPrompt] = useState("")
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [generationId, setGenerationId] = useState<string | null>(null)
+  const [projectId, setProjectId] = useState<string | null>(null)
+  const [isLoadingPrompt, setIsLoadingPrompt] = useState(false)
 
   // Function to check for active generations in user's projects
   const checkForActiveGenerations = async () => {
@@ -56,7 +59,7 @@ export default function ResultsPage() {
       if (!onboardingState) return
       
       const data = JSON.parse(onboardingState)
-      if (!data.generationId) {
+      if (!data.projectId) {
         // If no generation ID, try to find active generation from user's projects
         console.log("No generation ID found, checking for active projects...")
         const activeProject = await checkForActiveGenerations()
@@ -65,85 +68,102 @@ export default function ResultsPage() {
           const updatedState = {
             ...data,
             projectId: activeProject.id,
-            generationId: activeProject.runwayGenerationId,
             prompt: activeProject.prompt || data.prompt
           }
           localStorage.setItem("onboardingState", JSON.stringify(updatedState))
           
           // Start polling with the found generation ID
-          if (activeProject.runwayGenerationId) {
-            setGenerationId(activeProject.runwayGenerationId)
-            startPollingWithId(activeProject.runwayGenerationId)
-          }
+          setProjectId(activeProject.id)
+          startPollingWithProject(activeProject.id)
         }
         return
       }
       
-      setGenerationId(data.generationId)
-      startPollingWithId(data.generationId)
+      setProjectId(data.projectId)
+      startPollingWithProject(data.projectId)
     } catch (error) {
       console.error("Error starting polling:", error)
     }
   }
 
   // Separate function to start polling with a specific generation ID
-  const startPollingWithId = (genId: string) => {
+  const startPollingWithProject = (projId: string) => {
     if (!user) return
     
     // Start polling
     const pollInterval = setInterval(async () => {
-        try {
-          const token = await user.getIdToken()
-          const response = await fetch('/api/generate/status', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ generationId: genId })
-          })
+      try {
+        const token = await user.getIdToken()
+        const response = await fetch('/api/generate/status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ projectId: projId })
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
           
-          if (response.ok) {
-            const result = await response.json()
+          if (result.status === 'complete' && result.finalImageURL) {
+            // Generation completed successfully
+            const imageUrl = result.finalImageURL
+            setGeneratedImage(imageUrl)
+            setIsGenerating(false)
             
-            if (result.status === 'succeeded' && result.output?.images?.[0]?.url) {
-              // Generation completed successfully
-              const imageUrl = result.output.images[0].url
-              setGeneratedImage(imageUrl)
-              setIsGenerating(false)
+            // Fetch the full project data to get the prompt
+            try {
+              const projectResponse = await fetch(`/api/projects/${projId}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              })
               
-              // Update localStorage with the result
+              if (projectResponse.ok) {
+                const projectData = await projectResponse.json()
+                if (projectData.prompt) {
+                  setPrompt(projectData.prompt)
+                  console.log("Prompt loaded from project:", projectData.prompt)
+                }
+              }
+            } catch (error) {
+              console.error("Error fetching project data:", error)
+            }
+            
+            // Update localStorage with the result
+            const onboardingState = localStorage.getItem("onboardingState")
+            if (onboardingState) {
+              const data = JSON.parse(onboardingState)
               const updatedState = {
                 ...data,
                 generatedImage: imageUrl,
                 isGenerating: false
               }
               localStorage.setItem("onboardingState", JSON.stringify(updatedState))
-              
-              // Clear the polling interval
-              clearInterval(pollInterval)
-              
-              console.log("Generation completed successfully:", imageUrl)
-            } else if (result.status === 'failed') {
-              // Generation failed
-              setIsGenerating(false)
-              clearInterval(pollInterval)
-              console.error("Generation failed:", result)
             }
-            // If still processing, continue polling
-          } else {
-            console.error("Failed to check generation status:", response.status)
+            
+            // Clear the polling interval
+            clearInterval(pollInterval)
+            
+            console.log("Generation completed successfully:", imageUrl)
+          } else if (result.status === 'error') {
+            // Generation failed
+            setIsGenerating(false)
+            clearInterval(pollInterval)
+            console.error("Generation failed:", result)
           }
-        } catch (error) {
-          console.error("Error checking generation status:", error)
+          // If still processing, continue polling
+        } else {
+          console.error("Failed to check generation status:", response.status)
         }
-      }, 2000) // Poll every 2 seconds
-      
-      // Cleanup function
-      return () => clearInterval(pollInterval)
-    } catch (error) {
-      console.error("Error starting polling:", error)
-    }
+      } catch (error) {
+        console.error("Error checking generation status:", error)
+      }
+    }, 2000) // Poll every 2 seconds
+    
+    // Cleanup function
+    return () => clearInterval(pollInterval)
   }
 
   useEffect(() => {
@@ -170,6 +190,9 @@ export default function ResultsPage() {
       // If we're generating, start polling for results
       if (data.isGenerating) {
         startPollingForResults()
+      } else if (data.projectId && !data.prompt) {
+        // If we have a project ID but no prompt, try to fetch it
+        fetchProjectPrompt(data.projectId)
       }
     } else {
       // Fallback to last generated project if no current generation
@@ -185,6 +208,33 @@ export default function ResultsPage() {
     }
   }, [])
 
+  // Function to fetch project prompt
+  const fetchProjectPrompt = async (projId: string) => {
+    if (!user) return
+    
+    setIsLoadingPrompt(true)
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch(`/api/projects/${projId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const projectData = await response.json()
+        if (projectData.prompt) {
+          setPrompt(projectData.prompt)
+          console.log("Prompt loaded from project:", projectData.prompt)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching project prompt:", error)
+    } finally {
+      setIsLoadingPrompt(false)
+    }
+  }
+
   const handleDownloadImage = async () => {
     if (!generatedImage) {
       console.error("No generated image to download")
@@ -192,114 +242,35 @@ export default function ResultsPage() {
     }
 
     try {
-      console.log("Attempting to download image from:", generatedImage)
-      
-      // Check if it's a Firebase Storage URL that might need authentication
-      const isFirebaseUrl = generatedImage.includes('firebasestorage.googleapis.com')
-      
-      let response
-      if (isFirebaseUrl && user) {
-        // For Firebase URLs, try to get a fresh signed URL
-        console.log("Firebase URL detected, attempting to get fresh signed URL")
-        try {
-          const token = await user.getIdToken()
-          const signedUrlResponse = await fetch('/api/get-signed-url', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ imageUrl: generatedImage })
-          })
-          
-          if (signedUrlResponse.ok) {
-            const { signedUrl } = await signedUrlResponse.json()
-            console.log("Got fresh signed URL:", signedUrl)
-            response = await fetch(signedUrl)
-          } else {
-            console.log("Failed to get signed URL, trying direct fetch")
-            response = await fetch(generatedImage)
-          }
-        } catch (tokenError) {
-          console.log("Token error, trying direct fetch:", tokenError)
-          response = await fetch(generatedImage)
-        }
-      } else {
-        // For other URLs, try direct fetch
-        response = await fetch(generatedImage)
+      const resp = await fetch('/api/download-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: generatedImage }),
+      })
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}))
+        throw new Error(data.error || `Failed: ${resp.status}`)
       }
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
-      }
-
-      // Convert to blob
-      const blob = await response.blob()
-      console.log("Successfully fetched image blob:", blob.size, "bytes")
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `ai-generated-image-${Date.now()}.png`
-      
-      // Trigger download
-      document.body.appendChild(link)
-      link.click()
-      
-      // Cleanup
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      
-      console.log("Download initiated successfully")
+      const blob = await resp.blob()
+      const downloadUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = downloadUrl
+      a.download = `zarta-image-${Date.now()}.jpg`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(downloadUrl)
     } catch (error) {
       console.error("Download failed:", error)
       
-      // Try alternative approach for Firebase URLs
-      if (generatedImage.includes('firebasestorage.googleapis.com')) {
-        console.log("Trying alternative download method for Firebase URL")
-        try {
-          // Open in new tab as fallback
-          window.open(generatedImage, '_blank')
-          alert("Download failed. Image opened in new tab - you can right-click and save it.")
-        } catch (fallbackError) {
-          console.error("Fallback also failed:", fallbackError)
-          alert("Failed to download image. Please try again or contact support.")
-        }
-      } else {
-        alert("Failed to download image. Please try again.")
-      }
+      alert("Failed to download image. Please try again.")
     }
   }
 
-  // Auto-save project when component mounts and we have all the data
-  useEffect(() => {
-    const autoSaveProject = async () => {
-      if (!user || !generatedImage || !prompt) return
-      
-      try {
-        await addProject({
-          name: prompt || "AI Photoshoot",
-          status: "complete",
-          aesthetic: "N/A",
-          prompt,
-          garmentImage: garmentImage || undefined,
-          referenceImage: referenceImage || undefined,
-          thumbnail: generatedImage || "/placeholder.svg?height=300&width=300",
-          downloads: 0,
-          generatedImages: [generatedImage],
-        })
-        console.log("Project auto-saved successfully")
-      } catch (error) {
-        console.error("Failed to auto-save project:", error)
-      }
-    }
-
-    autoSaveProject()
-  }, [user, generatedImage, prompt, garmentImage, referenceImage])
+  // Skip client auto-save. The server creates and updates the project document.
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#111111] text-white">
       <TopNav />
       <main className="container-zarta py-16">
         <div className="max-w-4xl mx-auto">
@@ -329,14 +300,88 @@ export default function ResultsPage() {
           {/* Project Details */}
           <div className="space-y-8 mb-12">
             {/* AI Generated Prompt */}
-            {prompt && (
-              <div className="w-full space-y-2">
-                <Label className="text-sm font-medium text-white">AI Generated Prompt</Label>
-                <div className="p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
-                  <p className="text-sm text-gray-300 leading-relaxed">{prompt}</p>
-                </div>
+            <div className="w-full space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-lg font-semibold text-white">AI Generated Prompt</Label>
+                {prompt && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(prompt)
+                      toast({
+                        title: "Prompt copied!",
+                        description: "Your AI generated prompt has been copied to your clipboard.",
+                      })
+                    }}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Copy Prompt
+                  </Button>
+                )}
               </div>
-            )}
+              
+              {isLoadingPrompt ? (
+                <div className="p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-xl">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400 mr-3"></div>
+                    <span className="text-gray-400">Loading prompt...</span>
+                  </div>
+                </div>
+              ) : prompt ? (
+                <div className="p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-xl">
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-200 leading-relaxed font-mono">{prompt}</p>
+                    
+                    {/* Quick styling breakdown */}
+                    <div className="pt-3 border-t border-gray-700">
+                      <div className="flex flex-wrap gap-2">
+                        {prompt.includes('studio-lighting') && (
+                          <span className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded-full border border-blue-700/50">
+                            Studio Lighting
+                          </span>
+                        )}
+                        {prompt.includes('outdoor') && (
+                          <span className="px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded-full border border-green-700/50">
+                            Outdoor Setting
+                          </span>
+                        )}
+                        {prompt.includes('natural-daylight') && (
+                          <span className="px-2 py-1 bg-yellow-900/30 text-yellow-300 text-xs rounded-full border border-yellow-700/50">
+                            Natural Light
+                          </span>
+                        )}
+                        {prompt.includes('standing') && (
+                          <span className="px-2 py-1 bg-purple-900/30 text-purple-300 text-xs rounded-full border border-purple-700/50">
+                            Standing Pose
+                          </span>
+                        )}
+                        {prompt.includes('sitting') && (
+                          <span className="px-2 py-1 bg-purple-900/30 text-purple-300 text-xs rounded-full border border-purple-700/50">
+                            Sitting Pose
+                          </span>
+                        )}
+                        {prompt.includes('walking') && (
+                          <span className="px-2 py-1 bg-purple-900/30 text-purple-300 text-xs rounded-full border border-purple-700/50">
+                            Walking Pose
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700 rounded-xl">
+                  <p className="text-sm text-gray-500 text-center">No prompt available yet</p>
+                </div>
+              )}
+              
+              {prompt && (
+                <p className="text-xs text-gray-500 text-center">
+                  This prompt was automatically generated by AI to create your fashion photography
+                </p>
+              )}
+            </div>
             
             {/* Garment and Reference Images - Side by Side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

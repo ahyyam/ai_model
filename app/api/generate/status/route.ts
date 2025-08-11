@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
-import { waitForRunwayGeneration } from '@/lib/runway'
+import { waitForRunwayGeneration } from '@/lib/ai/runway'
 import { uploadImageFromURL, generateImagePath } from '@/lib/storage-admin'
 
 export async function POST(request: NextRequest) {

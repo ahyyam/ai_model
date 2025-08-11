@@ -5,7 +5,7 @@ This document describes the complete AI image generation pipeline that replaces 
 ## Overview
 
 The pipeline uses a combination of:
-- **OpenAI gpt-4.1-mini** for intelligent prompt generation
+- **OpenAI gpt-4** for intelligent prompt generation
 - **Runway Gen-4 Image API** for high-quality image synthesis
 - **Firebase** for authentication, storage, and database
 - **Vercel Edge Functions** for backend API endpoints

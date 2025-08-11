@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin'
-import { generateImageWithRunway, waitForRunwayGeneration } from '@/lib/runway'
+import { generateImageWithRunway, waitForRunwayGeneration } from '@/lib/ai/runway'
 import { uploadImageFromURL, generateImagePath } from '@/lib/storage-admin'
 import { FieldValue } from 'firebase-admin/firestore'
 

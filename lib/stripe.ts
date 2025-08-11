@@ -3,18 +3,29 @@ import Stripe from 'stripe'
 let cachedStripe: Stripe | null = null
 
 export function getStripe(): Stripe | null {
-  if (typeof window !== 'undefined') return null
   if (cachedStripe) return cachedStripe
+  
   const key = process.env.STRIPE_SECRET_KEY
-  if (!key) return null
-  cachedStripe = new Stripe(key, {
-    apiVersion: '2025-06-30.basil',
-    typescript: true,
-  })
-  return cachedStripe
+  if (!key) {
+    console.warn('STRIPE_SECRET_KEY is not set')
+    return null
+  }
+  
+  try {
+    cachedStripe = new Stripe(key, {
+      apiVersion: '2025-06-30.basil',
+      typescript: true,
+    })
+    console.log('Stripe client initialized successfully')
+    return cachedStripe
+  } catch (error) {
+    console.error('Failed to initialize Stripe client:', error)
+    return null
+  }
 }
 
-export { cachedStripe as stripe }
+// Initialize Stripe client immediately
+export const stripe = getStripe()
 
 // Stripe product and price IDs - you'll need to create these in your Stripe dashboard
 export const STRIPE_PRODUCTS = {
@@ -112,14 +123,27 @@ export const createPortalSession = async ({
     throw new Error('Stripe is not initialized')
   }
   
+  console.log('Creating portal session for customer:', customerId, 'return URL:', returnUrl)
+  
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
     })
+    console.log('Portal session created successfully:', session.id)
     return session
   } catch (error) {
-    console.error('Error creating portal session:', error)
+    console.error('Error creating portal session in Stripe library:', error)
+    
+    // Log more details about the Stripe error
+    if (error && typeof error === 'object') {
+      const stripeError = error as any
+      console.error('Stripe error type:', stripeError.type)
+      console.error('Stripe error message:', stripeError.message)
+      console.error('Stripe error code:', stripeError.code)
+      console.error('Stripe error param:', stripeError.param)
+    }
+    
     throw error
   }
 } 

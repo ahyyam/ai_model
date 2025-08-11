@@ -57,4 +57,7 @@
 ### Content Cleanup ✅
 - Removed tagline under features header on landing page
 
+### Release ✅
+- Deploying Meta Pixel head integration and testimonials/pricing render fixes to production
+
 

@@ -146,7 +146,7 @@ export default function HeroSection() {
                 className="btn-primary w-full sm:w-auto px-6 py-3"
                 aria-label="Start instant AI photoshoot"
               >
-                <Link href="/get-started" title="Start Creating Now - Get Started with AI Fashion Photography">
+                <Link href="/generate" title="Start Creating Now - Generate AI Fashion Photography">
                   Start Creating Now <ArrowRight className="ml-2 icon-lg" />
                 </Link>
               </Button>

@@ -454,7 +454,7 @@ export function ProjectsGrid() {
         <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-lg">
           <div className="flex items-center gap-4">
             <div className="flex-shrink-0">
-              <Crown className="h-8 w-8 text-blue-400" />
+              <Lock className="h-8 w-8 text-blue-400" />
             </div>
             <div className="flex-1">
               <h3 className="heading-3 text-foreground mb-1">Unlock Premium Features</h3>

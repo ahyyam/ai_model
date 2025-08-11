@@ -223,8 +223,8 @@ export default function Header() {
                 <Button asChild variant="ghost" className="text-gray-300 hover:text-white text-sm lg:text-base">
                   <Link href="/login">Log In</Link>
                 </Button>
-                <Button asChild className="btn-primary text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3">
-                  <Link href="/get-started">Get Started</Link>
+                <Button asChild className="btn-primary text-base px-6 py-3">
+                  <Link href="/generate">Get Started</Link>
                 </Button>
               </>
             )}

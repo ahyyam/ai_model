@@ -59,5 +59,6 @@
 
 ### Release ✅
 - Deploying Meta Pixel head integration and testimonials/pricing render fixes to production
+- Deployed to Vercel production on 2025-08-11
 
 

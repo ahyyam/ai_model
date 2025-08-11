@@ -1,10 +1,11 @@
-import React from "react"
+import React, { Suspense } from "react"
 import type { Metadata } from "next"
 import { Inter, Sora } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "@/components/theme-provider"
 import Script from "next/script"
+import AnalyticsTracker from "./analytics-tracker"
 
 
 const inter = Inter({
@@ -109,7 +110,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scrollbar-thin">
       <body className={cn("font-sans antialiased bg-background text-foreground", inter.variable, sora.variable)} suppressHydrationWarning>
-        {/* Google Analytics - Legacy Tag */}
+        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-810HSMQQJB"
           strategy="afterInteractive"
@@ -119,12 +120,14 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-810HSMQQJB', {
-              page_title: document.title,
-              page_location: window.location.href
-            });
+            gtag('config', 'G-810HSMQQJB');
           `}
         </Script>
+
+        {/* Route-change tracking for Google Analytics */}
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
 
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <div className="min-h-screen flex flex-col">

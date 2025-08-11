@@ -14,7 +14,7 @@ const plans = [
   {
     id: "basic",
     name: "Basic",
-    price: "$30",
+    price: "$29",
     period: "",
     description: "Perfect for getting started with image generation.",
     features: ["10 image generations", "Basic styling options", "Email support"],
@@ -25,7 +25,7 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    price: "$40",
+    price: "$39",
     period: "",
     description: "Great value for growing businesses and creators.",
     features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support"],
@@ -36,7 +36,7 @@ const plans = [
   {
     id: "elite",
     name: "Elite",
-    price: "$75",
+    price: "$74",
     period: "",
     description: "Best value for high-volume image generation needs.",
     features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support"],
@@ -52,7 +52,7 @@ export default function SubscribePage() {
   const [user, setUser] = useState<any>(null)
 
   const handleBack = () => {
-    router.back()
+    router.push("/projects")
   }
 
   useEffect(() => {
@@ -85,8 +85,8 @@ export default function SubscribePage() {
         body: JSON.stringify({
           plan: planId.toUpperCase(),
           email: user.email,
-          successUrl: `${window.location.origin}/projects`,
-          cancelUrl: `${window.location.origin}/subscribe`,
+          success_url: `${window.location.origin}/billing/success?plan=${planId}`,
+          cancel_url: `${window.location.origin}/subscribe`,
         }),
       })
 
@@ -203,6 +203,17 @@ export default function SubscribePage() {
             </div>
           ))}
         </div>
+ 
+        {/* Skip Button */}
+        <div className="text-center mb-6">
+          <Button
+            onClick={handleSkip}
+            variant="outline"
+            className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
+          >
+            Skip for now
+          </Button>
+        </div>
 
         {/* Additional Info */}
         <div className="text-center mt-6 text-gray-400">
@@ -213,4 +224,4 @@ export default function SubscribePage() {
       </div>
     </div>
   )
-} 
+}

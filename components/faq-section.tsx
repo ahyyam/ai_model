@@ -40,7 +40,6 @@ export default function FaqSection() {
       <StructuredData type="faq" data={FAQData} />
       <div className="text-center max-w-4xl mx-auto mb-16 space-md">
         <h2 className="heading-2 text-white">Frequently Asked Questions</h2>
-        <p className="text-lead text-gray-400">Everything you need to know about Zarta AI fashion photography</p>
       </div>
       <div className="max-w-4xl mx-auto">
         <Accordion type="single" collapsible className="w-full space-md">

@@ -15,6 +15,15 @@ export interface UserData {
   updatedAt: string
 }
 
+// Utility to remove undefined values from objects before Firestore writes
+function omitUndefined<T extends Record<string, any>>(obj: T): T {
+  const cleaned: Record<string, any> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) cleaned[key] = value
+  }
+  return cleaned as T
+}
+
 // Credit allocation based on subscription plans
 const PLAN_CREDITS = {
   BASIC: 10,
@@ -58,16 +67,20 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       // Continue anyway, the server-side fallback should work
     }
     
-    const userData: UserData = {
+    const baseData: UserData = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName || undefined,
-      photoURL: user.photoURL || undefined,
       subscriptionStatus: 'free',
       credits: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
+
+    const optionalData: Partial<UserData> = {}
+    if (user.displayName) optionalData.displayName = user.displayName
+    if (user.photoURL) optionalData.photoURL = user.photoURL
+
+    const userData: UserData = { ...baseData, ...optionalData }
 
     console.log("User data to create:", userData)
     
@@ -89,7 +102,7 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       // Try to create the user document client-side
-      await setDoc(doc(db, "users", user.uid), userData)
+      await setDoc(doc(db, "users", user.uid), omitUndefined(userData))
       console.log("User data created successfully for:", user.uid)
       return userData
     } catch (writeError) {
@@ -151,10 +164,10 @@ export async function createUserData(user: FirebaseUser): Promise<UserData> {
 
 export async function updateUserData(uid: string, updates: Partial<UserData>): Promise<void> {
   try {
-    const updateData = {
+    const updateData = omitUndefined({
       ...updates,
       updatedAt: new Date().toISOString(),
-    }
+    })
     
     try {
       await updateDoc(doc(db, "users", uid), updateData)

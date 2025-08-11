@@ -103,13 +103,31 @@ export async function POST(request: NextRequest) {
     const productConfig = planKey ? STRIPE_PRODUCTS[planKey] : null
     const mode = productConfig?.mode || 'subscription'
 
+    // Determine success URL based on mode
+    let finalSuccessUrl = successUrl
+    if (!finalSuccessUrl) {
+      if (mode === 'subscription') {
+        // For subscriptions, redirect to billing success page
+        finalSuccessUrl = `${request.headers.get('origin') || 'https://zarta.io'}/billing/success?plan=${plan}`
+      } else {
+        // For one-time payments (token packs), redirect to projects page
+        finalSuccessUrl = `${request.headers.get('origin') || 'https://zarta.io'}/projects`
+      }
+    }
+
     console.log(`Creating checkout session for plan: ${plan}, priceId: ${finalPriceId}, email: ${finalCustomerEmail}, mode: ${mode}`)
+    console.log('URLs received from frontend:', { successUrl, cancelUrl })
+    console.log('Request origin header:', request.headers.get('origin'))
+    console.log('Final URLs to be used:', { 
+      successUrl: finalSuccessUrl,
+      cancelUrl: cancelUrl || `${request.headers.get('origin') || 'https://zarta.io'}/billing?canceled=true`
+    })
 
     const session = await createCheckoutSession({
       priceId: finalPriceId,
       customerEmail: finalCustomerEmail,
-      successUrl: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,
-      cancelUrl: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/billing?canceled=true`,
+      successUrl: finalSuccessUrl,
+      cancelUrl: cancelUrl || `${request.headers.get('origin') || 'https://zarta.io'}/billing?canceled=true`,
       mode: mode,
     })
 

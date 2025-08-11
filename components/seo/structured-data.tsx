@@ -96,7 +96,7 @@ export const FAQData = {
       name: 'How much does Zarta cost?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Zarta offers flexible pricing starting at $30/month for 10 image generations. Pro plans start at $40/month for 20 generations, and Elite plans at $75/month for 50 generations.'
+        text: 'Zarta offers flexible pricing starting at $29/month for 10 image generations. Pro plans start at $39/month for 20 generations, and Elite plans at $74/month for 50 generations.'
       }
     },
     {

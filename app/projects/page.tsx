@@ -4,7 +4,7 @@ import Link from "next/link"
 
 export default function ProjectsPage() {
   return (
-    <div className="container-zarta pt-8 md:pt-16 pb-16 space-y-8">
+    <div className="w-full px-4 md:px-6 pt-2 md:pt-4 pb-16 space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="heading-2 text-foreground">My Projects</h1>
       </div>

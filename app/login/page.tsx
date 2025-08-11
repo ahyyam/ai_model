@@ -57,13 +57,6 @@ export default function LoginPage() {
         }
       }
       
-      // Check for onboarding state
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (onboardingState) {
-        localStorage.removeItem("onboardingState")
-        router.push("/generate/results")
-        return
-      }
       router.push("/projects")
     } catch (err: any) {
       setError(err.message || "Google sign-in failed.")
@@ -110,13 +103,6 @@ export default function LoginPage() {
         }
       }
       
-      // Check for onboarding state
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (onboardingState) {
-        localStorage.removeItem("onboardingState")
-        router.push("/generate/results")
-        return
-      }
       router.push("/projects")
     } catch (err: any) {
       setError(err.message || "Email sign-in failed.")

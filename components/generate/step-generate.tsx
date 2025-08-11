@@ -667,53 +667,26 @@ export default function StepGenerate({
                 </div>
               </div>
 
-              {/* Aspect Ratio Analysis */}
-              {detectedAspectRatios && (
-                <div className="space-y-3 sm:space-y-4">
-                  <label className="text-lg sm:text-xl font-bold text-white">
-                    Image Analysis
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
-                      <div className="text-sm text-gray-400 mb-1">Garment Image</div>
-                      <div className="text-white font-medium">{detectedAspectRatios.garment}</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
-                      <div className="text-sm text-gray-400 mb-1">Reference Image</div>
-                      <div className="text-white font-medium">{detectedAspectRatios.reference}</div>
-                    </div>
-                  </div>
-                  
-                  {/* AI Recommendation */}
-                  {aiRecommendedAspectRatio && aiRecommendedAspectRatio !== "1:1" && (
-                    <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-3">
-                      <div className="text-sm text-blue-400 mb-1">AI Recommendation</div>
-                      <div className="text-blue-300 font-medium">Output: {aiRecommendedAspectRatio}</div>
-                    </div>
-                  )}
-                  
-                  {/* Output Aspect Ratio Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">
-                      Select Output Aspect Ratio
-                    </label>
-                    <select
-                      value={selectedOutputAspectRatio}
-                      onChange={(e) => setSelectedOutputAspectRatio(e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="1:1">1:1 (Square)</option>
-                      <option value="4:5">4:5 (Portrait)</option>
-                      <option value="3:4">3:4 (Portrait)</option>
-                      <option value="2:3">2:3 (Portrait)</option>
-                      <option value="9:16">9:16 (Mobile Portrait)</option>
-                      <option value="16:9">16:9 (Landscape)</option>
-                      <option value="3:2">3:2 (Landscape)</option>
-                      <option value="4:3">4:3 (Landscape)</option>
-                    </select>
-                  </div>
-                </div>
-              )}
+              {/* Output Aspect Ratio Selection */}
+              <div className="space-y-3 sm:space-y-4">
+                <label className="text-lg sm:text-xl font-bold text-white">
+                  Select Output Aspect Ratio
+                </label>
+                <select
+                  value={selectedOutputAspectRatio}
+                  onChange={(e) => setSelectedOutputAspectRatio(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="1:1">1:1 (Square)</option>
+                  <option value="4:5">4:5 (Portrait)</option>
+                  <option value="3:4">3:4 (Portrait)</option>
+                  <option value="2:3">2:3 (Portrait)</option>
+                  <option value="9:16">9:16 (Mobile Portrait)</option>
+                  <option value="16:9">16:9 (Landscape)</option>
+                  <option value="3:2">3:2 (Landscape)</option>
+                  <option value="4:3">4:3 (Landscape)</option>
+                </select>
+              </div>
 
               {/* Validation Errors */}
               <AnimatePresence>
@@ -759,10 +732,18 @@ export default function StepGenerate({
                 {checkingCredit ? (
                   <div className="text-gray-400 text-sm py-2">Checking account status...</div>
                 ) : !isLoggedIn ? (
-                  <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-200 rounded-lg p-4 flex flex-col items-start gap-2">
-                    <span>You must be signed up to generate AI photo shoots.</span>
-                    <Button onClick={() => router.push('/signup')} variant="secondary">Sign Up</Button>
-                  </div>
+                  <>
+                    <div className="relative">
+                      <textarea
+                        value=""
+                        placeholder="Sign in to customize your prompt"
+                        className="w-full min-h-[200px] sm:min-h-[250px] md:min-h-[300px] px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 border border-gray-600 rounded-lg text-gray-400 placeholder-gray-500 text-base sm:text-lg md:text-xl resize-none focus:outline-none leading-relaxed cursor-not-allowed"
+                        disabled={true}
+                        maxLength={1000}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-400 text-right">0/1000</div>
+                  </>
                 ) : userHasCredit === false ? (
                   <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-200 rounded-lg p-4 flex flex-col items-start gap-2">
                     <span>You do not have enough credits to generate an AI photo shoot.</span>

@@ -9,6 +9,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Customer ID is required" }, { status: 400 })
     }
 
+    console.log('Portal session request:', { customer_id, return_url })
+    console.log('Request origin header:', request.headers.get('origin'))
+    console.log('Final return URL to be used:', return_url || `${request.headers.get('origin') || 'https://zarta.io'}/billing`)
+
     // Check if customer_id is a placeholder
     if (customer_id === "cus_placeholder") {
       return NextResponse.json({ 
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     const session = await createPortalSession({
       customerId: customer_id,
-      returnUrl: return_url || `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
+      returnUrl: return_url || `${request.headers.get('origin') || 'https://zarta.io'}/billing`,
     })
 
     return NextResponse.json({ url: session.url })

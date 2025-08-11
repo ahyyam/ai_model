@@ -56,13 +56,6 @@ export default function SignupPage() {
         }
       }
       
-      // Check for onboarding state
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (onboardingState) {
-        localStorage.removeItem("onboardingState")
-        router.push("/generate/results")
-        return
-      }
       // Redirect to subscription page for new users
       router.push("/subscribe")
     } catch (err: any) {
@@ -122,13 +115,6 @@ export default function SignupPage() {
         }
       }
       
-      // Check for onboarding state
-      const onboardingState = localStorage.getItem("onboardingState")
-      if (onboardingState) {
-        localStorage.removeItem("onboardingState")
-        router.push("/generate/results")
-        return
-      }
       // Redirect to subscription page for new users
       router.push("/subscribe")
     } catch (err: any) {

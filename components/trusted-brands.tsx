@@ -73,9 +73,6 @@ export default function TrustedBrands() {
         <h3 className="heading-3 text-gray-300">
           Trusted by Leading Fashion Brands Worldwide
         </h3>
-        <p className="text-lead text-gray-400">
-          Join thousands of successful brands already using Zarta AI to transform their product photography
-        </p>
       </div>
 
       <div className="relative overflow-hidden">

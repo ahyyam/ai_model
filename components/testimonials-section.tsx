@@ -82,7 +82,6 @@ export default function TestimonialsSection() {
         <>
           <div className="text-center max-w-4xl mx-auto mb-20 px-4 space-md">
             <h2 className="heading-2 text-white">Trusted by Fashion Brands Worldwide</h2>
-            <p className="text-lead text-gray-400">See how leading brands are transforming their product photography and boosting sales with AI</p>
           </div>
 
       <div className="max-w-6xl mx-auto px-4">

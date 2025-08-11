@@ -48,7 +48,7 @@ export default function LandingPage() {
           <meta itemProp="name" content="AI Fashion Photography Features" />
           <meta itemProp="description" content="Key features of Zarta's AI-powered fashion photography platform" />
           <header className="text-center mb-12">
-            <h2 className="heading-2 mb-6" itemProp="name">AI Fashion Photography Features</h2>
+            <h2 className="heading-2 mb-8" itemProp="name">AI Fashion Photography Features</h2>
           </header>
           <FeatureSection
             title="Unlimited Looks. No Photoshoot Required."

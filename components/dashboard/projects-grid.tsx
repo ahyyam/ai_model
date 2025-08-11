@@ -349,7 +349,7 @@ export function ProjectsGrid() {
             </h3>
             <p className="text-muted mb-6">
               {projects.length === 0 
-                ? "Start creating amazing AI-generated fashion photography"
+                ? ""
                 : "Try adjusting your search or filter criteria"
               }
             </p>

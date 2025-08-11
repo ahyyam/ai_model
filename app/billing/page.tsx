@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { CreditCard, ExternalLink, Loader2, AlertCircle, AlertTriangle, Sparkles, Check, ArrowRight, Crown, Zap, X, ChevronDown, ChevronUp } from "lucide-react"
+import { CreditCard, ExternalLink, Loader2, AlertCircle, AlertTriangle, Sparkles, Check, ArrowRight, Crown, Zap, X, ChevronDown, ChevronUp, Calendar } from "lucide-react"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth"
 import { getUserData, UserData, syncSubscriptionFromStripe, createUserData } from "@/lib/users"
@@ -35,7 +35,7 @@ const plans = [
   {
     id: "basic",
     name: "Basic",
-    price: "$30",
+    price: "$29",
     period: "",
     description: "Perfect for getting started with image generation.",
     features: ["10 image generations", "Basic styling options", "Email support"],
@@ -46,7 +46,7 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    price: "$40",
+    price: "$39",
     period: "",
     description: "Great value for growing businesses and creators.",
     features: ["20 image generations", "Advanced styling options", "Priority processing", "Priority support"],
@@ -57,7 +57,7 @@ const plans = [
   {
     id: "elite",
     name: "Elite",
-    price: "$75",
+    price: "$74",
     period: "",
     description: "Best value for high-volume image generation needs.",
     features: ["50 image generations", "All Pro features", "Custom integrations", "Dedicated support"],
@@ -71,7 +71,7 @@ const addOnPacks = [
   {
     id: "mini",
     name: "Mini Pack",
-    price: "$10",
+    price: "$9",
     description: "Quick boost for small projects",
     features: ["5 additional tokens", "Instant delivery", "Same quality"],
     popular: false,
@@ -81,7 +81,7 @@ const addOnPacks = [
   {
     id: "standard",
     name: "Standard Pack",
-    price: "$20",
+    price: "$19",
     description: "Perfect for most projects",
     features: ["15 additional tokens", "Instant delivery", "Priority processing"],
     popular: true,
@@ -91,7 +91,7 @@ const addOnPacks = [
   {
     id: "plus",
     name: "Plus Pack",
-    price: "$30",
+    price: "$29",
     description: "Best value for larger projects",
     features: ["25 additional tokens", "Instant delivery", "Priority processing", "Dedicated support"],
     popular: false,
@@ -108,6 +108,7 @@ export default function BillingPage() {
   const [stripeCustomer, setStripeCustomer] = useState<StripeCustomer | null>(null)
   const [invoices, setInvoices] = useState<any[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
+  const [isLoadingCustomerData, setIsLoadingCustomerData] = useState(false)
   const [hasOnboardingState, setHasOnboardingState] = useState(false)
   const [showUnsubscribeDialog, setShowUnsubscribeDialog] = useState(false)
   const [showChangePlanOptions, setShowChangePlanOptions] = useState(false)
@@ -142,14 +143,17 @@ export default function BillingPage() {
       if (data.error) {
         // Handle specific portal configuration error
         if (data.details && data.details.includes('customer portal needs to be configured')) {
+          setPortalConfigIssue(true)
           throw new Error("Billing management is currently being set up. Please contact support for immediate assistance with your subscription.")
         }
         // Handle other specific errors
         if (data.error.includes('customer portal not configured')) {
+          setPortalConfigIssue(true)
           throw new Error("Billing management is currently being set up. Please contact support for immediate assistance with your subscription.")
         }
         // Handle generic portal session errors
         if (data.error.includes('Failed to create portal session')) {
+          setPortalConfigIssue(true)
           throw new Error("Billing management is currently being set up. Please contact support for immediate assistance with your subscription.")
         }
         throw new Error(data.error)
@@ -197,7 +201,7 @@ export default function BillingPage() {
         body: JSON.stringify({
           email: user.email,
           plan: plan,
-          success_url: `${window.location.origin}/billing?success=true`,
+          success_url: `${window.location.origin}/billing/success?plan=${plan}`,
           cancel_url: `${window.location.origin}/billing?canceled=true`,
         }),
       })
@@ -283,6 +287,7 @@ export default function BillingPage() {
           
           // If user has a Stripe customer ID, fetch additional Stripe data
           if (userDataResult?.stripeCustomerId) {
+            setIsLoadingCustomerData(true)
             // Fetch customer data
             const customerResponse = await fetch(`/api/stripe/customer?customerId=${userDataResult.stripeCustomerId}`)
             const customerData = await customerResponse.json()
@@ -296,8 +301,13 @@ export default function BillingPage() {
               
               if (invoicesData.invoices) {
                 setInvoices(invoicesData.invoices)
+                console.log('Invoices loaded:', invoicesData.invoices)
+                if (invoicesData.invoices.length > 0) {
+                  console.log('First invoice structure:', invoicesData.invoices[0])
+                }
               }
             }
+            setIsLoadingCustomerData(false)
           }
         } catch (error) {
           console.error("Error fetching customer data:", error)
@@ -349,6 +359,24 @@ export default function BillingPage() {
     return statusColors[status as keyof typeof statusColors] || "bg-gray-500/20 text-gray-400 border-gray-500/30"
   }
 
+  // Helper function to get plan name from price ID
+  const getPlanNameFromPriceId = (priceId: string) => {
+    if (!priceId) return 'Subscription'
+    
+    const planMap: { [key: string]: string } = {
+      // Subscription plans
+      [process.env.STRIPE_BASIC_PRICE_ID || '']: 'Basic Plan',
+      [process.env.STRIPE_PRO_PRICE_ID || '']: 'Pro Plan',
+      [process.env.STRIPE_ELITE_PRICE_ID || '']: 'Elite Plan',
+      // Token packs
+      [process.env.STRIPE_MINI_PRICE_ID || '']: 'Mini Token Pack',
+      [process.env.STRIPE_STANDARD_PRICE_ID || '']: 'Standard Token Pack',
+      [process.env.STRIPE_PLUS_PRICE_ID || '']: 'Plus Token Pack',
+    }
+    
+    return planMap[priceId] || 'Unknown Plan'
+  }
+
   // If user is not logged in, show pricing section
   if (!user) {
     return (
@@ -357,21 +385,6 @@ export default function BillingPage() {
           <h1 className="text-3xl font-bold text-white font-sora">Choose Your Plan</h1>
           <p className="text-gray-400 mt-1">Simple, transparent pricing that scales with your needs.</p>
         </div>
-
-        {/* Onboarding State Message */}
-        {hasOnboardingState && (
-          <Card className="bg-blue-900/20 border-blue-500/30 text-white">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-blue-400" />
-                Complete Your Generation
-              </CardTitle>
-              <CardDescription>
-                You have a pending image generation. Create an account and choose a plan to continue.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        )}
 
         {/* Pricing Plans - Matching the pricing section design */}
         <div className="grid md:grid-cols-3 gap-6">
@@ -464,18 +477,18 @@ export default function BillingPage() {
         <p className="text-gray-400 mt-1">Manage your subscription and view billing history.</p>
       </div>
 
-      {/* Onboarding State Message */}
-      {hasOnboardingState && (
-        <Card className="bg-blue-900/20 border-blue-500/30 text-white">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-400" />
-              Complete Your Generation
-            </CardTitle>
-            <CardDescription>
-              You have a pending image generation. Choose a plan to continue and generate your image.
-            </CardDescription>
-          </CardHeader>
+      {/* Error Display */}
+      {error && (
+        <Card className="bg-red-900/20 border-red-500/30 text-white">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-400 font-medium mb-1">Billing Error</p>
+                <p className="text-red-300 text-sm">{error}</p>
+              </div>
+            </div>
+          </CardContent>
         </Card>
       )}
 
@@ -485,7 +498,6 @@ export default function BillingPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-yellow-400" />
                 Current Subscription
               </CardTitle>
               <CardDescription>
@@ -505,98 +517,75 @@ export default function BillingPage() {
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ExternalLink className="mr-2 h-4 w-4" />}
                 Manage
               </Button>
-              <div className="text-xs text-gray-500 mt-2">
-                Note: Billing management portal is being configured. Contact support for immediate assistance.
-              </div>
+              {portalConfigIssue && (
+                <div className="text-xs text-yellow-500 mt-2">
+                  Note: Billing management portal is being configured. Contact support for immediate assistance.
+                </div>
+              )}
             </div>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-4xl font-bold">
-                  {formatAmount(subscription.plan.amount, subscription.plan.currency)}
-                  <span className="text-lg font-normal text-gray-400">/{subscription.plan.interval}</span>
-                </p>
-                <Badge className={getStatusBadge(subscription.status)}>
-                  {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
-                </Badge>
+            {isLoadingCustomerData ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-blue-500 mr-2" />
+                <span className="text-gray-400">Loading subscription details...</span>
               </div>
-              <p className="text-sm text-gray-400">
-                {subscription.current_period_end && subscription.current_period_end > 0 
-                  ? `Next billing date: ${formatDate(subscription.current_period_end)}`
-                  : "Billing cycle information not available. Please contact support if you need billing details."
-                }
-              </p>
-            </div>
-
-            {/* Change Plan Options */}
-            {showChangePlanOptions && (
-              <div className="mt-6 space-y-4">
-                <div className="border-t border-gray-700 pt-4">
-                  <h4 className="text-lg font-semibold mb-4">Upgrade or Downgrade Your Plan</h4>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {plans.map((plan) => (
-                      <div key={plan.id} className="relative">
-                        <Card className="bg-gray-800/30 border-gray-600 hover:border-gray-500 transition-colors">
-                          <CardHeader className="pb-3">
-                            <CardTitle className="text-lg">{plan.name}</CardTitle>
-                            <div className="flex items-baseline">
-                              <span className="text-xl font-bold">{plan.price}</span>
-                            </div>
-                            <p className="text-sm text-gray-400">{plan.description}</p>
-                          </CardHeader>
-                          <CardContent className="pt-0">
-                            <Button
-                              onClick={() => handleSubscribe(plan.id as 'basic' | 'pro' | 'elite')}
-                              disabled={isLoading}
-                              className="w-full bg-blue-600 hover:bg-blue-700"
-                              size="sm"
-                            >
-                              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                              {plan.id === subscription.plan.nickname?.toLowerCase() ? 'Current Plan' : 'Switch to ' + plan.name}
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ))}
+            ) : (
+              <>
+                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-4xl font-bold">
+                      {formatAmount(subscription.plan.amount, subscription.plan.currency)}
+                      <span className="text-lg font-normal text-gray-400">/{subscription.plan.interval}</span>
+                    </p>
+                    <Badge className={getStatusBadge(subscription.status)}>
+                      {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                    </Badge>
                   </div>
+                  <p className="text-sm text-gray-400">
+                    {subscription.current_period_end && subscription.current_period_end > 0 
+                      ? `Next billing date: ${formatDate(subscription.current_period_end)}`
+                      : "Billing cycle information not available. Please contact support if you need billing details."
+                    }
+                  </p>
                 </div>
-              </div>
-            )}
 
-            {/* Unsubscribe Button */}
-            <div className="mt-6 pt-4 border-t border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-lg font-semibold text-red-400">Cancel Subscription</h4>
-                  <p className="text-sm text-gray-400">You'll lose access to your current plan benefits at the end of your billing period.</p>
-                </div>
-                <Dialog open={showUnsubscribeDialog} onOpenChange={setShowUnsubscribeDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
-                      <X className="mr-2 h-4 w-4" />
-                      Unsubscribe
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-[#1c1c1c] border-gray-700 text-white">
-                    <DialogHeader>
-                      <DialogTitle className="text-red-400">Cancel Subscription</DialogTitle>
-                      <DialogDescription className="text-gray-300">
-                        Are you sure you want to cancel your subscription? You'll lose access to your current plan benefits at the end of your billing period.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setShowUnsubscribeDialog(false)} className="border-gray-600 text-gray-300">
-                        Keep Subscription
-                      </Button>
-                      <Button variant="destructive" onClick={handleUnsubscribe} className="bg-red-600 hover:bg-red-700">
-                        Yes, Cancel Subscription
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
+                {/* Change Plan Options */}
+                {showChangePlanOptions && (
+                  <div className="mt-6 space-y-4">
+                    <div className="border-t border-gray-700 pt-4">
+                      <h4 className="text-lg font-semibold mb-4">Upgrade or Downgrade Your Plan</h4>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        {plans.map((plan) => (
+                          <div key={plan.id} className="relative">
+                            <Card className="bg-gray-800/30 border-gray-600 hover:border-gray-500 transition-colors">
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-lg">{plan.name}</CardTitle>
+                                <div className="flex items-baseline">
+                                  <span className="text-xl font-bold">{plan.price}</span>
+                                </div>
+                                <p className="text-sm text-gray-400">{plan.description}</p>
+                              </CardHeader>
+                              <CardContent className="pt-0">
+                                <Button
+                                  onClick={() => handleSubscribe(plan.id as 'basic' | 'pro' | 'elite')}
+                                  disabled={isLoading}
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                  size="sm"
+                                >
+                                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                  {plan.id === subscription.plan.nickname?.toLowerCase() || plan.id === subscription.plan.nickname ? 'Current Plan' : 'Switch to ' + plan.name}
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -741,137 +730,74 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* Portal Configuration Notice */}
-      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-yellow-400 font-medium">Billing Portal Setup</p>
-            <p className="text-yellow-300 text-sm mt-1">
-              Our billing management portal is currently being configured. For immediate assistance with your subscription, 
-              please contact our support team at <span className="font-medium">support@zarta.com</span>. 
-              You can still view your current plan details and billing information below.
-            </p>
-            <div className="mt-3 flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20"
-                onClick={() => window.open('mailto:support@zarta.com?subject=Billing%20Portal%20Access', '_blank')}
-              >
-                Contact Support
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20"
-                onClick={() => window.open('https://help.zarta.com/billing', '_blank')}
-              >
-                View Help Docs
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Method */}
-      {stripeCustomer ? (
-        <Card className="bg-[#1c1c1c] border-gray-800 text-white">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Payment Method</CardTitle>
-              <CardDescription>Update your payment details</CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleManageSubscription}
-              disabled={isLoading}
-              className="border-gray-700 text-gray-300 hover:bg-gray-800 bg-transparent"
-            >
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Update Payment
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4 bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-              <CreditCard className="h-8 w-8 text-gray-400" />
-              <div>
-                <p className="font-semibold">Payment method on file</p>
-                <p className="text-sm text-gray-400">Manage your payment method in the billing portal</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="bg-[#1c1c1c] border-gray-800 text-white">
-          <CardHeader>
-            <CardTitle>Payment Method</CardTitle>
-            <CardDescription>No payment method on file</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4 bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-              <CreditCard className="h-8 w-8 text-gray-400" />
-              <div>
-                <p className="font-semibold">No payment method</p>
-                <p className="text-sm text-gray-400">Add a payment method when you subscribe</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Billing History */}
-      <Card className="bg-[#1c1c1c] border-gray-800 text-white">
+      <Card className="bg-gradient-to-br from-[#1c1c1c] to-[#1a1a1a] border-gray-700/50 text-white shadow-lg">
         <CardHeader>
-          <CardTitle>Billing History</CardTitle>
-          <CardDescription>View your past invoices</CardDescription>
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <CreditCard className="h-6 w-6 text-blue-400" />
+            Billing History
+          </CardTitle>
+          <CardDescription className="text-gray-300">
+            View your subscription and purchase history
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {invoices.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-gray-700 hover:bg-gray-800/50">
-                  <TableHead className="text-white">Invoice</TableHead>
-                  <TableHead className="text-white">Date</TableHead>
-                  <TableHead className="text-white">Amount</TableHead>
-                  <TableHead className="text-white">Status</TableHead>
-                  <TableHead className="text-right text-white">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((invoice) => (
-                  <TableRow key={invoice.id} className="border-gray-700 hover:bg-gray-800/50">
-                    <TableCell className="font-medium">{invoice.id}</TableCell>
-                    <TableCell>{formatDate(invoice.created)}</TableCell>
-                    <TableCell>{formatAmount(invoice.amount_paid)}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusBadge(invoice.status)}>
+            <div className="space-y-4">
+              {invoices.map((invoice, index) => (
+                <div 
+                  key={invoice.id} 
+                  className="bg-gray-800/30 rounded-lg border border-gray-700/50 p-4 hover:border-gray-600/50 transition-all duration-200 hover:bg-gray-800/40"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <h4 className="font-semibold text-white">
+                          {invoice.price?.id ? getPlanNameFromPriceId(invoice.price.id) : 
+                            invoice.lines?.data?.[0]?.description || 'Subscription'}
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-6 text-sm text-gray-400">
+                        <span className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          {invoice.created ? formatDate(invoice.created) : 'N/A'}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          {formatAmount(invoice.amount_paid)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge className={`${getStatusBadge(invoice.status)} px-3 py-1`}>
                         {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {invoice.hosted_invoice_url ? (
+                      {invoice.hosted_invoice_url && (
                         <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          title="View Invoice"
+                          variant="outline" 
+                          size="sm"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                           onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
                         >
-                          <ExternalLink className="h-4 w-4" />
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View
                         </Button>
-                      ) : (
-                        <span className="text-gray-400 text-sm">N/A</span>
                       )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="text-center py-8">
-              <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-400">No billing history available</p>
-              <p className="text-sm text-gray-500 mt-1">Invoices will appear here once you have an active subscription</p>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">No billing history yet</h3>
+              <p className="text-gray-500 max-w-md mx-auto">
+                Your subscription and purchase history will appear here once you have an active subscription or make purchases.
+              </p>
             </div>
           )}
         </CardContent>

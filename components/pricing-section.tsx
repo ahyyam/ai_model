@@ -20,7 +20,7 @@ const plans = [
   {
     id: "basic",
     name: "Basic",
-    price: "$30",
+    price: "$29",
     period: "",
     description: "Perfect for small brands and creators getting started with AI fashion photography.",
     features: ["10 AI image generations", "Basic styling options", "Standard model types", "Email support", "HD downloads"],
@@ -31,7 +31,7 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    price: "$40",
+    price: "$39",
     period: "",
     description: "Ideal for growing businesses and active e-commerce brands.",
     features: ["20 AI image generations", "Advanced styling options", "Premium model types", "Priority processing", "Priority support", "4K downloads"],
@@ -42,7 +42,7 @@ const plans = [
   {
     id: "elite",
     name: "Elite",
-    price: "$75",
+    price: "$74",
     period: "",
     description: "Best for high-volume brands and agencies requiring maximum output.",
     features: ["50 AI image generations", "All Pro features", "Custom brand training", "API access", "Dedicated support", "Unlimited revisions"],
@@ -104,7 +104,6 @@ export default function PricingSection() {
         <>
           <div className="container-zarta mx-auto text-center mb-16 space-md">
             <h2 className="heading-2">Choose Your Plan</h2>
-            <p className="text-lead text-gray-400">Simple, transparent pricing that scales with your business. Start small and grow with us.</p>
           </div>
           
           <div className="container-zarta mx-auto">

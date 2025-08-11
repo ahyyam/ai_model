@@ -107,7 +107,7 @@ export const generatePageSEO = {
   
   pricing: () => ({
     title: 'Pricing Plans | AI Fashion Photography',
-    description: 'Choose the perfect Zarta plan for your fashion photography needs. Starting at $30/month for professional AI-generated visuals.',
+    description: 'Choose the perfect Zarta plan for your fashion photography needs. Starting at $29/month for professional AI-generated visuals.',
     keywords: ['AI photography pricing', 'fashion photography plans', 'e-commerce photography cost'],
     url: '/pricing'
   }),

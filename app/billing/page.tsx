@@ -600,16 +600,6 @@ export default function BillingPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="h-5 w-5 text-yellow-500" />
-                  <div>
-                    <p className="text-gray-300">Free Plan Limitations</p>
-                    <p className="text-sm text-gray-400">You're currently on the free plan with limited generations. Choose a plan to get started.</p>
-                  </div>
-                </div>
-              </div>
-              
               {/* Subscription Plans */}
               <div className="grid md:grid-cols-3 gap-6">
                 {plans.map((plan) => (

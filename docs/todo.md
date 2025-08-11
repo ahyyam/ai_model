@@ -54,4 +54,7 @@
 ### Analytics ✅
 - Integrated Meta Pixel via `app/layout.tsx` using `NEXT_PUBLIC_FB_PIXEL_ID`, with noscript fallback
 
+### Content Cleanup ✅
+- Removed tagline under features header on landing page
+
 

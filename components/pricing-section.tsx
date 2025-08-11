@@ -56,7 +56,7 @@ export default function PricingSection() {
   const [user, setUser] = useState<any>(null)
   const [api, setApi] = useState<any>(null)
   const [current, setCurrent] = useState(1) // Start with Pro (index 1)
-  const [isVisible, setIsVisible] = useState(false)
+  const isVisible = true
   const sectionRef = useRef<HTMLElement>(null)
   const router = useRouter()
 
@@ -80,24 +80,7 @@ export default function PricingSection() {
     }, 100)
   }, [api])
 
-  // Intersection Observer for performance
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
+  // Render immediately without intersection gating
 
   const handleGetStarted = (planName: string) => {
     if (user) {

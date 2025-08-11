@@ -57,7 +57,7 @@ const testimonials = [
 export default function TestimonialsSection() {
   const [api, setApi] = useState<any>(null)
   const [current, setCurrent] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
+  const isVisible = true
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -68,24 +68,7 @@ export default function TestimonialsSection() {
     })
   }, [api])
 
-  // Intersection Observer for performance
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
+  // Render immediately without intersection gating
 
   const scrollTo = (index: number) => {
     api?.scrollTo(index)

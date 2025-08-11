@@ -53,6 +53,7 @@
 
 ### Analytics ✅
 - Integrated Google Analytics (gtag.js) via `app/layout.tsx` using tracking ID G-810HSMQQJB
+- Integrated Meta Pixel via `app/layout.tsx` using tracking ID 1372974370809808
 
 
 ### Content Cleanup ✅

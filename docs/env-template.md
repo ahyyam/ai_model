@@ -64,6 +64,13 @@ VERCEL_URL=your-app.vercel.app
 NEXT_PUBLIC_GA_ID=G-810HSMQQJB
 ```
 
+# Meta Pixel
+
+```env
+# Meta Pixel Tracking ID
+NEXT_PUBLIC_FB_PIXEL_ID=1372974370809808
+```
+
 ## Setup Instructions
 
 1. **Firebase Setup:**

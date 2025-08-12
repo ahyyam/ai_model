@@ -108,7 +108,7 @@ export default function HeroSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           
           {/* Left Column - Hero Content */}
-          <div className="text-center lg:text-left order-2 lg:order-1 space-lg">
+          <div className="text-center lg:text-left order-1 space-lg mb-8 lg:mb-0">
             {/* Main Headline */}
             <header className="space-lg">
               <h1 className="space-md" itemProp="headline">
@@ -174,7 +174,7 @@ export default function HeroSection() {
           </div>
 
           {/* Right Column - 1.5 Sliding Images */}
-          <div className="flex flex-col items-center lg:items-end order-1 lg:order-2 mb-8 lg:mb-0">
+          <div className="flex flex-col items-center lg:items-end order-2 mb-8 lg:mb-0">
             <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-3xl">
               <div className="flex gap-3 lg:gap-4">
                 {/* Full Image - Slides Down */}
